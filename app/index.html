@@ -260,7 +260,9 @@ li.done .dot{background:var(--brand);opacity:.5} li.cur .dot{background:var(--br
 .searchrow{display:flex;gap:8px}
 .searchrow input{flex:1;min-width:0}
 #reader{width:100%;border-radius:12px;overflow:hidden;background:#000;min-height:200px}
-#reader video{width:100%!important;display:block}
+#reader{position:relative}
+#reader video{width:100%!important;display:block;max-height:52vh;object-fit:cover}
+.scanframe{position:absolute;left:8%;right:8%;top:30%;bottom:30%;border:3px solid #fff;border-radius:14px;box-shadow:0 0 0 999px rgba(0,0,0,.35);pointer-events:none}
 .qty{display:flex;align-items:center;gap:8px;margin:12px 0}
 .qty input{text-align:center;font-size:20px;font-weight:700}
 .qty button{flex:none;width:48px;padding:0}
@@ -639,7 +641,6 @@ li.done .dot{background:var(--brand);opacity:.5} li.cur .dot{background:var(--br
       <p class="small muted" id="scanMsg" style="text-align:center"></p>
       <button type="button" class="soft" id="scanPhotoBtn" style="width:100%;margin-bottom:10px">📸 Prendre le code-barres en photo</button>
       <input type="file" id="scanPhoto" accept="image/*" capture="environment" class="hidden">
-      <div id="scanFileTmp" style="display:none"></div>
       <form id="eanForm" class="searchrow">
         <input id="eanIn" inputmode="numeric" pattern="[0-9]{8,14}" placeholder="Ou tapez le code-barres" required>
         <button type="submit">OK</button>
@@ -1118,67 +1119,63 @@ async function offProduct(code){
 function loadScript(src){
   return new Promise((res, rej) => { const el = document.createElement('script'); el.src = src; el.onload = res; el.onerror = rej; document.head.appendChild(el); });
 }
-// Scan : détecteur natif du téléphone quand il existe (Android), sinon lecteur ZXing (iPhone).
-// En secours : photo du code-barres (plus nette que le flux vidéo) ou saisie des chiffres.
-const SCAN_LIB = 'https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js';
-let nativeStream = null, nativeTimer = null, hintTimer = null;
-async function nativeDetector(){
-  if (!('BarcodeDetector' in window)) return null;
-  try {
-    const sup = await window.BarcodeDetector.getSupportedFormats();
-    const formats = ['ean_13', 'ean_8', 'upc_a', 'upc_e'].filter(f => sup.includes(f));
-    return formats.length ? new window.BarcodeDetector({formats}) : null;
-  } catch(_) { return null; }
-}
-async function zxing(){
-  if (!window.Html5Qrcode) await loadScript(SCAN_LIB);
-  return window.Html5QrcodeSupportedFormats;
+// Scan : détecteur de codes-barres du téléphone (Android) ou, à défaut, moteur ZXing-C++ (WebAssembly)
+// qui offre la même interface sur iPhone. En secours : photo du code-barres ou saisie des chiffres.
+const BD_LIB = 'https://cdn.jsdelivr.net/npm/barcode-detector@3.2.3/dist/iife/ponyfill.js';
+const BD_FORMATS = ['ean_13', 'ean_8', 'upc_a', 'upc_e'];
+let nativeStream = null, nativeTimer = null, hintTimer = null, detectorP = null;
+function getDetector(){
+  return detectorP ||= (async () => {
+    if ('BarcodeDetector' in window) {
+      try { const sup = await window.BarcodeDetector.getSupportedFormats(); if (sup.includes('ean_13')) return new window.BarcodeDetector({formats: BD_FORMATS.filter(f => sup.includes(f))}); } catch(_) {}
+    }
+    if (!window.BarcodeDetectionAPI) await loadScript(BD_LIB);
+    return new window.BarcodeDetectionAPI.BarcodeDetector({formats: BD_FORMATS});
+  })().catch(e => { detectorP = null; throw Object.assign(new Error('lib'), {name: 'LibError'}); });
 }
 function cameraError(e){
-  const n = e && (e.name || String(e));
-  if (/NotAllowed|Permission/i.test(n)) return 'Accès à la caméra refusé. iPhone : Réglages › Safari › Caméra › Autoriser. Android : touchez le cadenas à côté de l\'adresse › Autorisations › Caméra. Ou prenez le code en photo ci-dessous.';
-  if (/NotFound|Overconstrained/i.test(n)) return 'Aucune caméra arrière trouvée. Prenez le code en photo ou tapez les chiffres.';
-  if (/NotReadable|TrackStart/i.test(n)) return 'La caméra est utilisée par une autre application. Fermez-la puis réessayez.';
-  if (e && e.type === 'error') return 'Le lecteur de code-barres n\'a pas pu se charger (connexion ?). Tapez les chiffres du code-barres.';
-  return 'Caméra indisponible. Prenez le code en photo ou tapez les chiffres ci-dessous.';
+  const n = (e && (e.name || e.message)) || String(e);
+  const tip = ' Utilisez le bouton photo 📸 ou tapez les chiffres.';
+  if (/NotAllowed|Permission|Security/i.test(n)) return 'Accès à la caméra refusé. Dans Safari : touchez « aA » à côté de l\'adresse › Réglages du site web › Caméra › Autoriser, puis rouvrez le scan.' + tip;
+  if (/NotFound|Overconstrained/i.test(n)) return 'Aucune caméra disponible.' + tip;
+  if (/NotReadable|TrackStart|Abort/i.test(n)) return 'La caméra est utilisée par une autre application. Fermez-la puis réessayez.' + tip;
+  if (/LibError/i.test(n)) return 'Le lecteur de codes-barres n\'a pas pu se charger (connexion ?).' + tip;
+  return `Caméra indisponible (${n}).` + tip;
 }
 async function startScan(){
   showPanel('Scan'); $('#eanIn').value = '';
   const msg = $('#scanMsg'); msg.textContent = 'Ouverture de la caméra…';
   const tok = ++scanToken; // ignoré si l'utilisateur a entre-temps tapé un code ou quitté le scan
   const stale = () => tok !== scanToken || $('#pScan').classList.contains('hidden');
-  const found = code => { stopScan(); lookupCode(code); };
   try {
     if (!navigator.mediaDevices?.getUserMedia) throw {name: 'NotFound'};
-    const det = await nativeDetector();
+    // La caméra d'abord (l'autorisation doit suivre le geste de l'utilisateur), le moteur de lecture en parallèle
+    const detP = getDetector();
+    const stream = await navigator.mediaDevices.getUserMedia({audio: false, video: {facingMode: {ideal: 'environment'}, width: {ideal: 1920}, height: {ideal: 1080}}});
+    if (stale()) { stream.getTracks().forEach(t => t.stop()); return; }
+    nativeStream = stream;
+    const v = document.createElement('video');
+    v.setAttribute('playsinline', ''); v.setAttribute('muted', ''); v.muted = true; v.autoplay = true; v.srcObject = stream;
+    const frame = document.createElement('div'); frame.className = 'scanframe';
+    $('#reader').replaceChildren(v, frame);
+    await v.play().catch(() => {});
+    msg.textContent = 'Chargement du lecteur…';
+    const det = await detP;
     if (stale()) return;
-    if (det) {
-      const stream = await navigator.mediaDevices.getUserMedia({audio: false, video: {facingMode: {ideal: 'environment'}, width: {ideal: 1920}, height: {ideal: 1080}}});
-      if (stale()) { stream.getTracks().forEach(t => t.stop()); return; }
-      const v = document.createElement('video');
-      v.setAttribute('playsinline', ''); v.muted = true; v.srcObject = stream;
-      $('#reader').replaceChildren(v); await v.play();
-      nativeStream = stream;
-      const loop = async () => {
-        if (!nativeStream) return;
-        try { const r = await det.detect(v); if (r.length) return found(r[0].rawValue); } catch(_) {}
-        nativeTimer = setTimeout(loop, 150);
-      };
-      loop();
-    } else {
-      const F = await zxing();
-      if (stale()) return;
-      scanner = new window.Html5Qrcode('reader', {verbose: false, formatsToSupport: [F.EAN_13, F.EAN_8, F.UPC_A, F.UPC_E], experimentalFeatures: {useBarCodeDetectorIfSupported: true}});
-      await scanner.start({facingMode: 'environment'}, {
-        fps: 15, aspectRatio: 1.777778,
-        qrbox: (w, h) => ({width: Math.max(150, Math.floor(w * 0.9)), height: Math.max(80, Math.floor(Math.min(h * 0.55, w * 0.5)))}),
-        videoConstraints: {facingMode: 'environment', width: {ideal: 1920}, height: {ideal: 1080}, focusMode: 'continuous'}
-      }, found, () => {});
-      if (stale()) { stopScan(); return; }
-    }
     msg.textContent = 'Placez le code-barres dans le cadre, à 10–15 cm, bien éclairé';
+    const loop = async () => {
+      if (!nativeStream || stale()) return;
+      try {
+        if (v.readyState >= 2) {
+          const r = await det.detect(v);
+          if (r.length && r[0].rawValue) { const code = r[0].rawValue; stopScan(); if (navigator.vibrate) navigator.vibrate(80); return lookupCode(code); }
+        }
+      } catch(_) {}
+      nativeTimer = setTimeout(loop, 120);
+    };
+    loop();
     clearTimeout(hintTimer);
-    hintTimer = setTimeout(() => { if (!stale() && (scanner || nativeStream)) msg.textContent = 'Ça ne détecte pas ? Prenez plutôt le code-barres en photo 📸, ou tapez les chiffres.'; }, 12000);
+    hintTimer = setTimeout(() => { if (!stale() && nativeStream) msg.textContent = 'Ça ne détecte pas ? Prenez plutôt le code-barres en photo 📸, ou tapez les chiffres.'; }, 12000);
   } catch(e) {
     console.warn('scan', e);
     stopScan();
@@ -1187,42 +1184,31 @@ async function startScan(){
 }
 function stopScan(){
   clearTimeout(hintTimer); clearTimeout(nativeTimer);
-  if (nativeStream) { nativeStream.getTracks().forEach(t => t.stop()); nativeStream = null; $('#reader').replaceChildren(); }
-  const sc = scanner; scanner = null;
-  if (sc) { try { Promise.resolve(sc.stop()).catch(() => {}).finally(() => { try { sc.clear(); } catch(_) {} }); } catch(_) { try { sc.clear(); } catch(_) {} } }
+  if (nativeStream) { nativeStream.getTracks().forEach(t => t.stop()); nativeStream = null; }
+  $('#reader').replaceChildren();
 }
-// Photo : réduite à 1600 px pour un décodage rapide
-function shrink(file, max = 1600){
-  return new Promise((res) => {
-    const img = new Image(); const url = URL.createObjectURL(file);
-    img.onload = () => {
-      const k = Math.min(1, max / Math.max(img.width, img.height));
-      const c = document.createElement('canvas'); c.width = Math.round(img.width * k); c.height = Math.round(img.height * k);
-      c.getContext('2d').drawImage(img, 0, 0, c.width, c.height); URL.revokeObjectURL(url);
-      c.toBlob(b => res(b ? new File([b], 'code.jpg', {type: 'image/jpeg'}) : file), 'image/jpeg', 0.92);
-    };
-    img.onerror = () => { URL.revokeObjectURL(url); res(file); };
-    img.src = url;
-  });
-}
+// Photo : on essaie l'image entière puis des versions réduites (le code est souvent petit sur une grande photo)
 async function decodePhoto(file){
-  const det = await nativeDetector();
-  if (det) {
-    const r = await det.detect(await createImageBitmap(file));
-    if (r.length) return r[0].rawValue;
+  const det = await getDetector();
+  const bmp = await createImageBitmap(file);
+  for (const max of [0, 1600, 1000]) {
+    let src = bmp;
+    if (max && Math.max(bmp.width, bmp.height) > max) {
+      const k = max / Math.max(bmp.width, bmp.height);
+      const c = document.createElement('canvas'); c.width = Math.round(bmp.width * k); c.height = Math.round(bmp.height * k);
+      c.getContext('2d').drawImage(bmp, 0, 0, c.width, c.height); src = c;
+    } else if (max) continue;
+    try { const r = await det.detect(src); if (r.length && r[0].rawValue) return r[0].rawValue; } catch(_) {}
   }
-  const F = await zxing();
-  const h = new window.Html5Qrcode('scanFileTmp', {verbose: false, formatsToSupport: [F.EAN_13, F.EAN_8, F.UPC_A, F.UPC_E]});
-  try { return await h.scanFile(await shrink(file), false); }
-  finally { try { h.clear(); } catch(_) {} }
+  throw new Error('nocode');
 }
-$('#scanPhotoBtn').onclick = () => { stopScan(); $('#scanPhoto').click(); };
+$('#scanPhotoBtn').onclick = () => { scanToken++; stopScan(); $('#scanPhoto').click(); };
 $('#scanPhoto').onchange = async e => {
   const f = e.target.files[0]; e.target.value = ''; if (!f) return;
   scanToken++;
   const msg = $('#scanMsg'); msg.textContent = 'Lecture du code-barres…';
   try { lookupCode(String(await decodePhoto(f)).trim()); }
-  catch(_) { msg.textContent = 'Code non lu sur la photo. Cadrez le code-barres de près, bien net et à plat, ou tapez les chiffres.'; }
+  catch(err) { msg.textContent = err.name === 'LibError' ? cameraError(err) : 'Code non lu sur la photo. Cadrez le code-barres de près, bien net et à plat, ou tapez les chiffres.'; }
 };
 async function lookupCode(code){
   scanToken++;
