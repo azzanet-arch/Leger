@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+Disallow: /app/legal.html
+Sitemap: https://azzanet-arch.github.io/leger/sitemap.xml
