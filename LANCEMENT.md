@@ -1,7 +1,7 @@
 # Kit de lancement Léger — réseaux sociaux
 
 Objectif : amener des visiteurs sur la page d'accueil et les faire démarrer l'essai gratuit de 7 jours.
-Lien à mettre partout : **https://azzanet-arch.github.io/leger/** (ou votre nom de domaine plus tard).
+Lien à mettre partout : **https://azzanet-arch.github.io/Leger/** (ou votre nom de domaine plus tard).
 
 ---
 

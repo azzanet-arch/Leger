@@ -14,7 +14,7 @@ Les données de santé (poids, repas…) restent dans le téléphone. Seuls l'e-
 1. Créez un projet sur supabase.com (région **UE, Francfort**, pour le RGPD).
 2. **SQL Editor** › collez et exécutez `supabase/migrations/20261113000000_abonnements.sql`.
 3. **Authentication › URL Configuration** :
-   - Site URL = l'adresse publique de l'app, ex. `https://azzanet-arch.github.io/leger/app/`
+   - Site URL = l'adresse publique de l'app, ex. `https://azzanet-arch.github.io/Leger/app/`
    - Redirect URLs : ajoutez la même adresse.
 4. **Authentication › Emails › Templates** : remplacez les modèles anglais par les modèles français fournis.
    - **Confirm signup** : objet `Bienvenue sur Léger : confirmez votre e-mail`, contenu = `supabase/templates/inscription.html`
@@ -38,7 +38,7 @@ supabase secrets set \
   STRIPE_SECRET_KEY=sk_live_... \
   STRIPE_PRICE_MONTHLY=price_... \
   STRIPE_PRICE_YEARLY=price_... \
-  APP_URL=https://azzanet-arch.github.io/leger/app/
+  APP_URL=https://azzanet-arch.github.io/Leger/app/
 supabase functions deploy create-checkout
 supabase functions deploy customer-portal
 supabase functions deploy stripe-webhook --no-verify-jwt

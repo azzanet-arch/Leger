@@ -3,8 +3,8 @@
 ## Contenu du dépôt
 | Dossier / fichier | Rôle |
 |---|---|
-| `index.html`, `img/` | Page d'accueil de vente (https://azzanet-arch.github.io/leger/) |
-| `app/` | L'application (https://azzanet-arch.github.io/leger/app/) |
+| `index.html`, `img/` | Page d'accueil de vente (https://azzanet-arch.github.io/Leger/) |
+| `app/` | L'application (https://azzanet-arch.github.io/Leger/app/) |
 | `supabase/` | Base de données, fonctions Stripe et modèles d'e-mails |
 | `ABONNEMENT.md` | Guide de mise en place des paiements (Supabase + Stripe) |
 | `LANCEMENT.md` | Kit réseaux sociaux : bios, plan de 30 vidéos, suivi |

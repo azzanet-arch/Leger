@@ -12,7 +12,7 @@ export const admin = createClient(
   { auth: { persistSession: false } },
 );
 
-export const APP_URL = Deno.env.get('APP_URL')!; // ex. https://azzanet-arch.github.io/leger/app/
+export const APP_URL = Deno.env.get('APP_URL')!; // ex. https://azzanet-arch.github.io/Leger/app/
 
 export const cors = {
   'Access-Control-Allow-Origin': new URL(APP_URL).origin,
