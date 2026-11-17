@@ -18,6 +18,7 @@ Si du pain sert à saucer, ajoute une ligne "Pain (pour saucer)" avec la quantit
 Dans comment, rappelle le poids estimé du plat entier. Si la photo ne montre pas de nourriture, mets is_food à false.`,
   text: `${BASE}\nOn te donne la description d'un repas, tapée ou dictée, en français, en darija (arabe marocain, algérien ou tunisien, en lettres latines ou arabes) ou un mélange des deux.
 Exemples de darija : "jouj msemen b l3sel" = deux msemen au miel, "kas d atay" = un verre de thé, "khobz" = pain, "djaj" = poulet, "lben" = lait fermenté.
+Le texte vient souvent d'une dictée vocale : il peut contenir des fautes de transcription (mots de darija mal reconnus, écrits en français approximatif ou en arabe). Interprète-les au mieux.
 Respecte les quantités indiquées ; sinon, prends une portion habituelle. Si le texte ne décrit pas de nourriture, mets is_food à false.`,
 };
 const SCHEMA = {

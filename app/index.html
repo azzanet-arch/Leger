@@ -856,15 +856,17 @@ li.done .dot{background:var(--brand);opacity:.5} li.cur .dot{background:var(--br
     <div id="pText" class="hidden">
       <form id="textForm">
         <label for="mealText">Décrivez ce que vous avez mangé, en français ou en darija</label>
-        <textarea id="mealText" maxlength="1000" placeholder="Ex. : 2 msemen avec du miel et un thé à la menthe"></textarea>
+        <textarea id="mealText" dir="auto" maxlength="1000" placeholder="Ex. : 2 msemen avec du miel et un thé à la menthe"></textarea>
         <div class="row" style="margin-top:8px;flex-wrap:wrap">
           <div class="chips" id="speechLang"></div>
           <button type="button" class="ghost" id="micBtn" aria-label="Dicter" title="Dicter" style="margin-left:auto;width:52px;padding:0">🎙️</button>
         </div>
+        <p class="small muted" id="micHint" style="margin:6px 0 0"></p>
         <div class="chips" id="mealExamples" style="margin-top:10px">
           <button type="button" class="chip" data-ex="2 msemen avec du miel et un thé à la menthe">2 msemen + miel + thé</button>
           <button type="button" class="chip" data-ex="jouj bid w khobz w kas d atay">jouj bid w khobz…</button>
           <button type="button" class="chip" data-ex="une assiette de couscous et une banane">couscous + banane</button>
+          <button type="button" class="chip" data-ex="جوج بيضات و خبز و كاس ديال أتاي" dir="rtl">جوج بيضات و خبز…</button>
         </div>
         <button type="submit" style="width:100%;margin-top:12px">Analyser</button>
       </form>
@@ -1103,7 +1105,7 @@ const FOODS = [ // [nom, portion, kcal, protéines g, glucides g, lipides g]
   ['Miel','1 c. à soupe (20 g)',64,0.1,16,0],['Pain maison (khobz)','1/4 de galette (70 g)',180,6,36,1],['Lben (lait fermenté)','1 verre (250 ml)',90,8,12,1.5],
   ['Baghrir','1 crêpe',140,4,27,1.5],['Harcha','1 galette',250,5,35,10],['Sfenj (beignet)','1 beignet',200,4,25,9],['Chebakia','1 pièce (30 g)',150,2,18,8],
   ['Zlabia','1 pièce',150,1,22,6],['Makrout','1 pièce',180,2,25,8],['Mhajeb (msemen farci)','1 pièce',300,7,35,14],['Briouate frite','1 pièce',150,5,12,9],
-  ['Chorba','1 bol',230,15,26,7],['Bissara','1 bol',250,14,35,6],['Loubia','1 assiette',300,15,40,8],['Zaalouk','1 portion (150 g)',120,2,10,8]
+  ['Chorba','1 bol',230,15,26,7],['Sardines','4 sardines (100 g)',190,24,0,10],['Bissara','1 bol',250,14,35,6],['Loubia','1 assiette',300,15,40,8],['Zaalouk','1 portion (150 g)',120,2,10,8]
 ].map(([n,p,k,pr,c,f]) => ({n,p,k,pr,c,f}));
 
 const ACTIVITIES = [ // MET (Compendium of Physical Activities, valeurs moyennes)
@@ -1721,14 +1723,69 @@ $('#aiPhoto').onchange = e => { const f = e.target.files[0]; e.target.value = ''
 /* ---------- Analyse de repas par l'IA : photo, plat partagé, description en texte ---------- */
 // Lecteur local de descriptions (mode démo et hors connexion) : quantités + aliments, y compris quelques mots de darija
 const NUM_WORDS = {un: 1, une: 1, deux: 2, trois: 3, quatre: 4, cinq: 5, six: 6, sept: 7, huit: 8, dix: 10, demi: 0.5, demie: 0.5, moitie: 0.5,
-  wahed: 1, wa7ed: 1, wahd: 1, jouj: 2, jooj: 2, zouj: 2, tlata: 3, tleta: 3, reb3a: 4, arba: 4, khamsa: 5};
+  wahed: 1, wa7ed: 1, wahd: 1, jouj: 2, jooj: 2, zouj: 2, jouge: 2, joug: 2, zouge: 2, tlata: 3, tleta: 3, reb3a: 4, arba: 4, khamsa: 5};
 const DARIJA = {khobz: 'Pain maison (khobz)', kesra: 'Pain maison (khobz)', atay: 'Thé à la menthe sucré', ataye: 'Thé à la menthe sucré', the: 'Thé à la menthe sucré',
   lben: 'Lben (lait fermenté)', l3sel: 'Miel', '3sel': 'Miel', asel: 'Miel', miel: 'Miel', beid: 'Œuf', bid: 'Œuf', baid: 'Œuf', zitoun: 'Olives', djaj: 'Blanc de poulet', jaj: 'Blanc de poulet',
   lham: 'Steak haché 15 %', hout: 'Cabillaud', roz: 'Riz cuit', batata: 'Pommes de terre vapeur', tmer: 'Dattes', tmar: 'Dattes', kesksou: 'Couscous (plat)', seksou: 'Couscous (plat)',
-  msmen: 'Msemen', msemen: 'Msemen', rghaif: 'Msemen', baghrir: 'Baghrir', sfenj: 'Sfenj (beignet)', chebakia: 'Chebakia', zlabia: 'Zlabia', makrout: 'Makrout', harcha: 'Harcha',
+  msmen: 'Msemen', msemen: 'Msemen', msemmen: 'Msemen', messemen: 'Msemen', kobz: 'Pain maison (khobz)', khobs: 'Pain maison (khobz)', atai: 'Thé à la menthe sucré', bagrir: 'Baghrir', sardine: 'Sardines', sardines: 'Sardines', hout: 'Cabillaud', rghaif: 'Msemen', baghrir: 'Baghrir', sfenj: 'Sfenj (beignet)', chebakia: 'Chebakia', zlabia: 'Zlabia', makrout: 'Makrout', harcha: 'Harcha',
   bissara: 'Bissara', loubia: 'Loubia', zaalouk: 'Zaalouk', chorba: 'Chorba', briouate: 'Briouate frite', bourek: 'Briouate frite', mhajeb: 'Mhajeb (msemen farci)',
   zit: 'Huile d\'olive', zitt: 'Huile d\'olive', huile: 'Huile d\'olive', zebda: 'Beurre', jben: 'Fromage (emmental)', fromage: 'Fromage (emmental)', coca: 'Soda', soda: 'Soda', kahwa: 'Café / thé sans sucre', qahwa: 'Café / thé sans sucre', cafe: 'Café / thé sans sucre', banane: 'Banane', banan: 'Banane', tofa7: 'Pomme', tfa7: 'Pomme'};
+// Darija en lettres arabes (ce que produit la dictée vocale en « Darija »)
+const arNorm = s => s.normalize('NFC').replace(/[ً-ٰٟـ]/g, '').replace(/[أإآٱ]/g, 'ا').replace(/ى/g, 'ي').replace(/[٠-٩]/g, d => '٠١٢٣٤٥٦٧٨٩'.indexOf(d));
+const AR_NUM = {'واحد': 1, 'واحده': 1, 'واحدة': 1, 'جوج': 2, 'زوج': 2, 'زوجه': 2, 'جوجه': 2, 'اثنين': 2, 'تنين': 2, 'تلاته': 3, 'تلاتة': 3, 'ثلاثة': 3, 'ثلاث': 3, 'تلت': 3,
+  'ربعه': 4, 'ربعة': 4, 'اربعة': 4, 'اربع': 4, 'خمسه': 5, 'خمسة': 5, 'سته': 6, 'ستة': 6, 'نص': 0.5, 'نصف': 0.5, 'شويه': 0.5, 'شوية': 0.5};
+const AR_FOODS_RAW = {
+  'Pain maison (khobz)': ['خبز', 'خبزه', 'كسره', 'كسرة', 'مطلوع', 'بطبوط'], 'Thé à la menthe sucré': ['اتاي', 'تاي', 'شاي', 'لاتاي'], 'Lait demi-écrémé': ['حليب'],
+  'Lben (lait fermenté)': ['لبن', 'رايب'], 'Miel': ['عسل'], 'Œuf': ['بيض', 'بيضه', 'بيضة', 'بيضات'], 'Olives': ['زيتون', 'زيتونه'], 'Huile d\'olive': ['زيت'], 'Beurre': ['زبده', 'زبدة'],
+  'Fromage (emmental)': ['جبن', 'فرماج', 'فروماج', 'جبنه'], 'Blanc de poulet': ['دجاج', 'جاج', 'فروج', 'بولي'], 'Steak haché 15 %': ['لحم', 'كفته', 'كفتة', 'لحمه'], 'Cabillaud': ['حوت', 'سمك'],
+  'Sardines': ['سردين', 'سردينه'], 'Riz cuit': ['روز', 'رز', 'ارز'], 'Pommes de terre vapeur': ['بطاطا', 'بطاطس', 'بطاطه'], 'Frites': ['فريت', 'فريتس'], 'Dattes': ['تمر', 'تمره', 'تمرة', 'تمرات'],
+  'Couscous (plat)': ['كسكس', 'كسكسو', 'سكسو', 'طعام'], 'Msemen': ['مسمن', 'ملوي', 'رغايف', 'مسمنه'], 'Baghrir': ['بغرير', 'بغريره'], 'Sfenj (beignet)': ['سفنج', 'سفنجه'], 'Chebakia': ['شباكيه', 'شباكية'],
+  'Zlabia': ['زلابيه', 'زلابية'], 'Makrout': ['مقروط'], 'Harcha': ['حرشه', 'حرشة'], 'Bissara': ['بيصاره', 'بيصارة', 'بصاره'], 'Loubia': ['لوبيا', 'لوبيه'], 'Zaalouk': ['زعلوك'],
+  'Harira': ['حريره', 'حريرة'], 'Chorba': ['شوربه', 'شوربة', 'شربه'], 'Tajine poulet': ['طاجين', 'طجين'], 'Briouate frite': ['بريوات', 'بريوه', 'بريوة'], 'Mhajeb (msemen farci)': ['محاجب', 'مهاجب', 'مخاجب'],
+  'Café / thé sans sucre': ['قهوه', 'قهوة', 'كافي'], 'Soda': ['كوكا', 'مونادا', 'سبرايت', 'فانتا'], 'Jus d\'orange': ['عصير'], 'Banane': ['موز', 'بنان', 'بانان', 'بنانه'], 'Pomme': ['تفاح', 'تفاحه', 'تفاحة'],
+  'Orange': ['ليمون', 'برتقال', 'لتشين', 'ليمونه'], 'Salade composée': ['سلاطه', 'سلاطة', 'شلاضه'], 'Pois chiches cuits': ['حمص'], 'Lentilles cuites': ['عدس'], 'Pâtes cuites': ['ماكارونا', 'معكرونه', 'معكرونة'],
+  'Pizza': ['بيتزا'], 'Yaourt nature': ['ياغورت', 'دانون', 'ياوورت'], 'Croissant': ['كرواصه', 'كرواصة', 'كرواسون'], 'Chocolat noir': ['شكلاط', 'شوكولا', 'شكولاط'], 'Gâteau': ['جاطو', 'كيك', 'حلوه'],
+  'Sandwich jambon-beurre': ['سندويتش', 'صندويتش', 'ساندويتش', 'ساندويش', 'سندويش', 'كاسكروط'], 'Soupe de légumes': ['خضره', 'خضرة', 'خضرا']
+};
+const AR_FOODS = {}; Object.entries(AR_FOODS_RAW).forEach(([n, ws]) => ws.forEach(w => { AR_FOODS[arNorm(w)] = n; }));
+const AR_STOP = new Set(['و', 'ب', 'مع', 'في', 'من', 'ديال', 'ديال', 'دال', 'د', 'كاس', 'كاسات', 'طبسيل', 'زلافه', 'زلافة', 'زلاف', 'غراف', 'طاسه', 'طاسة', 'شي', 'حتى', 'كليت', 'كلات', 'كلا', 'شربت', 'عندي', 'اليوم', 'الصباح', 'فطور', 'الفطور', 'غدا', 'الغدا', 'عشا', 'العشا', 'كبير', 'صغير', 'بزاف', 'ماء', 'الماء', 'لما', 'على', 'او', 'ولا', 'هاد', 'هادي', 'انا', 'كيلو', 'غرام']);
+const DISHES = new Set(['Tajine poulet', 'Couscous (plat)', 'Harira', 'Chorba', 'Sandwich jambon-beurre', 'Pizza', 'Salade composée', 'Mhajeb (msemen farci)']);
+const PROTEINS = new Set(['Blanc de poulet', 'Steak haché 15 %', 'Cabillaud', 'Sardines', 'Soupe de légumes']); // ingrédients qui décrivent un plat : « طاجين ديال الدجاج »
+function arVariants(t){ // préfixes و ب ف ل + article ال, puis pluriels et terminaisons
+  const out = new Set([t]);
+  for (const p of ['وال', 'بال', 'فال', 'لل', 'ال', 'و', 'ب', 'ف', 'ل']) if (t.startsWith(p) && t.length > p.length + 1) out.add(t.slice(p.length));
+  for (const v of [...out]) { if (v.endsWith('ات')) { out.add(v.slice(0, -2)); out.add(v.slice(0, -2) + 'ه'); } if (/[هة]$/.test(v)) out.add(v.slice(0, -1)); if (v.endsWith('ين')) out.add(v.slice(0, -2)); }
+  return [...out];
+}
+function parseArabicMeal(text){
+  const toks = arNorm(norm(text)).split(/[\s,،؛.!?+:]+/).filter(Boolean);
+  const items = [], unknown = []; let qty = null, afterDish = false, linked = false, prev = '';
+  for (const t of toks) {
+    const last = prev; prev = t;
+    if (/^\d+(?:[.,]\d+)?$/.test(t)) { qty = parseFloat(t.replace(',', '.')); continue; }
+    const vs = arVariants(t);
+    const num = vs.map(v => AR_NUM[v] ?? NUM_WORDS[v]).find(Boolean);
+    if (num) { qty = num; continue; }
+    if (afterDish && ['ديال', 'دال', 'د', 'dial', 'd'].includes(t)) { linked = true; continue; }
+    const name = vs.map(v => AR_FOODS[v] || DARIJA[v]).find(Boolean);
+    if (name) {
+      const food = FOODS.find(f => f.n === name);
+      const describesDish = linked && PROTEINS.has(name);                                   // طاجين ديال الدجاج
+      const oliveOil = name === 'Olives' && items.at(-1)?.name === 'Huile d\'olive' && arVariants(last).includes('زيت'); // زيت الزيتون
+      if (food && !describesDish && !oliveOil) {
+        const q = qty && qty <= 20 ? qty : 1;
+        items.push({name: food.n, portion: q === 1 ? food.p : `${nf.format(q)} × ${food.p}`, grams: q, unit: 'portion', kcal: food.k * q, protein: food.pr * q, carbs: food.c * q, fat: food.f * q, confidence: 'moyenne'});
+        afterDish = DISHES.has(food.n);
+      } else afterDish = false;
+      linked = false; qty = null; continue;
+    }
+    afterDish = false; linked = false;
+    if (!AR_STOP.has(t) && !vs.some(v => AR_STOP.has(v)) && t.length > 1 && !/^(de|du|des|la|le|les|un|une|et|avec|kas|dial|w|b)$/.test(t)) unknown.push(t);
+  }
+  return {is_food: items.length > 0, items, comment: unknown.length ? `Non reconnu : ${unknown.join('، ')}. Ajoutez-le avec la recherche ou la saisie manuelle.` : '', local: true};
+}
 function parseMealLocal(text){
+  if (/[\u0600-\u06FF]/.test(text)) return parseArabicMeal(text);
   const segs = norm(text).replace(/[.!?]/g, ' ').split(/,|;|\+|\bet\b|\bavec\b|\bw\b|\bou\b|\bb\b|\bmaa\b|\bm3a\b|\n/).map(x => x.trim()).filter(Boolean);
   const items = [], unknown = [];
   for (const seg of segs) {
@@ -1794,18 +1851,41 @@ const aiAnalyze = file => aiRun({task: 'photo', file});
 // Décrire son repas (texte ou dictée)
 const SpeechRec = window.SpeechRecognition || window.webkitSpeechRecognition;
 let speechLang = 'fr-FR', speechRec = null;
-function openTextPanel(){ showPanel('Text'); $('#mealText').value = ''; $('#micBtn').classList.toggle('hidden', !SpeechRec); renderLangChips(); setTimeout(() => $('#mealText').focus(), 50); }
+function openTextPanel(){ showPanel('Text'); $('#mealText').value = ''; $('#micBtn').classList.toggle('hidden', !SpeechRec); renderLangChips(); micHint(); if (matchMedia('(pointer:fine)').matches) setTimeout(() => $('#mealText').focus(), 50); }
 function renderLangChips(){ $('#speechLang').innerHTML = [['fr-FR', 'Français'], ['ar-MA', 'Darija']].map(([v, l]) => `<button type="button" class="chip ${v === speechLang ? 'on' : ''}" data-lang="${v}">${l}</button>`).join(''); }
-$('#speechLang').addEventListener('click', e => { const v = e.target.dataset.lang; if (v) { speechLang = v; renderLangChips(); } });
-$('#micBtn').onclick = () => {
-  if (speechRec) { speechRec.stop(); return; }
-  const rec = speechRec = new SpeechRec(); rec.lang = speechLang; rec.interimResults = true; rec.continuous = false;
+$('#speechLang').addEventListener('click', e => { const v = e.target.dataset.lang; if (v) { speechLang = v; renderLangChips(); micHint(); $('#mealText').placeholder = v === 'ar-MA' ? 'مثلا : جوج مسمن بالعسل و كاس ديال أتاي' : 'Ex. : 2 msemen avec du miel et un thé à la menthe'; } });
+// Dictée : en darija, plusieurs variantes d'arabe sont essayées selon ce que le téléphone propose
+const SPEECH_LANGS = {'fr-FR': ['fr-FR'], 'ar-MA': ['ar-MA', 'ar-DZ', 'ar-TN', 'ar-SA', 'ar']};
+function micHint(msg){
+  $('#micHint').textContent = msg ?? (!SpeechRec ? 'Pour dicter, utilisez le micro 🎙️ de votre clavier.'
+    : speechLang === 'ar-MA' ? 'Touchez 🎙️ et parlez : le texte s\'écrit en lettres arabes, c\'est normal, Léger le comprend. L\'analyse se lance dès que vous avez fini.'
+    : 'Touchez 🎙️ et dites ce que vous avez mangé : l\'analyse se lance dès que vous avez fini.');
+}
+function startDictation(langIdx = 0){
+  const langs = SPEECH_LANGS[speechLang] || [speechLang];
+  const rec = speechRec = new SpeechRec(); rec.lang = langs[langIdx]; rec.interimResults = true; rec.continuous = false; rec.maxAlternatives = 1;
   const base = $('#mealText').value ? $('#mealText').value.trim() + ' ' : '';
-  rec.onresult = e => { $('#mealText').value = base + [...e.results].map(r => r[0].transcript).join(' '); };
-  rec.onerror = e => toast(e.error === 'not-allowed' ? 'Micro refusé : autorisez-le dans les réglages, ou tapez votre repas' : 'Je n\'ai pas bien entendu, réessayez');
-  rec.onend = () => { speechRec = null; $('#micBtn').classList.remove('rec'); $('#micBtn').textContent = '🎙️'; };
-  try { rec.start(); $('#micBtn').classList.add('rec'); $('#micBtn').textContent = '⏹️'; } catch(_) { speechRec = null; }
-};
+  let heard = '', final = false, retry = false;
+  rec.onresult = e => { heard = [...e.results].map(r => r[0].transcript).join(' ').trim(); final = [...e.results].every(r => r.isFinal); $('#mealText').value = base + heard; };
+  rec.onerror = e => {
+    if (e.error === 'language-not-supported' && langIdx + 1 < langs.length) { retry = true; return; }
+    micHint({
+      'not-allowed': 'Micro refusé. iPhone : Réglages › Safari › Micro › Autoriser. Ou tapez votre repas.',
+      'service-not-allowed': 'La dictée n\'est pas autorisée sur ce téléphone. Utilisez le micro 🎙️ du clavier.',
+      'no-speech': 'Je n\'ai rien entendu. Touchez 🎙️ et parlez près du téléphone.',
+      'audio-capture': 'Aucun micro disponible. Tapez votre repas.',
+      'network': 'La dictée a besoin d\'internet. Tapez votre repas ou réessayez.',
+      'language-not-supported': 'La dictée en arabe n\'est pas disponible sur ce téléphone : choisissez Français, ou écrivez en darija.'
+    }[e.error] || 'Je n\'ai pas bien entendu, réessayez.');
+  };
+  rec.onend = () => {
+    speechRec = null; $('#micBtn').classList.remove('rec'); $('#micBtn').textContent = '🎙️';
+    if (retry) return startDictation(langIdx + 1);
+    if (heard && final) { micHint('Analyse de ce que vous avez dit…'); setTimeout(() => { if (!$('#pText').classList.contains('hidden') && $('#mealText').value.trim()) $('#textForm').requestSubmit(); }, 500); }
+  };
+  try { rec.start(); $('#micBtn').classList.add('rec'); $('#micBtn').textContent = '⏹️'; micHint('Je vous écoute…'); } catch(_) { speechRec = null; micHint('Impossible de démarrer la dictée. Utilisez le micro 🎙️ du clavier.'); }
+}
+$('#micBtn').onclick = () => { if (speechRec) { speechRec.stop(); return; } startDictation(); };
 $('#textForm').onsubmit = e => { e.preventDefault(); speechRec?.stop(); const t = $('#mealText').value.trim(); if (t) aiRun({task: 'text', text: t}); };
 $('#mealExamples').addEventListener('click', e => { const t = e.target.closest('[data-ex]')?.dataset.ex; if (t) $('#mealText').value = t; });
 // Plat partagé
