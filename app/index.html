@@ -240,6 +240,46 @@ nav.tabs .fab{width:58px;height:58px;min-height:0;padding:0;border-radius:50%;ba
 .cd.miss{background:var(--warn);opacity:.45}
 .cd.today{background:transparent;box-shadow:inset 0 0 0 2px var(--brand)}
 .qrow2{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px}
+/* Mon corps */
+.seg{display:grid;grid-template-columns:1fr 1fr;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:4px;margin-bottom:14px;gap:4px}
+.seg button{min-height:40px;background:transparent;color:var(--muted);border-radius:10px;font-size:14px}
+.seg button.on{background:var(--brand);color:#fff}
+.sils{display:grid;grid-template-columns:1fr auto 1fr;align-items:end;gap:6px;--sil:#c9d6cf;--silline:#9fb2a8;--hl:rgba(233,162,59,.55);--defl:rgba(27,36,32,.55)}
+.sils svg{width:100%;max-height:250px;display:block}
+.sils .arrow{font-size:22px;color:var(--muted);align-self:center}
+.sil-lbl{text-align:center;margin-top:6px;display:grid;gap:2px}
+.sil-lbl span{font-size:12px;color:var(--muted)}
+.pgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:10px}
+.pthumb{padding:0;min-height:0;border-radius:12px;overflow:hidden;background:var(--bg);color:var(--ink);display:flex;flex-direction:column;font-weight:500}
+.pthumb img{aspect-ratio:3/4;object-fit:cover;width:100%}
+.pthumb span{font-size:11px;padding:4px;color:var(--muted)}
+.cmp{position:relative;border-radius:16px;overflow:hidden;aspect-ratio:3/4;background:#000;margin-top:10px;max-height:60vh;margin-inline:auto}
+.cmp img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.cmp .lbl{position:absolute;bottom:8px;font-size:12px;font-weight:700;color:#fff;background:rgba(0,0,0,.55);padding:3px 8px;border-radius:99px}
+.cmp .bar{position:absolute;top:0;bottom:0;width:3px;background:#fff;transform:translateX(-50%);box-shadow:0 0 6px rgba(0,0,0,.4);pointer-events:none;height:auto;border-radius:0;overflow:visible}
+.cmp input[type=range]{position:absolute;inset:0;width:100%;height:100%;opacity:0;cursor:ew-resize;margin:0;min-height:0}
+.mrow{display:flex;align-items:center;gap:8px;width:100%;background:transparent;color:var(--ink);border-top:1px solid var(--line);border-radius:0;min-height:44px;padding:0 4px;font-weight:500}
+.mrow span{flex:1;text-align:left}
+.mrow small{min-width:64px;text-align:right;font-weight:700}
+.mrow.on{background:var(--brand-soft)}
+#measChart{width:100%;height:120px;display:block;margin-top:8px}
+#measChart text{fill:var(--muted);font-size:10px}
+.wkprog{height:6px;background:var(--bg);border-radius:99px;overflow:hidden;margin-bottom:14px}
+.wkprog i{display:block;height:100%;background:var(--brand);transition:width .3s}
+#wkBody{text-align:center;min-height:300px}
+.wk-k{color:var(--muted);font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;margin:0}
+.wk-em{font-size:64px;line-height:1.2;margin-top:8px}
+.wk-n{font-size:22px;margin:4px 0}
+.wk-big{font-size:56px;font-weight:800;font-variant-numeric:tabular-nums;color:var(--brand);margin:8px 0}
+.wk-big small{font-size:16px;color:var(--muted);font-weight:600}
+.camwrap{position:relative;background:#000;border-radius:16px;overflow:hidden;aspect-ratio:3/4;max-height:58vh;margin:0 auto}
+.camwrap video,.camwrap img{width:100%;height:100%;object-fit:cover;display:block}
+#camVideo.mirror{transform:scaleX(-1)}
+#camGuide{position:absolute;inset:6% 18%;pointer-events:none}
+#camGuide svg{width:100%;height:100%}
+.camcount{position:absolute;inset:0;display:grid;place-items:center;font-size:96px;font-weight:800;color:#fff;text-shadow:0 2px 12px rgba(0,0,0,.6)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .sils{--silline:#22302a;--sil:#3a4a43;--defl:rgba(255,255,255,.6)}}
+:root[data-theme="dark"] .sils{--silline:#22302a;--sil:#3a4a43;--defl:rgba(255,255,255,.6)}
 /* Vague 2 : IA */
 header .streak{white-space:nowrap}
 @media (max-width:380px){.hide-sm{display:none}header .streak{padding:4px 8px}}
@@ -494,6 +534,7 @@ li.done .dot{background:var(--brand);opacity:.5} li.cur .dot{background:var(--br
 
   <!-- ========== POIDS ========== -->
   <section class="view" id="v-weight">
+    <div class="seg"><button class="on" data-seg="weight">Poids et bilan</button><button data-seg="body">💪 Mon corps</button></div>
     <div class="card hidden" id="ramStats"></div>
     <div class="card">
       <h2>⚖️ Ma progression</h2>
@@ -557,6 +598,70 @@ li.done .dot{background:var(--brand);opacity:.5} li.cur .dot{background:var(--br
       <h2>🧠 Pourquoi ça marche</h2>
       <p class="small" style="margin:0 0 8px">Perdre 1 kg de graisse correspond à un déficit d'environ <b>7 700 kcal</b>. Votre objectif quotidien crée ce déficit progressivement, sans privation extrême.</p>
       <p class="small muted" style="margin:0">Les calories des aliments sont des moyennes indicatives. Pour plus de précision, pesez vos portions ou consultez les étiquettes.</p>
+    </div>
+  </section>
+
+  <!-- ========== MON CORPS ========== -->
+  <section class="view" id="v-body">
+    <div class="seg"><button data-seg="weight">Poids et bilan</button><button class="on" data-seg="body">💪 Mon corps</button></div>
+
+    <div class="card">
+      <h2>🎯 Ma zone à travailler</h2>
+      <div class="chips" id="zoneChips"></div>
+      <div class="row" style="margin-top:10px;flex-wrap:wrap;gap:6px"><div class="chips" id="goalChips"></div><div class="chips" id="levelChips"></div></div>
+      <p class="small muted" id="bodyNote" style="margin:10px 0 0"></p>
+    </div>
+
+    <div class="card">
+      <h2>✨ Aperçu de ma silhouette</h2>
+      <div class="sils">
+        <div><div id="silNow"></div><div class="sil-lbl" id="silNowLbl"></div></div>
+        <span class="arrow">➜</span>
+        <div><div id="silGoal"></div><div class="sil-lbl" id="silGoalLbl"></div></div>
+      </div>
+      <p class="small muted" style="margin:10px 0 0">Illustration indicative, calculée d'après votre poids visé : ce n'est pas une promesse de résultat. Votre vrai « avant/après », ce sont vos photos ci-dessous.</p>
+    </div>
+
+    <div class="card">
+      <h2>🏋️ Ma séance <span class="sub" id="sessWeek"></span></h2>
+      <p style="margin:0;font-weight:700" id="sessTitle"></p>
+      <p class="small muted" style="margin:2px 0 8px" id="sessMeta"></p>
+      <ul class="list" id="sessList"></ul>
+      <button style="width:100%;margin-top:10px" id="sessStart">▶ Commencer la séance</button>
+      <p class="small muted" style="margin:8px 0 0">À la maison, sans matériel. Échauffez-vous 2 minutes avant, et arrêtez en cas de douleur.</p>
+    </div>
+
+    <div class="card">
+      <h2>📸 Photos de progression</h2>
+      <p class="small muted" style="margin:0 0 10px">Une photo toutes les 2 semaines, même tenue, même lumière, même pose. Vos photos restent <b>uniquement sur ce téléphone</b> : elles ne sont jamais envoyées.</p>
+      <button class="soft" style="width:100%" id="photoAdd">📷 Prendre une photo</button>
+      <div class="pgrid" id="photoGrid"></div>
+      <div id="compareWrap" class="hidden" style="margin-top:16px">
+        <h3 style="font-size:15px;margin:0 0 8px">Avant / après</h3>
+        <div class="chips" id="comparePoses"></div>
+        <div class="grid2" style="margin-top:8px"><select id="cmpA" aria-label="Photo avant"></select><select id="cmpB" aria-label="Photo après"></select></div>
+        <div class="cmp" id="cmpBox">
+          <img id="cmpImgB" alt="Photo après">
+          <div id="cmpTop" style="position:absolute;inset:0"><img id="cmpImgA2" alt="Photo avant"></div>
+          <span class="lbl" id="cmpLblA" style="left:8px"></span><span class="lbl" id="cmpLblB" style="right:8px"></span>
+          <div class="bar" id="cmpBar" style="left:50%"></div>
+          <input type="range" id="cmpRange" min="0" max="100" value="50" aria-label="Glisser pour comparer">
+        </div>
+        <p class="small" id="cmpSummary" style="text-align:center;margin:8px 0"></p>
+        <label class="habit" style="border:0;padding:4px 0"><input type="checkbox" id="cmpBlur" checked>Flouter mon visage sur l'image partagée</label>
+        <button class="ghost" style="width:100%;margin-top:6px" id="cmpShare">📤 Partager mon avant/après</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>📏 Mensurations</h2>
+      <div id="measTable"></div>
+      <svg id="measChart" class="hidden" role="img" aria-label="Évolution de la mensuration choisie"></svg>
+      <form id="measForm" style="margin-top:12px">
+        <label for="measDate">Date</label><input type="date" id="measDate">
+        <div class="grid2" id="measInputs" style="margin-top:8px"></div>
+        <button type="submit" style="width:100%;margin-top:10px">Enregistrer</button>
+      </form>
     </div>
   </section>
 
@@ -825,6 +930,38 @@ li.done .dot{background:var(--brand);opacity:.5} li.cur .dot{background:var(--br
     <div class="qrow2">
       <button class="qbtn" data-q="fete" style="min-height:72px;flex-direction:row"><span>🎉</span>Jour de fête</button>
       <button class="qbtn" data-q="defi" style="min-height:72px;flex-direction:row"><span>🤝</span>Défi</button>
+      <button class="qbtn" data-q="seance" style="min-height:64px;flex-direction:row"><span>🏋️</span>Séance</button>
+      <button class="qbtn" data-q="photo" style="min-height:64px;flex-direction:row"><span>📸</span>Photo du corps</button>
+    </div>
+  </div>
+</dialog>
+
+<!-- Workout dialog -->
+<dialog id="workoutDlg">
+  <div class="head"><h3>🏋️ Séance</h3><button class="icon" data-close aria-label="Arrêter la séance">✕</button></div>
+  <div class="body">
+    <div class="wkprog"><i id="wkProg" style="width:0"></i></div>
+    <div id="wkBody"></div>
+    <div class="row" style="margin-top:12px"><button class="ghost" id="wkPause" style="flex:1">Pause</button><button id="wkMain" style="flex:2">Terminé</button></div>
+  </div>
+</dialog>
+
+<!-- Camera dialog -->
+<dialog id="camDlg">
+  <div class="head"><h3>📷 Photo de progression</h3><button class="icon" data-close aria-label="Fermer">✕</button></div>
+  <div class="body">
+    <div id="camShootWrap">
+      <div class="chips" id="camPoses" style="margin-bottom:8px"></div>
+      <div id="camLive" class="camwrap"><video id="camVideo" playsinline muted autoplay></video><div id="camGuide"></div><div class="camcount hidden" id="camCount"></div></div>
+      <p id="camErr" class="warn hidden">Caméra indisponible. Choisissez une photo dans votre galerie.</p>
+      <div class="chips" id="camDelays" style="margin:10px 0"></div>
+      <div class="row"><button type="button" class="ghost" id="camFlip" aria-label="Changer de caméra" style="width:52px;padding:0">🔄</button><button type="button" id="camShoot" style="flex:1">📸 Prendre la photo</button></div>
+      <label class="ghost" style="display:flex;align-items:center;justify-content:center;min-height:44px;margin:8px 0 0;border:1px solid var(--line);border-radius:10px;color:var(--ink);font-weight:600;cursor:pointer">🖼️ Choisir dans la galerie<input type="file" id="camFile" accept="image/*" class="hidden"></label>
+      <p class="small muted" style="margin:8px 0 0">Posez le téléphone, reculez et placez-vous dans la silhouette. Le retardateur vous laisse le temps.</p>
+    </div>
+    <div id="camPreviewWrap" class="hidden">
+      <div class="camwrap"><img id="camPreview" alt="Aperçu de la photo"></div>
+      <div class="grid2" style="margin-top:10px"><button type="button" class="ghost" id="camRetake">Reprendre</button><button type="button" id="camSave">Enregistrer</button></div>
     </div>
   </div>
 </dialog>
@@ -1108,7 +1245,7 @@ function streak(){
 /* ---------- Navigation ---------- */
 function show(v){
   $$('section.view').forEach(s => s.classList.toggle('active', s.id === 'v-' + v));
-  $$('#tabs button').forEach(b => b.classList.toggle('active', b.dataset.v === v));
+  $$('#tabs button').forEach(b => b.classList.toggle('active', b.dataset.v === v || (v === 'body' && b.dataset.v === 'weight')));
   $('#tabs').classList.toggle('hidden', ['setup','auth','paywall'].includes(v));
   $('#avatarBtn').classList.toggle('hidden', ['setup','auth','paywall'].includes(v));
   $('#coachBtn').classList.toggle('hidden', ['setup','auth','paywall'].includes(v));
@@ -1123,7 +1260,7 @@ function render(v){
   if (!S.profile) return;
   const st = streak(); const el = $('#streak');
   el.classList.toggle('hidden', st < 2); el.innerHTML = `🔥 ${st}<span class="hide-sm"> jours</span>`; el.title = `${st} jours de suite`;
-  ({today: renderToday, weight: () => { renderRamStats(); renderWeight(); renderStats(); renderChallenges(); }, fast: () => { renderRamFast(); renderFast(); }, recipes: renderRecipes, profile: renderProfile}[v] || (()=>{}))();
+  ({today: renderToday, weight: () => { renderRamStats(); renderWeight(); renderStats(); renderChallenges(); }, fast: () => { renderRamFast(); renderFast(); }, recipes: renderRecipes, profile: renderProfile, body: renderBody}[v] || (()=>{}))();
 }
 const activeView = () => ($('section.view.active')?.id || 'v-today').slice(2);
 
@@ -1510,7 +1647,7 @@ $('#quickDlg').addEventListener('click', e => {
   const b = e.target.closest('[data-q]'); if (!b) return;
   $('#quickDlg').close();
   const q = b.dataset.q;
-  if (!['recipe', 'weight', 'fete', 'defi'].includes(q) && activeView() !== 'today') show('today');
+  if (!['recipe', 'weight', 'fete', 'defi', 'seance', 'photo'].includes(q) && activeView() !== 'today') show('today');
   if (q === 'food') openFoodDlg(false);
   else if (q === 'scan') openFoodDlg(true);
   else if (q === 'ai') { openFoodDlg(false); $('#aiPhoto').click(); }
@@ -1521,6 +1658,8 @@ $('#quickDlg').addEventListener('click', e => {
   else if (q === 'act') $('#addActBtn').click();
   else if (q === 'weight') { show('weight'); setTimeout(() => $('#wVal').focus(), 50); }
   else if (q === 'fete') openFeteDlg();
+  else if (q === 'seance') { show('body'); setTimeout(startSession, 80); }
+  else if (q === 'photo') { show('body'); setTimeout(openCamera, 80); }
   else if (q === 'defi') { show('weight'); setTimeout(() => $('#chalCard').scrollIntoView({behavior: 'smooth', block: 'start'}), 60); }
 });
 $('#avatarBtn').onclick = () => show('profile');
@@ -2090,6 +2229,354 @@ async function handleInvite(){
   if (await ask(`${CHALLENGES[k].em} Un proche vous invite au défi « ${CHALLENGES[k].name} » : ${CHALLENGES[k].desc} Vous le relevez ?`, 'Je relève le défi')) startChallenge(k, 'invitation');
 }
 
+/* ---------- Mon corps : programmes ciblés, silhouette, photos de progression, mensurations ---------- */
+const EXOS = {
+  planche: {n: 'Gainage (planche)', em: '🧱', t: 'time', base: 30, how: 'En appui sur les avant-bras et la pointe des pieds, le corps droit de la tête aux talons. Rentrez le ventre et respirez.', tip: 'Ne creusez pas le bas du dos : serrez les fessiers.'},
+  crunch: {n: 'Crunch', em: '🔄', t: 'reps', base: 15, how: 'Allongé sur le dos, genoux pliés, mains derrière la tête. Décollez les épaules en soufflant, puis redescendez lentement.', tip: 'Ne tirez pas sur la nuque : regardez le plafond.'},
+  releves: {n: 'Relevés de jambes', em: '🦵', t: 'reps', base: 10, how: 'Allongé, mains sous les fesses, jambes tendues. Montez les jambes à la verticale, puis redescendez sans toucher le sol.', tip: 'Pliez un peu les genoux si le dos se cambre.'},
+  climber: {n: 'Mountain climbers', em: '⛰️', t: 'time', base: 30, how: 'En position de pompe, ramenez un genou vers la poitrine puis l\'autre, rapidement, comme si vous couriez.', tip: 'Gardez les hanches basses.'},
+  lateral: {n: 'Planche latérale', em: '📐', t: 'time', base: 20, side: true, how: 'Sur le côté, en appui sur un avant-bras, le corps aligné. Tenez, puis changez de côté.', tip: 'Poussez la hanche vers le plafond.'},
+  bicycle: {n: 'Crunch vélo', em: '🚲', t: 'reps', base: 20, how: 'Allongé, mains derrière la tête : amenez le coude droit vers le genou gauche, puis l\'inverse, en pédalant.', tip: 'Allez lentement : la rotation compte plus que la vitesse.'},
+  pompes: {n: 'Pompes', em: '💪', t: 'reps', base: 10, how: 'Mains un peu plus larges que les épaules, corps droit. Descendez la poitrine près du sol, puis remontez. Débutant : sur les genoux.', tip: 'Le corps reste gainé : pas de fesses en l\'air.'},
+  pompesInc: {n: 'Pompes inclinées', em: '🛋️', t: 'reps', base: 12, how: 'Mains sur une chaise stable ou un canapé, corps droit. Descendez la poitrine vers le bord, puis poussez.', tip: 'Plus les mains sont hautes, plus c\'est facile.'},
+  dips: {n: 'Dips sur chaise', em: '🪑', t: 'reps', base: 10, how: 'Dos à une chaise, mains sur le bord, jambes devant. Pliez les coudes pour descendre, puis remontez.', tip: 'Gardez le dos près de la chaise.'},
+  pompesSer: {n: 'Pompes mains serrées', em: '🤲', t: 'reps', base: 8, how: 'Comme des pompes, mais mains sous les épaules et coudes le long du corps. Débutant : sur les genoux.', tip: 'Les coudes frôlent les côtes.'},
+  bouteilles: {n: 'Curl avec bouteilles d\'eau', em: '🍶', t: 'reps', base: 15, how: 'Debout, une bouteille pleine dans chaque main. Pliez les coudes pour monter les bouteilles vers les épaules, puis redescendez lentement.', tip: 'Les coudes restent collés au corps.'},
+  superman: {n: 'Superman', em: '🦸', t: 'reps', base: 12, how: 'Allongé sur le ventre, bras tendus devant. Décollez bras, poitrine et jambes, tenez 2 secondes, puis redescendez.', tip: 'Regardez le sol pour protéger la nuque.'},
+  birddog: {n: 'Bird dog', em: '🐕', t: 'reps', base: 10, side: true, how: 'À quatre pattes, tendez le bras droit et la jambe gauche à l\'horizontale, tenez 2 secondes, puis changez.', tip: 'Le dos reste plat comme une table.'},
+  pont: {n: 'Pont fessier', em: '🌉', t: 'reps', base: 15, how: 'Allongé sur le dos, genoux pliés, pieds au sol. Montez le bassin en serrant les fessiers, tenez 2 secondes, redescendez.', tip: 'Poussez dans les talons.'},
+  donkey: {n: 'Donkey kicks', em: '🦶', t: 'reps', base: 12, side: true, how: 'À quatre pattes, montez une jambe pliée vers le plafond, talon vers le haut, puis redescendez. Changez de côté.', tip: 'Ne cambrez pas : le mouvement vient de la fesse.'},
+  squat: {n: 'Squats', em: '🏋️', t: 'reps', base: 15, how: 'Pieds écartés à la largeur des épaules. Descendez comme pour vous asseoir, cuisses parallèles au sol, puis remontez.', tip: 'Les genoux suivent la direction des pieds.'},
+  fentes: {n: 'Fentes', em: '🚶', t: 'reps', base: 10, side: true, how: 'Grand pas en avant, descendez jusqu\'à ce que les deux genoux soient pliés à 90°. Remontez et changez de jambe.', tip: 'Le genou avant ne dépasse pas la pointe du pied.'},
+  chaise: {n: 'Chaise contre le mur', em: '🧍', t: 'time', base: 30, how: 'Dos au mur, descendez jusqu\'à avoir les cuisses parallèles au sol, comme assis sur une chaise invisible. Tenez.', tip: 'Respirez calmement.'},
+  genoux: {n: 'Montées de genoux', em: '🏃', t: 'time', base: 30, how: 'Sur place, courez en montant les genoux à hauteur des hanches, en vous aidant des bras.', tip: 'Restez sur l\'avant des pieds.'},
+  jacks: {n: 'Jumping jacks', em: '⭐', t: 'time', base: 30, how: 'Sautez en écartant bras et jambes, puis revenez pieds joints, bras le long du corps.', tip: 'Version douce : un pas sur le côté au lieu de sauter.'},
+  burpees: {n: 'Burpees', em: '💥', t: 'reps', base: 6, how: 'Accroupi, posez les mains, sautez en position de pompe, revenez accroupi, puis sautez bras en l\'air.', tip: 'Version douce : sans saut ni pompe.'}
+};
+const ZONES = {
+  ventre: ['Ventre et taille', ['planche', 'crunch', 'bicycle', 'lateral', 'releves', 'birddog']],
+  bras: ['Bras', ['pompesSer', 'dips', 'bouteilles', 'pompes']],
+  fessiers: ['Fessiers', ['pont', 'donkey', 'squat', 'fentes']],
+  cuisses: ['Cuisses et jambes', ['squat', 'fentes', 'chaise', 'pont']],
+  dos: ['Dos et posture', ['superman', 'birddog', 'planche', 'pompesInc']],
+  pecs: ['Pectoraux', ['pompes', 'pompesInc', 'pompesSer', 'planche']],
+  corps: ['Corps entier', ['squat', 'pompes', 'planche', 'fentes', 'burpees']]
+};
+const LEVELS = [['Débutant', 2, 0.7, 40], ['Intermédiaire', 3, 1, 30], ['Avancé', 3, 1.4, 20]]; // nom, tours, facteur, repos (s)
+const bodyCfg = () => (S.body ||= {zone: 'ventre', goal: 'affiner', level: 0});
+const workouts = () => (S.workouts ||= []);
+const measures = () => (S.measures ||= []);
+function buildSession(){
+  const c = bodyCfg(); const [, rounds, k, rest] = LEVELS[c.level];
+  let ids = ZONES[c.zone][1].filter(id => id !== 'burpees' || c.level > 0).slice(0, 4);
+  if (c.goal === 'affiner') ids = [...ids.slice(0, 3), 'genoux', ids[3] || 'planche', c.level ? 'jacks' : 'climber'];
+  const steps = [];
+  for (let r = 0; r < rounds; r++) for (const id of ids) {
+    const e = EXOS[id]; const amount = Math.max(e.t === 'time' ? 15 : 5, Math.round(e.base * k / (e.t === 'time' ? 5 : 1)) * (e.t === 'time' ? 5 : 1));
+    steps.push({id, ...e, amount, round: r + 1});
+  }
+  const sec = steps.reduce((a, s) => a + (s.t === 'time' ? s.amount : s.amount * 3) * (s.side ? 2 : 1) + rest, 0);
+  return {steps, rounds, rest, ids, min: Math.round(sec / 60)};
+}
+const fmtAmount = s => s.t === 'time' ? `${s.amount} s${s.side ? ' par côté' : ''}` : `${s.amount} répétitions${s.side ? ' par côté' : ''}`;
+function weekWorkouts(){ const t = parseISO(todayISO()); const mon = addDays(todayISO(), -((t.getDay() + 6) % 7)); return workouts().filter(w => w.date >= mon).length; }
+
+// ----- Silhouette illustrée (projection indicative, pas une photo)
+function silhouetteSVG(bmi, sex, zone, toned, opts = {}){
+  const f = clamp((bmi - 20) / 20, 0, 1), m = sex === 'm';
+  const W = {sh: (m ? 27 : 23) + 3 * f, ch: (m ? 24 : 21) + 7 * f, wa: (m ? 19 : 15.5) + 15 * f, hi: (m ? 21 : 24) + 9 * f, th: 12 + 6 * f, ar: 5.2 + 3 * f};
+  const x = (d) => 60 - d, X = (d) => 60 + d;
+  const torso = `M${x(6)},33 C${x(9)},38 ${x(W.sh - 4)},38 ${x(W.sh)},44 C${x(W.ch + 1)},55 ${x(W.ch)},70 ${x(W.ch - 1)},78 C${x(W.wa + 1)},92 ${x(W.wa)},100 ${x(W.wa + 1)},108 C${x(W.hi)},118 ${x(W.hi)},128 ${x(W.hi - 1)},138 L${X(W.hi - 1)},138 C${X(W.hi)},128 ${X(W.hi)},118 ${X(W.wa + 1)},108 C${X(W.wa)},100 ${X(W.wa + 1)},92 ${X(W.ch - 1)},78 C${X(W.ch)},70 ${X(W.ch + 1)},55 ${X(W.sh)},44 C${X(W.sh - 4)},38 ${X(9)},38 ${X(6)},33 Z`;
+  const leg = (s) => { const o = (d) => 60 + s * d; return `M${o(W.hi - 1)},134 C${o(W.hi)},150 ${o(W.th + 6)},168 ${o(10)},196 C${o(10.5)},212 ${o(9.5)},228 ${o(7)},250 L${o(2.5)},250 C${o(3.5)},230 ${o(3)},212 ${o(4)},196 C${o(3.2)},170 ${o(1.5)},152 ${o(1)},138 Z`; };
+  const arm = (s) => { const o = (d) => 60 + s * d; return `M${o(W.sh - 1)},44 C${o(W.sh + W.ar)},52 ${o(W.ch + W.ar + 1)},80 ${o(W.ch + W.ar - 1)},104 C${o(W.ch + W.ar - 1)},116 ${o(W.ch + 3)},128 ${o(W.ch + 2)},136 L${o(W.ch - 1)},134 C${o(W.ch)},120 ${o(W.ch)},108 ${o(W.ch + 1)},98 C${o(W.ch + 1)},84 ${o(W.ch - 1)},64 ${o(W.ch - 2)},56 Z`; };
+  const hl = 'var(--hl)';
+  const zoneShapes = {
+    ventre: `<ellipse cx="60" cy="100" rx="${W.wa - 2}" ry="15" fill="${hl}"/>`,
+    pecs: `<ellipse cx="60" cy="62" rx="${W.ch - 3}" ry="11" fill="${hl}"/>`,
+    dos: `<path d="M${x(W.sh - 3)},46 L${X(W.sh - 3)},46 L${X(W.wa)},96 L${x(W.wa)},96 Z" fill="${hl}"/>`,
+    fessiers: `<ellipse cx="60" cy="128" rx="${W.hi - 2}" ry="12" fill="${hl}"/>`,
+    cuisses: `<ellipse cx="${x(W.th / 2 + 4)}" cy="165" rx="${W.th / 2 + 2}" ry="24" fill="${hl}"/><ellipse cx="${X(W.th / 2 + 4)}" cy="165" rx="${W.th / 2 + 2}" ry="24" fill="${hl}"/>`,
+    bras: `<ellipse cx="${x(W.ch + W.ar / 2)}" cy="80" rx="${W.ar / 2 + 3}" ry="20" fill="${hl}"/><ellipse cx="${X(W.ch + W.ar / 2)}" cy="80" rx="${W.ar / 2 + 3}" ry="20" fill="${hl}"/>`,
+    corps: ''
+  };
+  const def = 'stroke="var(--defl)" stroke-width="1.2" fill="none" stroke-linecap="round"';
+  const tone = !toned ? '' : {
+    ventre: `<path ${def} d="M60,86 V114 M54,90 h12 M54,100 h12 M55,110 h10"/>`,
+    pecs: `<path ${def} d="M60,54 V70 M${x(W.ch - 4)},68 C52,73 58,72 60,70 C62,72 68,73 ${X(W.ch - 4)},68"/>`,
+    bras: `<path ${def} d="M${x(W.ch + 2)},70 c-2,6 -2,12 0,18 M${X(W.ch + 2)},70 c2,6 2,12 0,18"/>`,
+    cuisses: `<path ${def} d="M${x(7)},150 c-3,10 -3,22 0,32 M${X(7)},150 c3,10 3,22 0,32"/>`,
+    fessiers: `<path ${def} d="M${x(W.hi - 6)},124 c6,6 14,6 ${W.hi - 6},4 M${X(W.hi - 6)},124 c-6,6 -14,6 ${-(W.hi - 6)},4"/>`,
+    dos: `<path ${def} d="M60,48 V96 M${x(W.sh - 6)},52 L60,66 L${X(W.sh - 6)},52"/>`,
+    corps: `<path ${def} d="M60,86 V112 M55,94 h10 M55,104 h10"/>`
+  }[zone];
+  const body = opts.outline ? 'fill="none" stroke="#fff" stroke-width="1.6" stroke-dasharray="4 3" opacity=".9"' : 'fill="var(--sil)" stroke="var(--silline)" stroke-width="1" stroke-linejoin="round"';
+  return `<svg viewBox="0 0 120 262" role="img" aria-label="${opts.label || 'Silhouette illustrée'}" ${opts.outline ? 'preserveAspectRatio="xMidYMid meet"' : ''}>
+    <circle cx="60" cy="18" r="13" ${body}/><rect x="54" y="28" width="12" height="9" rx="4" ${body}/>
+    <path d="${leg(-1)}" ${body}/><path d="${leg(1)}" ${body}/><path d="${torso}" ${body}/>
+    <path d="${arm(-1)}" transform="translate(-3,0)" ${body}/><path d="${arm(1)}" transform="translate(3,0)" ${body}/>
+    ${opts.outline ? '' : (zone === 'corps' ? `<path d="${torso}" fill="${hl}"/>` : zoneShapes[zone]) + tone}</svg>`;
+}
+function renderSilhouettes(){
+  const p = S.profile, c = bodyCfg(); const h = p.height / 100;
+  const now = currentWeight(), bmiNow = now / (h * h), bmiGoal = p.goal / (h * h);
+  const cc = calc(); const weeks = cc.effPace > 0 ? Math.max(0, (now - p.goal) / cc.effPace) : 0;
+  const eta = new Date(); eta.setDate(eta.getDate() + Math.round(weeks * 7));
+  const toned = c.goal === 'muscler' || c.level > 0;
+  $('#silNow').innerHTML = silhouetteSVG(bmiNow, p.sex, c.zone, false, {label: 'Silhouette aujourd\'hui'});
+  $('#silGoal').innerHTML = silhouetteSVG(bmiGoal, p.sex, c.zone, toned, {label: 'Silhouette projetée à l\'objectif'});
+  $('#silNowLbl').innerHTML = `<b>Aujourd'hui</b><span>${nf.format(now)} kg · IMC ${nf.format(bmiNow)}</span>`;
+  $('#silGoalLbl').innerHTML = `<b>Objectif</b><span>${nf.format(p.goal)} kg${weeks > 0 ? ' · vers ' + eta.toLocaleDateString('fr-FR', {month: 'long', year: 'numeric'}) : ''}</span>`;
+}
+
+// ----- Écran « Mon corps »
+function renderBody(){
+  const c = bodyCfg();
+  $('#zoneChips').innerHTML = Object.entries(ZONES).map(([k, [l]]) => `<button class="chip ${k === c.zone ? 'on' : ''}" data-zone="${k}">${l}</button>`).join('');
+  $('#goalChips').innerHTML = [['affiner', 'Affiner'], ['muscler', 'Muscler']].map(([k, l]) => `<button class="chip ${k === c.goal ? 'on' : ''}" data-bgoal="${k}">${l}</button>`).join('');
+  $('#levelChips').innerHTML = LEVELS.map(([l], i) => `<button class="chip ${i === c.level ? 'on' : ''}" data-level="${i}">${l}</button>`).join('');
+  $('#bodyNote').textContent = c.goal === 'affiner'
+    ? 'Bon à savoir : la graisse se perd sur tout le corps, jamais sur une seule zone. Ce programme raffermit la zone et ajoute du cardio ; c\'est votre objectif calorique qui fait fondre la graisse, partout.'
+    : 'Le muscle, lui, se renforce bien localement : avec 3 séances par semaine, la zone se raffermit en 4 à 8 semaines. Pour qu\'il se voie, il faut aussi réduire la graisse qui le recouvre.';
+  renderSilhouettes();
+  const s = buildSession();
+  $('#sessTitle').textContent = `${ZONES[c.zone][0]} · ${c.goal === 'affiner' ? 'affiner' : 'muscler'}`;
+  $('#sessMeta').textContent = `${s.ids.length} exercices · ${s.rounds} tours · environ ${s.min} min · repos ${s.rest} s`;
+  $('#sessList').innerHTML = s.ids.map(id => { const st = s.steps.find(x => x.id === id); return `<li><span style="font-size:22px">${st.em}</span><div class="name">${esc(st.n)}<small>${fmtAmount(st)}</small></div></li>`; }).join('');
+  const wk = weekWorkouts();
+  $('#sessWeek').innerHTML = `<b>${wk}/3</b> séances cette semaine`;
+  renderPhotos(); renderMeasures();
+}
+document.addEventListener('click', e => {
+  const z = e.target.closest('[data-zone]'), g = e.target.closest('[data-bgoal]'), l = e.target.closest('[data-level]'), sg = e.target.closest('[data-seg]');
+  if (z) { bodyCfg().zone = z.dataset.zone; save(); renderBody(); }
+  if (g) { bodyCfg().goal = g.dataset.bgoal; save(); renderBody(); }
+  if (l) { bodyCfg().level = +l.dataset.level; save(); renderBody(); }
+  if (sg) show(sg.dataset.seg);
+});
+
+// ----- Lecteur de séance
+let sess = null, sessTimer = null;
+function startSession(){ sess = {...buildSession(), i: 0, phase: 'go', left: 0, started: Date.now(), paused: false, done: 0}; $('#workoutDlg').showModal(); enterStep(); }
+function enterStep(){
+  clearInterval(sessTimer);
+  const s = sess.steps[sess.i];
+  sess.left = sess.phase === 'rest' ? sess.rest : s.t === 'time' ? s.amount * (s.side ? 2 : 1) : 0;
+  renderSession();
+  if (sess.left) sessTimer = setInterval(() => { if (sess.paused) return; sess.left--; if (sess.left <= 3 && sess.left > 0 && navigator.vibrate) navigator.vibrate(40); if (sess.left <= 0) next(); else renderSession(); }, 1000);
+}
+function next(){
+  if (sess.phase === 'go') { sess.done++; if (sess.i >= sess.steps.length - 1) return finishSession(); sess.phase = 'rest'; }
+  else { sess.phase = 'go'; sess.i++; }
+  enterStep();
+}
+function renderSession(){
+  const s = sess.steps[sess.i], nxt = sess.steps[sess.i + 1];
+  const pct = (sess.i + (sess.phase === 'rest' ? 1 : 0)) / sess.steps.length * 100;
+  $('#wkProg').style.width = pct + '%';
+  if (sess.phase === 'rest') {
+    $('#wkBody').innerHTML = `<p class="wk-k">Repos</p><div class="wk-big">${sess.left}</div><p class="muted">Ensuite : ${nxt.em} <b>${esc(nxt.n)}</b> · ${fmtAmount(nxt)}</p>`;
+    $('#wkMain').textContent = 'Passer le repos';
+  } else {
+    $('#wkBody').innerHTML = `<p class="wk-k">Tour ${s.round}/${sess.rounds} · exercice ${sess.i % sess.ids.length + 1}/${sess.ids.length}</p><div class="wk-em">${s.em}</div><h3 class="wk-n">${esc(s.n)}</h3>
+      <div class="wk-big">${s.t === 'time' ? sess.left + ' s' : '× ' + s.amount}${s.side ? '<small> par côté</small>' : ''}</div>
+      <p class="small">${esc(s.how)}</p><p class="small muted">💡 ${esc(s.tip)}</p>`;
+    $('#wkMain').textContent = s.t === 'time' ? 'Passer' : 'Terminé';
+  }
+  $('#wkPause').textContent = sess.paused ? 'Reprendre' : 'Pause';
+  $('#wkPause').classList.toggle('hidden', !sess.left);
+}
+function finishSession(){
+  clearInterval(sessTimer);
+  const min = Math.max(1, Math.round((Date.now() - sess.started) / 60e3));
+  const met = bodyCfg().goal === 'affiner' ? 7 : 5;
+  sess.result = {min, k: Math.round(met * currentWeight() * min / 60)};
+  $('#wkProg').style.width = '100%';
+  $('#wkBody').innerHTML = `<div class="wk-em">🏆</div><h3 class="wk-n">Séance terminée, bravo !</h3><div class="mstats" style="margin:12px 0"><div><b>${min} min</b><span>durée</span></div><div><b>${sess.done}</b><span>exercices</span></div><div><b>${n0.format(sess.result.k)}</b><span>kcal</span></div><div><b>${weekWorkouts() + 1}/3</b><span>cette semaine</span></div></div><p class="small muted">La séance sera ajoutée à votre activité du jour.</p>`;
+  $('#wkMain').textContent = 'Enregistrer la séance'; $('#wkPause').classList.add('hidden');
+  sess.phase = 'end';
+}
+$('#wkMain').onclick = () => {
+  if (sess.phase === 'end') {
+    const c = bodyCfg(), name = `Séance ${ZONES[c.zone][0].toLowerCase()}`;
+    day(todayISO()).acts.push({id: uid(), n: name, min: sess.result.min, k: sess.result.k});
+    workouts().push({date: todayISO(), zone: c.zone, goal: c.goal, level: c.level, min: sess.result.min, k: sess.result.k});
+    save(); $('#workoutDlg').close(); render(activeView()); toast('Séance enregistrée 💪'); return;
+  }
+  next();
+};
+$('#wkPause').onclick = () => { sess.paused = !sess.paused; renderSession(); };
+$('#workoutDlg').addEventListener('close', () => { clearInterval(sessTimer); });
+$('#sessStart').onclick = startSession;
+
+// ----- Photos de progression (stockées uniquement sur l'appareil, dans IndexedDB)
+const PDB = {
+  db: null,
+  open(){ return this.db ||= new Promise((res, rej) => { const r = indexedDB.open('leger-photos', 1); r.onupgradeneeded = () => r.result.createObjectStore('photos', {keyPath: 'id'}); r.onsuccess = () => res(r.result); r.onerror = () => rej(r.error); }); },
+  async tx(mode, fn){ const db = await this.open(); return new Promise((res, rej) => { const t = db.transaction('photos', mode); const st = t.objectStore('photos'); const r = fn(st); t.oncomplete = () => res(r?.result); t.onerror = () => rej(t.error); }); },
+  all(){ return this.tx('readonly', st => st.getAll()); },
+  put(p){ return this.tx('readwrite', st => st.put(p)); },
+  del(id){ return this.tx('readwrite', st => st.delete(id)); },
+  clear(){ return this.tx('readwrite', st => st.clear()); }
+};
+const POSES = [['face', 'De face'], ['profil', 'De profil'], ['dos', 'De dos']];
+let photoCache = [], photoUrls = [], comparePose = 'face';
+async function loadPhotos(){ try { photoCache = (await PDB.all() || []).sort((a, b) => a.date.localeCompare(b.date) || a.ts - b.ts); } catch(_) { photoCache = []; } }
+async function renderPhotos(){
+  await loadPhotos();
+  photoUrls.forEach(u => URL.revokeObjectURL(u)); photoUrls = [];
+  const url = b => { const u = URL.createObjectURL(b); photoUrls.push(u); return u; };
+  $('#photoGrid').innerHTML = photoCache.slice().reverse().map(p => `<button class="pthumb" data-photo="${p.id}"><img src="${url(p.blob)}" alt="Photo du ${fmtShort(p.date)}"><span>${fmtShort(p.date)} · ${POSES.find(x => x[0] === p.pose)?.[1] || ''}</span></button>`).join('')
+    || '<p class="small muted" style="margin:0;grid-column:1/-1">Aucune photo. Prenez votre première photo aujourd\'hui : dans quelques semaines, vous pourrez comparer.</p>';
+  const poses = POSES.filter(([k]) => photoCache.filter(p => p.pose === k).length >= 2);
+  $('#compareWrap').classList.toggle('hidden', !poses.length);
+  if (!poses.length) return;
+  if (!poses.some(([k]) => k === comparePose)) comparePose = poses[0][0];
+  $('#comparePoses').innerHTML = poses.map(([k, l]) => `<button class="chip ${k === comparePose ? 'on' : ''}" data-cpose="${k}">${l}</button>`).join('');
+  const list = photoCache.filter(p => p.pose === comparePose);
+  const opt = list.map(p => `<option value="${p.id}">${fmtShort(p.date)}${p.kg ? ' · ' + nf.format(p.kg) + ' kg' : ''}</option>`).join('');
+  $('#cmpA').innerHTML = opt; $('#cmpB').innerHTML = opt;
+  $('#cmpA').value = list[0].id; $('#cmpB').value = list.at(-1).id;
+  drawCompare();
+}
+function drawCompare(){
+  const a = photoCache.find(p => p.id === $('#cmpA').value), b = photoCache.find(p => p.id === $('#cmpB').value);
+  if (!a || !b) return;
+  const ua = URL.createObjectURL(a.blob), ub = URL.createObjectURL(b.blob); photoUrls.push(ua, ub);
+  $('#cmpImgA2').src = ua; $('#cmpImgB').src = ub;
+  $('#cmpLblA').textContent = `Avant · ${fmtShort(a.date)}${a.kg ? ' · ' + nf.format(a.kg) + ' kg' : ''}`;
+  $('#cmpLblB').textContent = `Après · ${fmtShort(b.date)}${b.kg ? ' · ' + nf.format(b.kg) + ' kg' : ''}`;
+  const d = daysBetween(a.date, b.date); const dk = a.kg && b.kg ? b.kg - a.kg : null;
+  $('#cmpSummary').textContent = `${d} jour${d > 1 ? 's' : ''} d'écart${dk !== null ? ` · ${dk > 0 ? '+' : dk < 0 ? '−' : ''}${nf.format(Math.abs(dk))} kg` : ''}`;
+  setSlider();
+}
+function setSlider(){ const v = $('#cmpRange').value; $('#cmpTop').style.clipPath = `inset(0 ${100 - v}% 0 0)`; $('#cmpBar').style.left = v + '%'; }
+$('#cmpRange').oninput = setSlider;
+$('#cmpA').onchange = drawCompare; $('#cmpB').onchange = drawCompare;
+document.addEventListener('click', e => { const cp = e.target.closest('[data-cpose]'); if (cp) { comparePose = cp.dataset.cpose; renderPhotos(); } });
+$('#photoGrid').addEventListener('click', async e => {
+  const b = e.target.closest('[data-photo]'); if (!b) return;
+  const p = photoCache.find(x => x.id === b.dataset.photo);
+  if (await ask(`Supprimer la photo du ${fmtDay(p.date)} ? Elle sera effacée de ce téléphone.`, 'Supprimer', true)) { await PDB.del(p.id); renderPhotos(); }
+});
+// Image avant/après à partager (option floutage du visage)
+async function shareCompare(){
+  const a = photoCache.find(p => p.id === $('#cmpA').value), b = photoCache.find(p => p.id === $('#cmpB').value);
+  if (!a || !b) return;
+  const blur = $('#cmpBlur').checked;
+  const load = blob => createImageBitmap(blob);
+  const [ia, ib] = await Promise.all([load(a.blob), load(b.blob)]);
+  const W = 540, H = 720, cv = document.createElement('canvas'); cv.width = W * 2; cv.height = H + 90;
+  const ctx = cv.getContext('2d'); ctx.fillStyle = '#17694a'; ctx.fillRect(0, 0, cv.width, cv.height);
+  [[ia, 0, a, 'AVANT'], [ib, W, b, 'APRÈS']].forEach(([img, ox, p, tag]) => {
+    const k = Math.max(W / img.width, H / img.height), w = img.width * k, h = img.height * k;
+    ctx.save(); ctx.beginPath(); ctx.rect(ox, 0, W, H); ctx.clip(); ctx.drawImage(img, ox + (W - w) / 2, (H - h) / 2, w, h);
+    if (blur) { ctx.filter = 'blur(22px)'; ctx.beginPath(); ctx.rect(ox, 0, W, H * 0.24); ctx.clip(); ctx.drawImage(img, ox + (W - w) / 2, (H - h) / 2, w, h); ctx.filter = 'none'; }
+    ctx.restore();
+    ctx.fillStyle = '#fff'; ctx.font = 'bold 30px system-ui, sans-serif'; ctx.fillText(`${tag} · ${fmtShort(p.date)}${p.kg ? ' · ' + nf.format(p.kg) + ' kg' : ''}`, ox + 24, H + 54);
+  });
+  ctx.fillStyle = 'rgba(255,255,255,.85)'; ctx.font = '22px system-ui, sans-serif'; ctx.fillText('Léger', cv.width - 90, H + 54);
+  const blobOut = await new Promise(r => cv.toBlob(r, 'image/jpeg', 0.9));
+  const file = new File([blobOut], 'leger-avant-apres.jpg', {type: 'image/jpeg'});
+  try { if (navigator.canShare?.({files: [file]})) { await navigator.share({files: [file], text: 'Ma progression avec Léger 💚'}); return; } } catch(e) { if (e.name === 'AbortError') return; }
+  const u = URL.createObjectURL(blobOut); const link = document.createElement('a'); link.href = u; link.download = file.name; link.click(); setTimeout(() => URL.revokeObjectURL(u), 2000);
+  toast('Image enregistrée');
+}
+$('#cmpShare').onclick = shareCompare;
+
+// ----- Prise de photo avec silhouette guide et retardateur
+let camStream = null, camFacing = 'user', camPose = 'face', camDelay = 5, camShot = null, camCountT = null;
+async function openCamera(){
+  camShot = null; $('#camDlg').showModal(); renderCamUi(); await startCam();
+}
+async function startCam(){
+  stopCam();
+  try {
+    camStream = await navigator.mediaDevices.getUserMedia({audio: false, video: {facingMode: camFacing, width: {ideal: 1280}, height: {ideal: 1707}}});
+    const v = $('#camVideo'); v.srcObject = camStream; v.classList.toggle('mirror', camFacing === 'user'); await v.play().catch(() => {});
+    $('#camLive').classList.remove('hidden'); $('#camErr').classList.add('hidden');
+  } catch(_) {
+    $('#camLive').classList.add('hidden'); $('#camErr').classList.remove('hidden');
+  }
+}
+function stopCam(){ clearInterval(camCountT); if (camStream) { camStream.getTracks().forEach(t => t.stop()); camStream = null; } }
+function renderCamUi(){
+  $('#camPoses').innerHTML = POSES.map(([k, l]) => `<button type="button" class="chip ${k === camPose ? 'on' : ''}" data-campose="${k}">${l}</button>`).join('');
+  $('#camDelays').innerHTML = [[0, 'Sans retardateur'], [5, '5 s'], [10, '10 s']].map(([k, l]) => `<button type="button" class="chip ${k === camDelay ? 'on' : ''}" data-camdelay="${k}">${l}</button>`).join('');
+  $('#camGuide').innerHTML = silhouetteSVG(24, S.profile.sex, 'corps', false, {outline: true});
+  $('#camPreviewWrap').classList.toggle('hidden', !camShot);
+  $('#camShootWrap').classList.toggle('hidden', !!camShot);
+}
+$('#camDlg').addEventListener('click', e => {
+  const p = e.target.closest('[data-campose]'), d = e.target.closest('[data-camdelay]');
+  if (p) { camPose = p.dataset.campose; renderCamUi(); }
+  if (d) { camDelay = +d.dataset.camdelay; renderCamUi(); }
+});
+$('#camFlip').onclick = () => { camFacing = camFacing === 'user' ? 'environment' : 'user'; startCam(); };
+$('#camShoot').onclick = () => {
+  if (!camStream) return;
+  let n = camDelay; const cd = $('#camCount');
+  const take = () => {
+    cd.classList.add('hidden');
+    const v = $('#camVideo'); const k = Math.min(1, 1100 / Math.max(v.videoWidth, v.videoHeight));
+    const cv = document.createElement('canvas'); cv.width = Math.round(v.videoWidth * k); cv.height = Math.round(v.videoHeight * k);
+    const ctx = cv.getContext('2d'); if (camFacing === 'user') { ctx.translate(cv.width, 0); ctx.scale(-1, 1); }
+    ctx.drawImage(v, 0, 0, cv.width, cv.height);
+    cv.toBlob(b => { camShot = b; $('#camPreview').src = URL.createObjectURL(b); renderCamUi(); }, 'image/jpeg', 0.85);
+  };
+  if (!n) return take();
+  cd.textContent = n; cd.classList.remove('hidden');
+  camCountT = setInterval(() => { n--; if (navigator.vibrate) navigator.vibrate(30); if (n <= 0) { clearInterval(camCountT); take(); } else cd.textContent = n; }, 1000);
+};
+$('#camRetake').onclick = () => { camShot = null; renderCamUi(); };
+$('#camFile').onchange = async e => {
+  const f = e.target.files[0]; e.target.value = ''; if (!f) return;
+  try { const url = await toJpeg(f, 1100); camShot = await (await fetch(url)).blob(); $('#camPreview').src = url; renderCamUi(); } catch(_) { toast('Impossible de lire cette photo'); }
+};
+$('#camSave').onclick = async () => {
+  if (!camShot) return;
+  try { await PDB.put({id: uid(), date: todayISO(), ts: Date.now(), pose: camPose, kg: currentWeight(), blob: camShot}); }
+  catch(_) { toast('Impossible d\'enregistrer la photo sur cet appareil (mémoire pleine ou navigation privée)'); return; }
+  $('#camDlg').close(); comparePose = camPose; renderBody(); toast('Photo enregistrée sur ce téléphone 📸');
+};
+$('#camDlg').addEventListener('close', stopCam);
+$('#photoAdd').onclick = openCamera;
+
+// ----- Mensurations
+const MEAS = [['waist', 'Tour de taille', 'Au niveau du nombril, ventre relâché'], ['hips', 'Hanches', 'Au plus large des fesses'], ['chest', 'Poitrine', 'Au plus large, sous les bras'], ['arm', 'Bras', 'Au milieu du bras, bras relâché'], ['thigh', 'Cuisse', 'Au plus large, debout']];
+let measSel = 'waist';
+function renderMeasures(){
+  const ms = measures().slice().sort((a, b) => a.date.localeCompare(b.date));
+  $('#measDate').value = todayISO(); $('#measDate').max = todayISO();
+  const last = ms.at(-1) || {};
+  $('#measInputs').innerHTML = MEAS.map(([k, l, how]) => `<div><label for="m-${k}">${l} (cm)</label><input id="m-${k}" type="number" inputmode="decimal" step="0.5" min="20" max="250" placeholder="${last[k] ?? ''}" title="${how}"></div>`).join('');
+  const first = ms[0], latest = ms.at(-1);
+  $('#measTable').innerHTML = !latest ? '<p class="small muted" style="margin:0">Mesurez-vous toutes les 2 semaines, le matin, au même endroit : les centimètres bougent souvent avant la balance.</p>'
+    : MEAS.filter(([k]) => latest[k]).map(([k, l]) => { const f = ms.find(m => m[k])?.[k], d = latest[k] - f; return `<button class="mrow ${k === measSel ? 'on' : ''}" data-meas="${k}"><span>${l}</span><b>${nf.format(latest[k])} cm</b><small style="color:${d < 0 ? 'var(--brand)' : d > 0 ? 'var(--warn)' : 'var(--muted)'}">${d ? (d > 0 ? '+' : '−') + nf.format(Math.abs(d)) + ' cm' : '='}</small></button>`; }).join('');
+  const pts = ms.filter(m => m[measSel]);
+  const svg = $('#measChart');
+  if (pts.length < 2) { svg.innerHTML = ''; svg.classList.add('hidden'); return; }
+  svg.classList.remove('hidden');
+  const Wd = svg.clientWidth || 320, Hd = 120; svg.setAttribute('viewBox', `0 0 ${Wd} ${Hd}`);
+  const vals = pts.map(p => p[measSel]), lo = Math.min(...vals) - 1, hi = Math.max(...vals) + 1;
+  const t0 = parseISO(pts[0].date).getTime(), t1 = Math.max(parseISO(pts.at(-1).date).getTime(), t0 + 864e5);
+  const X = d => 28 + (parseISO(d).getTime() - t0) / (t1 - t0) * (Wd - 40), Y = v => 10 + (hi - v) / (hi - lo) * (Hd - 30);
+  svg.innerHTML = `<text x="2" y="${Y(hi - 1) + 4}">${nf.format(hi - 1)}</text><text x="2" y="${Y(lo + 1) + 4}">${nf.format(lo + 1)}</text>
+    <polyline fill="none" stroke="var(--brand)" stroke-width="2.5" points="${pts.map(p => `${X(p.date)},${Y(p[measSel])}`).join(' ')}"/>
+    ${pts.map(p => `<circle cx="${X(p.date)}" cy="${Y(p[measSel])}" r="3.5" fill="var(--brand)"><title>${fmtShort(p.date)} : ${nf.format(p[measSel])} cm</title></circle>`).join('')}
+    <text x="28" y="${Hd - 4}">${fmtShort(pts[0].date)}</text><text x="${Wd - 8}" y="${Hd - 4}" text-anchor="end">${fmtShort(pts.at(-1).date)}</text>`;
+}
+$('#measTable').addEventListener('click', e => { const b = e.target.closest('[data-meas]'); if (b) { measSel = b.dataset.meas; renderMeasures(); } });
+$('#measForm').onsubmit = e => {
+  e.preventDefault();
+  const date = $('#measDate').value || todayISO(); const entry = {date};
+  let any = false;
+  for (const [k] of MEAS) { const v = parseFloat($('#m-' + k).value); if (v >= 20 && v <= 250) { entry[k] = Math.round(v * 2) / 2; any = true; } }
+  if (!any) return toast('Indiquez au moins une mesure en centimètres');
+  const prev = measures().find(m => m.date === date) || {};
+  S.measures = measures().filter(m => m.date !== date); S.measures.push({...prev, ...entry});
+  save(); renderMeasures(); toast('Mensurations enregistrées 📏');
+};
+
 /* ---------- Jeûne intermittent ---------- */
 const FAST_PLANS = [
   [12, '12:12', 'Débutant : 12 h de jeûne, par exemple de 20 h à 8 h. Idéal pour commencer.'],
@@ -2514,6 +3001,7 @@ $('#importFile').onchange = async e => {
 $('#resetBtn').onclick = async () => {
   if (!await ask('Effacer définitivement toutes vos données (profil, pesées, journal) ?', 'Tout effacer', true)) return;
   try { localStorage.removeItem(KEY); } catch(_) {}
+  try { await PDB.clear(); } catch(_) {}
   S = {profile:null, weights:[], days:{}}; curDay = todayISO(); route();
 };
 
@@ -2686,6 +3174,9 @@ $('#demoBtn').onclick = () => {
   // Pendant le Ramadan, l'exemple ne contient pas de repas en journée
   Object.entries(days).forEach(([d, x]) => { if (isRamadan(d)) x.foods.forEach(f => { if (f.meal === 'lunch') f.meal = 'dinner'; }); });
   S = { profile: {sex:'f', age:34, height:168, startWeight:82, goal:70, activity:1.375, pace:0.5, start: addDays(t, -42), demo: true, diet: 'equilibre'}, weights, days,
+    measures: [42, 28, 14, 0].map((i, n) => ({date: addDays(t, -i), waist: 96 - n * 1.5, hips: 108 - n, arm: 32 - n * 0.3, thigh: 61 - n * 0.5})),
+    workouts: [5, 3, 1].map(i => ({date: addDays(t, -i), zone: 'ventre', goal: 'affiner', level: 0, min: 18, k: 170})),
+    body: {zone: 'ventre', goal: 'affiner', level: 0},
     fast: {plan: 16, start: isRamadan() ? null : Date.now() - (13 * 60 + 25) * 60e3,
       hist: [1,2,3,4,5].map(i => { const s0 = new Date(); s0.setDate(s0.getDate() - i); s0.setHours(20, 15, 0, 0); return {s: s0.getTime(), e: s0.getTime() + (i === 3 ? 14.5 : 16 + i * 0.2) * 3600e3, g: 16}; }) } };
   save(); route(); toast('Exemple chargé : profil fictif de 34 ans, 168 cm');
