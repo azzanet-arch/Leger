@@ -33,13 +33,13 @@ body{background:var(--bg);color:var(--ink);font:500 16px/1.45 "Manrope",system-u
 header{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--bg);padding:14px 16px 8px;display:flex;align-items:center;gap:10px}
 header img{width:32px;height:32px}
 header h1{font-size:20px;margin:0;letter-spacing:-.01em}
-header .streak{margin-left:auto;font-weight:700;font-size:14px;color:var(--muted);background:var(--card);border:1px solid var(--line);padding:4px 10px;border-radius:99px}
+header .streak{margin-inline-start:auto;font-weight:700;font-size:14px;color:var(--muted);background:var(--card);border:1px solid var(--line);padding:4px 10px;border-radius:99px}
 main{max-width:640px;margin:0 auto;padding:0 16px}
 section.view{display:none}
 section.view.active{display:block}
 .card{background:var(--card);border:1px solid var(--line);border-radius:20px;padding:16px;margin:0 0 14px;box-shadow:var(--shadow)}
 .card h2{font-size:16px;margin:0 0 10px;display:flex;align-items:center;gap:8px}
-.card h2 .sub{margin-left:auto;font-weight:500;font-size:13px;color:var(--muted)}
+.card h2 .sub{margin-inline-start:auto;font-weight:500;font-size:13px;color:var(--muted)}
 .muted{color:var(--muted)}
 .small{font-size:13px}
 .row{display:flex;gap:10px;align-items:center}
@@ -142,7 +142,7 @@ dialog .body{padding:16px}
 .plan{display:flex;align-items:center;gap:12px;border:2px solid var(--line);border-radius:14px;padding:14px;margin:0;cursor:pointer;color:var(--ink);font-size:15px;position:relative}
 .plan input{width:20px;height:20px;min-height:0;accent-color:var(--brand);flex:none}
 .plan:has(input:checked){border-color:var(--brand);background:var(--brand-soft)}
-.plan .price{margin-left:auto;text-align:right;font-weight:700;font-size:17px;font-variant-numeric:tabular-nums}
+.plan .price{margin-inline-start:auto;text-align:end;font-weight:700;font-size:17px;font-variant-numeric:tabular-nums}
 .plan .price small{display:block;font-weight:500;font-size:12px;color:var(--muted)}
 .plan .badge{position:absolute;top:-10px;right:12px;background:var(--accent);color:#1b2420;font-size:11px;font-weight:700;padding:2px 8px;border-radius:99px}
 .perks{list-style:none;padding:0;margin:12px 0;display:grid;gap:8px;font-size:15px}
@@ -162,7 +162,7 @@ dialog .body{padding:16px}
 :root[data-theme="dark"]{--hero:#163b2c;--hero-2:#1d4a37}
 header .avatar{width:38px;height:38px;min-height:0;padding:0;border-radius:50%;background:var(--brand-soft);color:var(--brand);display:grid;place-items:center;font-weight:800;font-size:15px;flex:none}
 header .streak+.avatar,header .avatar{margin-left:8px}
-header .streak.hidden+.avatar{margin-left:auto}
+header .streak.hidden+.avatar{margin-inline-start:auto}
 .weekhead{display:flex;align-items:center;justify-content:space-between;margin:2px 0 8px}
 .weekhead strong{font-size:18px;font-weight:800;letter-spacing:-.01em}
 .weekhead .navs{display:flex;gap:6px}
@@ -259,8 +259,8 @@ nav.tabs .fab{width:58px;height:58px;min-height:0;padding:0;border-radius:50%;ba
 .cmp .bar{position:absolute;top:0;bottom:0;width:3px;background:#fff;transform:translateX(-50%);box-shadow:0 0 6px rgba(0,0,0,.4);pointer-events:none;height:auto;border-radius:0;overflow:visible}
 .cmp input[type=range]{position:absolute;inset:0;width:100%;height:100%;opacity:0;cursor:ew-resize;margin:0;min-height:0}
 .mrow{display:flex;align-items:center;gap:8px;width:100%;background:transparent;color:var(--ink);border-top:1px solid var(--line);border-radius:0;min-height:44px;padding:0 4px;font-weight:500}
-.mrow span{flex:1;text-align:left}
-.mrow small{min-width:64px;text-align:right;font-weight:700}
+.mrow span{flex:1;text-align:start}
+.mrow small{min-width:64px;text-align:end;font-weight:700}
 .mrow.on{background:var(--brand-soft)}
 #measChart{width:100%;height:120px;display:block;margin-top:8px}
 #measChart text{fill:var(--muted);font-size:10px}
@@ -289,7 +289,7 @@ textarea{resize:vertical;min-height:96px;line-height:1.4}
 #micBtn.rec{background:var(--warn);color:#fff;animation:pulse 1s ease-in-out infinite}
 @keyframes pulse{50%{opacity:.6}}
 .coachbtn{width:38px;height:38px;min-height:0;padding:0;border-radius:50%;background:var(--brand-soft);color:var(--brand);font-size:18px;display:grid;place-items:center;flex:none;margin-left:8px}
-header .streak.hidden~.coachbtn{margin-left:auto}
+header .streak.hidden~.coachbtn{margin-inline-start:auto}
 #coachDlg .body{display:flex;flex-direction:column;gap:10px;height:min(70vh,560px);padding-bottom:12px}
 #coachMsgs{flex:1;overflow:auto;display:flex;flex-direction:column;gap:8px;padding:2px}
 .bubble{max-width:86%;padding:10px 14px;border-radius:18px;font-size:15px;line-height:1.45}
@@ -298,7 +298,7 @@ header .streak.hidden~.coachbtn{margin-left:auto}
 #coachSuggest{display:flex;gap:6px;overflow-x:auto;padding-bottom:2px}
 #coachSuggest .chip{white-space:nowrap;flex:none}
 /* Photo intelligente */
-.aibtn{width:100%;min-height:58px;margin-bottom:12px;border-radius:16px;background:linear-gradient(135deg,var(--hero-2),var(--hero));display:flex;align-items:center;gap:12px;padding:0 16px;text-align:left}
+.aibtn{width:100%;min-height:58px;margin-bottom:12px;border-radius:16px;background:linear-gradient(135deg,var(--hero-2),var(--hero));display:flex;align-items:center;gap:12px;padding:0 16px;text-align:start}
 .aibtn span{font-size:26px}
 .aibtn b{display:block;font-size:16px}
 .aibtn small{display:block;font-weight:500;opacity:.85;font-size:13px}
@@ -308,8 +308,8 @@ header .streak.hidden~.coachbtn{margin-left:auto}
 .aiitem input[type=checkbox]{width:22px;height:22px;min-height:0;flex:none;accent-color:var(--brand)}
 .aiitem .name{flex:1;min-width:0}
 .aiitem .name small{display:block;color:var(--muted);font-size:12px}
-.aiitem input[type=number]{width:72px;min-height:38px;padding:6px 8px;text-align:right;flex:none}
-.aiitem .kcal{min-width:58px;text-align:right;font-weight:700;font-variant-numeric:tabular-nums}
+.aiitem input[type=number]{width:72px;min-height:38px;padding:6px 8px;text-align:end;flex:none}
+.aiitem .kcal{min-width:58px;text-align:end;font-weight:700;font-variant-numeric:tabular-nums}
 .demo-tag{display:inline-block;background:var(--brand-soft);color:var(--brand);font-size:12px;font-weight:700;padding:2px 8px;border-radius:99px}
 .spin{width:28px;height:28px;border:3px solid var(--line);border-top-color:var(--brand);border-radius:50%;animation:spin 1s linear infinite;margin:6px auto}
 @keyframes spin{to{transform:rotate(360deg)}}
@@ -336,7 +336,7 @@ li.done .dot{background:var(--brand);opacity:.5} li.cur .dot{background:var(--br
 .fastmini b{font-variant-numeric:tabular-nums}
 /* Recettes */
 .rgrid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-top:12px}
-.rcard{background:var(--bg);border:1px solid var(--line);border-radius:14px;padding:12px;text-align:left;color:var(--ink);font-weight:500;min-height:0;display:flex;flex-direction:column;gap:4px}
+.rcard{background:var(--bg);border:1px solid var(--line);border-radius:14px;padding:12px;text-align:start;color:var(--ink);font-weight:500;min-height:0;display:flex;flex-direction:column;gap:4px}
 .rcard .em{font-size:30px;line-height:1.1}
 .rcard b{font-size:14px;line-height:1.3}
 .rcard small{color:var(--muted);font-size:12px}
@@ -760,6 +760,12 @@ li.done .dot{background:var(--brand);opacity:.5} li.cur .dot{background:var(--br
       </form>
     </div>
 
+    <div class="card">
+      <h2>🌍 Langue</h2>
+      <select id="langSel" aria-label="Langue de l'application" data-no-i18n></select>
+      <p class="muted small" id="langNote" style="margin:8px 0 0">D'autres langues arrivent bientôt.</p>
+    </div>
+
     <div class="card" id="ramSettings">
       <h2>🌙 Ramadan <span class="sub" id="ramStatus"></span></h2>
       <label for="ram-mode">Mode Ramadan</label>
@@ -859,7 +865,7 @@ li.done .dot{background:var(--brand);opacity:.5} li.cur .dot{background:var(--br
         <textarea id="mealText" dir="auto" maxlength="1000" placeholder="Ex. : 2 msemen avec du miel et un thé à la menthe"></textarea>
         <div class="row" style="margin-top:8px;flex-wrap:wrap">
           <div class="chips" id="speechLang"></div>
-          <button type="button" class="ghost" id="micBtn" aria-label="Dicter" title="Dicter" style="margin-left:auto;width:52px;padding:0">🎙️</button>
+          <button type="button" class="ghost" id="micBtn" aria-label="Dicter" title="Dicter" style="margin-inline-start:auto;width:52px;padding:0">🎙️</button>
         </div>
         <p class="small" id="micHint" style="margin:6px 0 0"></p>
         <details style="margin-top:6px"><summary class="small" style="cursor:pointer;color:var(--brand);font-weight:600">Le micro ne marche pas ?</summary><p class="small muted" id="kbTip" style="margin:6px 0 0"></p></details>
@@ -990,7 +996,7 @@ li.done .dot{background:var(--brand);opacity:.5} li.cur .dot{background:var(--br
 <dialog id="coachDlg">
   <div class="head"><h3>💬 Mon coach</h3><button class="icon" id="coachReset" aria-label="Nouvelle conversation" title="Nouvelle conversation" style="margin-right:8px">↺</button><button class="icon" data-close aria-label="Fermer">✕</button></div>
   <div class="body">
-    <div id="coachMsgs" aria-live="polite"></div>
+    <div id="coachMsgs" aria-live="polite" data-no-i18n></div>
     <div id="coachSuggest"></div>
     <form id="coachForm" class="searchrow">
       <input id="coachIn" maxlength="2000" placeholder="Posez votre question…" autocomplete="off">
@@ -1068,6 +1074,7 @@ li.done .dot{background:var(--brand);opacity:.5} li.cur .dot{background:var(--br
 
 <div class="toast" id="toast"></div>
 
+<script src="i18n.js"></script>
 <script src="config.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
 <script>
@@ -1153,11 +1160,11 @@ const isoDate = d => `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate(
 const parseISO = s => { const [y,m,d] = s.split('-').map(Number); return new Date(y, m-1, d); };
 const addDays = (s, n) => { const d = parseISO(s); d.setDate(d.getDate()+n); return isoDate(d); };
 const todayISO = () => isoDate(new Date());
-const nf = new Intl.NumberFormat('fr-FR', {maximumFractionDigits:1});
-const n0 = new Intl.NumberFormat('fr-FR', {maximumFractionDigits:0});
+const nf = new Intl.NumberFormat(LOCALE, {maximumFractionDigits:1});
+const n0 = new Intl.NumberFormat(LOCALE, {maximumFractionDigits:0});
 const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2,7);
-const fmtDay = s => parseISO(s).toLocaleDateString('fr-FR', {weekday:'long', day:'numeric', month:'long'});
-const fmtShort = s => parseISO(s).toLocaleDateString('fr-FR', {day:'numeric', month:'short'});
+const fmtDay = s => parseISO(s).toLocaleDateString(LOCALE, {weekday:'long', day:'numeric', month:'long'});
+const fmtShort = s => parseISO(s).toLocaleDateString(LOCALE, {day:'numeric', month:'short'});
 const clamp = (v,a,b) => Math.min(b, Math.max(a, v));
 
 // Confirmation dans l'app (les fenêtres confirm() du navigateur sont bloquées dans certains contextes)
@@ -1324,7 +1331,7 @@ function renderWeek(c){
   $('#week').innerHTML = days.map(d => {
     const t = dayTotals(d); const tg = targetFor(d); const pct = clamp(t.kcal / (tg + t.burn) * 100, 0, 100);
     const cls = ['wd', d === curDay && 'sel', d === today && 'today', t.kcal > tg + t.burn && 'over'].filter(Boolean).join(' ');
-    return `<button class="${cls}" data-wd="${d}" ${d > today ? 'disabled' : ''}><span>${parseISO(d).toLocaleDateString('fr-FR', {weekday: 'short'}).replace('.', '').slice(0, 3)}</span><i style="--p:${pct}"><b>${parseISO(d).getDate()}</b></i></button>`;
+    return `<button class="${cls}" data-wd="${d}" ${d > today ? 'disabled' : ''}><span>${parseISO(d).toLocaleDateString(LOCALE, {weekday: 'short'}).replace('.', '').slice(0, /^(fr|en|es|it|de|nl|pt)/.test(LOCALE) ? 3 : undefined)}</span><i style="--p:${pct}"><b>${parseISO(d).getDate()}</b></i></button>`;
   }).join('');
   $('#nextDay').disabled = days[6] >= today;
 }
@@ -1816,7 +1823,7 @@ const AI_SHARED_DEMO = {is_food: true, comment: 'Exemple de démonstration : pla
 ]};
 let aiSource = 'photo', sharedGuests = 4, sharedBread = 1;
 async function aiInvoke(body){
-  const {data, error} = await sb.functions.invoke('analyze-meal', {body});
+  const {data, error} = await sb.functions.invoke('analyze-meal', {body: {...body, lang: I18N.lang}});
   if (error) { let m = ''; try { m = (await error.context.json()).error; } catch(_) {} throw new Error(m || 'Analyse impossible. Vérifiez votre connexion et réessayez.'); }
   return data;
 }
@@ -1955,7 +1962,7 @@ $('#lightForm').onsubmit = async e => {
   try {
     if (!PAID || !sb) { demo = true; await new Promise(r => setTimeout(r, 1500)); res = LIGHT_DEMO; }
     else {
-      const {data, error} = await sb.functions.invoke('ai-coach', {body: {task: 'lighten', recipe, servings}});
+      const {data, error} = await sb.functions.invoke('ai-coach', {body: {task: 'lighten', recipe, servings, lang: I18N.lang}});
       if (error) { let m = ''; try { m = (await error.context.json()).error; } catch(_) {} throw new Error(m || 'Service indisponible, réessayez.'); }
       res = data;
     }
@@ -2016,7 +2023,7 @@ async function coachSend(text, sugIdx){
       coachMsgs.push(sugIdx !== undefined ? {role: 'assistant', content: COACH_DEMO[sugIdx], demo: true}
         : {role: 'assistant', content: 'En mode démo, je ne peux répondre qu\'aux questions proposées. Le coach répondra à toutes vos questions dès que votre compte sera activé.', demo: true});
     } else {
-      const {data, error} = await sb.functions.invoke('ai-coach', {body: {task: 'chat', context: coachContext(), messages: coachMsgs.filter(m => !m.demo).map(({role, content}) => ({role, content}))}});
+      const {data, error} = await sb.functions.invoke('ai-coach', {body: {task: 'chat', lang: I18N.lang, context: coachContext(), messages: coachMsgs.filter(m => !m.demo).map(({role, content}) => ({role, content}))}});
       if (error) { let m = ''; try { m = (await error.context.json()).error; } catch(_) {} throw new Error(m || 'Le coach est indisponible, réessayez dans un instant.'); }
       coachMsgs.push({role: 'assistant', content: data.reply});
     }
@@ -2297,9 +2304,10 @@ function startChallenge(key, from){
 }
 async function shareChallenge(c){
   const st = challengeState(c);
+  const v = {name: t(st.tpl.name), em: st.tpl.em, d: st.dayN, n: st.tpl.days, done: st.done};
   const text = st.finished
-    ? `J'ai relevé le défi « ${st.tpl.name} » sur Léger : ${st.done}/${st.tpl.days} jours réussis ${st.tpl.em} À ton tour ?`
-    : `Je relève le défi « ${st.tpl.name} » sur Léger ${st.tpl.em} Jour ${st.dayN}/${st.tpl.days}, ${st.done} réussi${st.done > 1 ? 's' : ''}. Tu me rejoins ?`;
+    ? t('J\'ai relevé le défi « {name} » sur Léger : {done}/{n} jours réussis {em} À ton tour ?', v)
+    : t('Je relève le défi « {name} » sur Léger {em} Jour {d}/{n}, {done} réussi(s). Tu me rejoins ?', v);
   const url = `${SITE_URL}app/?defi=${c.tpl}`;
   try { if (navigator.share) { await navigator.share({text, url}); return; } } catch(e) { if (e.name === 'AbortError') return; }
   location.href = `https://wa.me/?text=${encodeURIComponent(text + ' ' + url)}`;
@@ -2435,7 +2443,7 @@ function renderSilhouettes(){
   $('#silNow').innerHTML = silhouetteSVG(bmiNow, p.sex, c.zone, false, {label: 'Silhouette aujourd\'hui'});
   $('#silGoal').innerHTML = silhouetteSVG(bmiGoal, p.sex, c.zone, toned, {label: 'Silhouette projetée à l\'objectif'});
   $('#silNowLbl').innerHTML = `<b>Aujourd'hui</b><span>${nf.format(now)} kg · IMC ${nf.format(bmiNow)}</span>`;
-  $('#silGoalLbl').innerHTML = `<b>Objectif</b><span>${nf.format(p.goal)} kg${weeks > 0 ? ' · vers ' + eta.toLocaleDateString('fr-FR', {month: 'long', year: 'numeric'}) : ''}</span>`;
+  $('#silGoalLbl').innerHTML = `<b>Objectif</b><span>${nf.format(p.goal)} kg${weeks > 0 ? ' · vers ' + eta.toLocaleDateString(LOCALE, {month: 'long', year: 'numeric'}) : ''}</span>`;
 }
 
 // ----- Écran « Mon corps »
@@ -2577,7 +2585,7 @@ async function shareCompare(){
   const [ia, ib] = await Promise.all([load(a.blob), load(b.blob)]);
   const W = 540, H = 720, cv = document.createElement('canvas'); cv.width = W * 2; cv.height = H + 90;
   const ctx = cv.getContext('2d'); ctx.fillStyle = '#17694a'; ctx.fillRect(0, 0, cv.width, cv.height);
-  [[ia, 0, a, 'AVANT'], [ib, W, b, 'APRÈS']].forEach(([img, ox, p, tag]) => {
+  [[ia, 0, a, t('AVANT')], [ib, W, b, t('APRÈS')]].forEach(([img, ox, p, tag]) => {
     const k = Math.max(W / img.width, H / img.height), w = img.width * k, h = img.height * k;
     ctx.save(); ctx.beginPath(); ctx.rect(ox, 0, W, H); ctx.clip(); ctx.drawImage(img, ox + (W - w) / 2, (H - h) / 2, w, h);
     if (blur) { ctx.filter = 'blur(22px)'; ctx.beginPath(); ctx.rect(ox, 0, W, H * 0.24); ctx.clip(); ctx.drawImage(img, ox + (W - w) / 2, (H - h) / 2, w, h); ctx.filter = 'none'; }
@@ -2587,7 +2595,7 @@ async function shareCompare(){
   ctx.fillStyle = 'rgba(255,255,255,.85)'; ctx.font = '22px system-ui, sans-serif'; ctx.fillText('Léger', cv.width - 90, H + 54);
   const blobOut = await new Promise(r => cv.toBlob(r, 'image/jpeg', 0.9));
   const file = new File([blobOut], 'leger-avant-apres.jpg', {type: 'image/jpeg'});
-  try { if (navigator.canShare?.({files: [file]})) { await navigator.share({files: [file], text: 'Ma progression avec Léger 💚'}); return; } } catch(e) { if (e.name === 'AbortError') return; }
+  try { if (navigator.canShare?.({files: [file]})) { await navigator.share({files: [file], text: t('Ma progression avec Léger 💚')}); return; } } catch(e) { if (e.name === 'AbortError') return; }
   const u = URL.createObjectURL(blobOut); const link = document.createElement('a'); link.href = u; link.download = file.name; link.click(); setTimeout(() => URL.revokeObjectURL(u), 2000);
   toast('Image enregistrée');
 }
@@ -2705,9 +2713,9 @@ const PHASES = [
 ];
 function fastState(){ return S.fast ||= {plan: 16, start: null, hist: []}; }
 const hms = ms => { const t = Math.max(0, Math.floor(ms / 1000)); return `${pad(Math.floor(t / 3600))}:${pad(Math.floor(t % 3600 / 60))}:${pad(t % 60)}`; };
-const hm = ts => new Date(ts).toLocaleTimeString('fr-FR', {hour: '2-digit', minute: '2-digit'});
+const hm = ts => new Date(ts).toLocaleTimeString(LOCALE, {hour: '2-digit', minute: '2-digit'});
 const dayTime = ts => { const d = new Date(ts); const iso = isoDate(d); return (iso === todayISO() ? 'aujourd\'hui' : iso === addDays(todayISO(), -1) ? 'hier' : fmtShort(iso)) + ' à ' + hm(ts); };
-const phaseAt = h => PHASES.filter(p => h >= p[0]).at(-1);
+const phaseAt = h => PHASES.filter(p => h >= p[0]).at(-1) || PHASES[0]; // début dans le futur (changement d'heure) : première phase
 function renderFast(){
   const F = fastState(); const now = Date.now(); const goal = F.plan * 3600e3;
   const plan = FAST_PLANS.find(p => p[0] === F.plan) || FAST_PLANS[2];
@@ -2931,7 +2939,7 @@ function menuFor(d){
 function renderMenu(){
   const days = weekDays(); if (!menuDay || !days.includes(menuDay)) menuDay = todayISO();
   $('#menuTarget').textContent = `objectif ${n0.format(targetFor(menuDay))} kcal`;
-  $('#menuDays').innerHTML = days.map(d => `<button class="chip ${d === menuDay ? 'on' : ''}" data-day="${d}">${parseISO(d).toLocaleDateString('fr-FR', {weekday: 'short'}).replace('.', '')}</button>`).join('');
+  $('#menuDays').innerHTML = days.map(d => `<button class="chip ${d === menuDay ? 'on' : ''}" data-day="${d}">${parseISO(d).toLocaleDateString(LOCALE, {weekday: 'short'}).replace('.', '')}</button>`).join('');
   const menu = menuFor(menuDay);
   $('#menuList').innerHTML = menu.map(([m, r, q]) => `<div class="menu-row" data-rec="${r.id}" data-q="${q}" data-meal="${m}"><span class="em">${r.em}</span><div class="name">${esc(r.n)}<small>${mealLabel(m, menuDay)}${q !== 1 ? ` · ${nf.format(q)} portions` : ''}</small></div><span class="kcal">${n0.format(r.k * q)}</span></div>`).join('');
   $('#menuTotal').textContent = `${n0.format(menu.reduce((a, [, r, q]) => a + r.k * q, 0))} kcal`;
@@ -2973,7 +2981,7 @@ function renderWeight(){
   const c = calc();
   if (left > 0 && c.effPace > 0) {
     const weeks = left / c.effPace; const eta = new Date(); eta.setDate(eta.getDate() + Math.round(weeks*7));
-    $('#etaTxt').textContent = 'Estimation : ' + eta.toLocaleDateString('fr-FR', {month:'long', year:'numeric'});
+    $('#etaTxt').textContent = 'Estimation : ' + eta.toLocaleDateString(LOCALE, {month:'long', year:'numeric'});
   } else $('#etaTxt').textContent = '';
 
   $('#wDate').value = todayISO(); $('#wDate').max = todayISO();
@@ -3060,7 +3068,7 @@ function drawKcalChart(){
     const bx = L + i*bw + bw*0.18, w = bw*0.64;
     const over = t.kcal > targetFor(days[i]) + t.burn;
     if (t.kcal) g += `<rect x="${bx}" y="${y(t.kcal)}" width="${w}" height="${H - B - y(t.kcal)}" rx="5" fill="${over ? 'var(--warn)' : 'var(--brand)'}"><title>${n0.format(t.kcal)} kcal</title></rect>`;
-    g += `<text x="${bx + w/2}" y="${H-6}" text-anchor="middle" fill="var(--muted)" font-size="11">${parseISO(days[i]).toLocaleDateString('fr-FR',{weekday:'short'}).replace('.','')}</text>`;
+    g += `<text x="${bx + w/2}" y="${H-6}" text-anchor="middle" fill="var(--muted)" font-size="11">${parseISO(days[i]).toLocaleDateString(LOCALE,{weekday:'short'}).replace('.','')}</text>`;
   });
   g += `<line x1="${L}" x2="${W-R}" y1="${y(c.target)}" y2="${y(c.target)}" stroke="var(--muted)" stroke-dasharray="4 4" opacity=".7"/>`;
   svg.innerHTML = g;
@@ -3081,7 +3089,10 @@ function renderProfile(){
     .map(([l, v], i) => `<div><b>${nf.format(v)} ${i === 3 ? 'L' : 'g'}</b><span>${l} / jour</span></div>`).join('');
   renderRamSettings();
   renderSubCard();
+  $('#langSel').innerHTML = Object.entries(I18N.LANGS).map(([k, l]) => `<option value="${k}" ${l.ready || k === I18N.lang ? '' : 'disabled'}>${l.name}${l.ready ? '' : ' · ' + {ar: 'قريبا', en: 'coming soon'}[k]}</option>`).join('');
+  $('#langSel').value = I18N.LANGS[I18N.lang] ? I18N.lang : 'fr';
 }
+$('#langSel').onchange = e => I18N.setLang(e.target.value);
 $('#p-diet').onchange = e => $('#dietDesc').textContent = DIETS[e.target.value].desc;
 $('#profileForm').onsubmit = e => {
   e.preventDefault();
@@ -3123,7 +3134,7 @@ const ACC_KEY = 'leger.access';
 const OFFLINE_GRACE = 3 * 864e5; // accès hors ligne toléré 3 jours après la dernière vérification
 let ACC = null;
 
-const fmtDate = iso => new Date(iso).toLocaleDateString('fr-FR', {day:'numeric', month:'long', year:'numeric'});
+const fmtDate = iso => new Date(iso).toLocaleDateString(LOCALE, {day:'numeric', month:'long', year:'numeric'});
 const isSubscribed = (a = ACC) => !!a && ['active','trialing','past_due'].includes(a.status) && !!a.periodEnd && Date.parse(a.periodEnd) > Date.now();
 const inTrial = (a = ACC) => !!a && !!a.trialEnds && Date.parse(a.trialEnds) > Date.now();
 const hasAccess = (a = ACC) => !PAID || isSubscribed(a) || inTrial(a);
@@ -3294,6 +3305,7 @@ $('#demoBtn').onclick = () => {
 };
 
 /* ---------- Démarrage ---------- */
+I18N.ready.then(I18N.apply);
 gate().then(handlePaymentReturn).then(handleInvite);
 // Recharge l'écran si l'appli reste ouverte après minuit
 document.addEventListener('visibilitychange', () => {

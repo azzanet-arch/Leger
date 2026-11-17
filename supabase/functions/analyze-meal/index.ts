@@ -1,7 +1,7 @@
 // Analyse d'un repas par Claude : photo d'assiette, photo d'un plat partagé, ou description en texte (français ou darija).
 // Renvoie les aliments reconnus avec portion, poids, calories et macros estimés.
 import { cors, json, requireUser } from '../_shared/common.ts';
-import { anthropic, MODEL, checkAccessAndQuota, aiError, replyText } from '../_shared/ai.ts';
+import { anthropic, MODEL, checkAccessAndQuota, aiError, replyText, langNote } from '../_shared/ai.ts';
 
 const MAX_IMAGE_BYTES = 4_500_000;
 const BASE = `Tu es un diététicien qui estime le contenu nutritionnel des repas.
@@ -76,7 +76,7 @@ Deno.serve(async (req) => {
       betas: ['server-side-fallback-2026-07-01'],
       fallbacks: 'default',
       output_config: { effort: 'low', format: { type: 'json_schema', schema: SCHEMA } },
-      system: PROMPTS[task],
+      system: PROMPTS[task] + langNote(body.lang, 'les champs name, portion et comment'),
       messages: [{ role: 'user', content }],
     });
     const text = replyText(response);

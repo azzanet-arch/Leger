@@ -7,6 +7,13 @@ export const anthropic = new Anthropic(); // lit ANTHROPIC_API_KEY dans les secr
 export const MODEL = Deno.env.get('CLAUDE_MODEL') ?? 'claude-opus-5-5';
 const DAILY_LIMIT = Number(Deno.env.get('AI_DAILY_LIMIT') ?? '20');
 
+// Langue de l'utilisateur : les consignes restent en français, seule la langue des réponses change.
+const LANG_NAMES: Record<string, string> = { ar: 'arabe (simple et compréhensible au Maghreb)', en: 'anglais', es: 'espagnol', de: 'allemand', it: 'italien', nl: 'néerlandais', tr: 'turc', pt: 'portugais' };
+export function langNote(lang: unknown, what: string): string {
+  const name = typeof lang === 'string' ? LANG_NAMES[lang] : undefined;
+  return name ? `\n\nIMPORTANT : rédige ${what} en ${name}.` : '';
+}
+
 /** Renvoie une réponse d'erreur si l'utilisateur n'a pas accès ou a dépassé son quota, sinon null. */
 export async function checkAccessAndQuota(userId: string): Promise<Response | null> {
   const { data: p } = await admin.from('profiles').select('trial_ends_at,sub_status,current_period_end').eq('id', userId).single();
