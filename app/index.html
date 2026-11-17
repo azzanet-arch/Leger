@@ -46,8 +46,8 @@ section.view.active{display:block}
 .grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 .grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
 label{display:block;font-size:13px;color:var(--muted);margin-bottom:4px}
-input,select{width:100%;font:inherit;color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:10px 12px;min-height:44px}
-input:focus,select:focus{outline:2px solid var(--brand);outline-offset:1px}
+input,select,textarea{width:100%;font:inherit;color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:10px 12px;min-height:44px}
+input:focus,select:focus,textarea:focus{outline:2px solid var(--brand);outline-offset:1px}
 button{font:inherit;cursor:pointer;border:0;border-radius:10px;min-height:44px;padding:0 16px;background:var(--brand);color:#fff;font-weight:600}
 button.ghost{background:transparent;color:var(--ink);border:1px solid var(--line)}
 button.soft{background:var(--brand-soft);color:var(--brand)}
@@ -240,6 +240,23 @@ nav.tabs .fab{width:58px;height:58px;min-height:0;padding:0;border-radius:50%;ba
 .cd.miss{background:var(--warn);opacity:.45}
 .cd.today{background:transparent;box-shadow:inset 0 0 0 2px var(--brand)}
 .qrow2{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px}
+/* Vague 2 : IA */
+header .streak{white-space:nowrap}
+@media (max-width:380px){.hide-sm{display:none}header .streak{padding:4px 8px}}
+.ai3{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:-4px 0 12px}
+.ai3 button{min-height:48px;border-radius:14px;font-size:14px;padding:0 10px}
+textarea{resize:vertical;min-height:96px;line-height:1.4}
+#micBtn.rec{background:var(--warn);color:#fff;animation:pulse 1s ease-in-out infinite}
+@keyframes pulse{50%{opacity:.6}}
+.coachbtn{width:38px;height:38px;min-height:0;padding:0;border-radius:50%;background:var(--brand-soft);color:var(--brand);font-size:18px;display:grid;place-items:center;flex:none;margin-left:8px}
+header .streak.hidden~.coachbtn{margin-left:auto}
+#coachDlg .body{display:flex;flex-direction:column;gap:10px;height:min(70vh,560px);padding-bottom:12px}
+#coachMsgs{flex:1;overflow:auto;display:flex;flex-direction:column;gap:8px;padding:2px}
+.bubble{max-width:86%;padding:10px 14px;border-radius:18px;font-size:15px;line-height:1.45}
+.bubble.bot{background:var(--bg);align-self:flex-start;border-bottom-left-radius:6px}
+.bubble.me{background:var(--brand);color:#fff;align-self:flex-end;border-bottom-right-radius:6px}
+#coachSuggest{display:flex;gap:6px;overflow-x:auto;padding-bottom:2px}
+#coachSuggest .chip{white-space:nowrap;flex:none}
 /* Photo intelligente */
 .aibtn{width:100%;min-height:58px;margin-bottom:12px;border-radius:16px;background:linear-gradient(135deg,var(--hero-2),var(--hero));display:flex;align-items:center;gap:12px;padding:0 16px;text-align:left}
 .aibtn span{font-size:26px}
@@ -316,6 +333,7 @@ li.done .dot{background:var(--brand);opacity:.5} li.cur .dot{background:var(--br
   <img src="icon.svg" alt="">
   <h1>Léger</h1>
   <span class="streak hidden" id="streak"></span>
+  <button class="coachbtn hidden" id="coachBtn" aria-label="Coach IA" title="Coach IA">💬</button>
   <button class="avatar hidden" id="avatarBtn" aria-label="Mon profil">👤</button>
 </header>
 
@@ -581,6 +599,11 @@ li.done .dot{background:var(--brand);opacity:.5} li.cur .dot{background:var(--br
 
   <!-- ========== RECETTES ========== -->
   <section class="view" id="v-recipes">
+    <div class="card" style="display:flex;align-items:center;gap:12px">
+      <span style="font-size:32px">👵</span>
+      <div style="flex:1;min-width:0"><b>Alléger une recette de famille</b><div class="small muted">Collez la recette de votre mère : l'IA garde le goût et enlève les calories.</div></div>
+      <button class="soft" id="lightOpen" style="flex:none">Essayer</button>
+    </div>
     <div class="card">
       <h2>📅 Menu de la semaine <span class="sub" id="menuTarget"></span></h2>
       <div class="daychips" id="menuDays"></div>
@@ -686,6 +709,10 @@ li.done .dot{background:var(--brand);opacity:.5} li.cur .dot{background:var(--br
     <div id="pSearch">
       <button type="button" class="aibtn" id="aiBtn"><span>✨</span><div><b>Photographier mon assiette</b><small>L'IA reconnaît les aliments et calcule les calories</small></div></button>
       <input type="file" id="aiPhoto" accept="image/*" capture="environment" class="hidden">
+      <div class="ai3">
+        <button type="button" class="soft" id="textBtn">🎙️ Décrire mon repas</button>
+        <button type="button" class="soft" id="sharedBtn">🍲 Plat partagé</button>
+      </div>
       <div class="searchrow">
         <input id="foodSearch" type="search" placeholder="Pomme, riz, poulet, marque…" autocomplete="off">
         <button type="button" id="scanBtn" aria-label="Scanner un code-barres" title="Scanner un code-barres" style="padding:0 14px">
@@ -719,6 +746,35 @@ li.done .dot{background:var(--brand);opacity:.5} li.cur .dot{background:var(--br
         <button type="submit">OK</button>
       </form>
       <button type="button" class="ghost" id="scanBack" style="width:100%;margin-top:8px">Retour à la recherche</button>
+    </div>
+
+    <div id="pText" class="hidden">
+      <form id="textForm">
+        <label for="mealText">Décrivez ce que vous avez mangé, en français ou en darija</label>
+        <textarea id="mealText" maxlength="1000" placeholder="Ex. : 2 msemen avec du miel et un thé à la menthe"></textarea>
+        <div class="row" style="margin-top:8px;flex-wrap:wrap">
+          <div class="chips" id="speechLang"></div>
+          <button type="button" class="ghost" id="micBtn" aria-label="Dicter" title="Dicter" style="margin-left:auto;width:52px;padding:0">🎙️</button>
+        </div>
+        <div class="chips" id="mealExamples" style="margin-top:10px">
+          <button type="button" class="chip" data-ex="2 msemen avec du miel et un thé à la menthe">2 msemen + miel + thé</button>
+          <button type="button" class="chip" data-ex="jouj bid w khobz w kas d atay">jouj bid w khobz…</button>
+          <button type="button" class="chip" data-ex="une assiette de couscous et une banane">couscous + banane</button>
+        </div>
+        <button type="submit" style="width:100%;margin-top:12px">Analyser</button>
+      </form>
+      <button type="button" class="ghost" id="textBack" style="width:100%;margin-top:8px">Retour</button>
+    </div>
+
+    <div id="pShared" class="hidden">
+      <p class="small" style="margin-top:0">Vous mangez à plusieurs dans le même plat ? Photographiez le plat entier : l'IA estime <b>votre part</b>.</p>
+      <label>Nombre de personnes autour du plat</label>
+      <div class="chips" id="guestChips" style="margin-bottom:12px"></div>
+      <label>Pain pour saucer (votre part)</label>
+      <div class="chips" id="breadChips" style="margin-bottom:14px"></div>
+      <button type="button" style="width:100%" id="sharedPhotoBtn">📸 Photographier le plat</button>
+      <input type="file" id="sharedPhoto" accept="image/*" capture="environment" class="hidden">
+      <button type="button" class="ghost" id="sharedBack" style="width:100%;margin-top:8px">Retour</button>
     </div>
 
     <div id="pAi" class="hidden">
@@ -756,7 +812,9 @@ li.done .dot{background:var(--brand);opacity:.5} li.cur .dot{background:var(--br
   <div class="head"><h3>Ajouter</h3><button class="icon" data-close aria-label="Fermer">✕</button></div>
   <div class="body">
     <div class="qgrid">
-      <button class="qbtn" data-q="ai" style="grid-column:1/-1;min-height:72px;flex-direction:row;background:linear-gradient(135deg,var(--hero-2),var(--hero));color:#fff"><span>✨</span>Photographier mon assiette</button>
+      <button class="qbtn" data-q="ai" style="grid-column:1/-1;min-height:64px;flex-direction:row;background:linear-gradient(135deg,var(--hero-2),var(--hero));color:#fff"><span>✨</span>Photographier mon assiette</button>
+      <button class="qbtn" data-q="text" style="grid-column:span 2;min-height:56px;flex-direction:row"><span>🎙️</span>Décrire mon repas</button>
+      <button class="qbtn" data-q="shared" style="min-height:56px;flex-direction:row;font-size:13px"><span>🍲</span>Plat partagé</button>
       <button class="qbtn" data-q="food"><span>🍽️</span>Aliment</button>
       <button class="qbtn" data-q="scan"><span>📷</span>Scanner</button>
       <button class="qbtn" data-q="recipe"><span>🥗</span>Recette</button>
@@ -768,6 +826,37 @@ li.done .dot{background:var(--brand);opacity:.5} li.cur .dot{background:var(--br
       <button class="qbtn" data-q="fete" style="min-height:72px;flex-direction:row"><span>🎉</span>Jour de fête</button>
       <button class="qbtn" data-q="defi" style="min-height:72px;flex-direction:row"><span>🤝</span>Défi</button>
     </div>
+  </div>
+</dialog>
+
+<!-- Light recipe dialog -->
+<dialog id="lightDlg">
+  <div class="head"><h3>👵 Alléger une recette</h3><button class="icon" data-close aria-label="Fermer">✕</button></div>
+  <div class="body">
+    <div id="lightFormWrap">
+      <form id="lightForm">
+        <label for="lightText">Recette (ingrédients et étapes)</label>
+        <textarea id="lightText" maxlength="4000" style="min-height:160px" placeholder="Ex. : Tajine de poulet de ma mère&#10;- 1 poulet, 4 c. à soupe d'huile, 2 oignons, olives, citron confit…&#10;- Faire revenir le poulet dans l'huile…"></textarea>
+        <label for="lightServings" style="margin-top:10px">Nombre de portions</label>
+        <select id="lightServings"><option>2</option><option>3</option><option selected>4</option><option>6</option><option>8</option></select>
+        <button type="submit" style="width:100%;margin-top:12px">Alléger la recette</button>
+      </form>
+    </div>
+    <div id="lightResult"></div>
+  </div>
+</dialog>
+
+<!-- Coach dialog -->
+<dialog id="coachDlg">
+  <div class="head"><h3>💬 Mon coach</h3><button class="icon" id="coachReset" aria-label="Nouvelle conversation" title="Nouvelle conversation" style="margin-right:8px">↺</button><button class="icon" data-close aria-label="Fermer">✕</button></div>
+  <div class="body">
+    <div id="coachMsgs" aria-live="polite"></div>
+    <div id="coachSuggest"></div>
+    <form id="coachForm" class="searchrow">
+      <input id="coachIn" maxlength="2000" placeholder="Posez votre question…" autocomplete="off">
+      <button type="submit" aria-label="Envoyer">➤</button>
+    </form>
+    <p class="small muted" style="margin:0">Conseils généraux par intelligence artificielle, qui ne remplacent pas un avis médical.</p>
   </div>
 </dialog>
 
@@ -873,7 +962,11 @@ const FOODS = [ // [nom, portion, kcal, protéines g, glucides g, lipides g]
   ['Biscuits','3 biscuits',150,2,21,6.5],['Chips','1 petit paquet (30 g)',160,2,15,10],
   ['Café / thé sans sucre','1 tasse',2,0.2,0,0],['Sucre','1 morceau (5 g)',20,0,5,0],['Jus d\'orange','1 verre (200 ml)',90,1.4,20,0.2],
   ['Soda','1 canette (33 cl)',140,0,35,0],['Soda zéro','1 canette (33 cl)',1,0,0,0],['Bière','1 demi (25 cl)',105,0.8,8.5,0],['Vin','1 verre (12 cl)',85,0.1,2.5,0],
-  ['Thé à la menthe sucré','1 verre',60,0,15,0]
+  ['Thé à la menthe sucré','1 verre',60,0,15,0],
+  ['Miel','1 c. à soupe (20 g)',64,0.1,16,0],['Pain maison (khobz)','1/4 de galette (70 g)',180,6,36,1],['Lben (lait fermenté)','1 verre (250 ml)',90,8,12,1.5],
+  ['Baghrir','1 crêpe',140,4,27,1.5],['Harcha','1 galette',250,5,35,10],['Sfenj (beignet)','1 beignet',200,4,25,9],['Chebakia','1 pièce (30 g)',150,2,18,8],
+  ['Zlabia','1 pièce',150,1,22,6],['Makrout','1 pièce',180,2,25,8],['Mhajeb (msemen farci)','1 pièce',300,7,35,14],['Briouate frite','1 pièce',150,5,12,9],
+  ['Chorba','1 bol',230,15,26,7],['Bissara','1 bol',250,14,35,6],['Loubia','1 assiette',300,15,40,8],['Zaalouk','1 portion (150 g)',120,2,10,8]
 ].map(([n,p,k,pr,c,f]) => ({n,p,k,pr,c,f}));
 
 const ACTIVITIES = [ // MET (Compendium of Physical Activities, valeurs moyennes)
@@ -1018,6 +1111,7 @@ function show(v){
   $$('#tabs button').forEach(b => b.classList.toggle('active', b.dataset.v === v));
   $('#tabs').classList.toggle('hidden', ['setup','auth','paywall'].includes(v));
   $('#avatarBtn').classList.toggle('hidden', ['setup','auth','paywall'].includes(v));
+  $('#coachBtn').classList.toggle('hidden', ['setup','auth','paywall'].includes(v));
   $('#avatarBtn').textContent = ACC?.email ? ACC.email[0].toUpperCase() : (S.profile?.sex === 'm' ? '🧔' : '👩');
   window.scrollTo(0,0);
   render(v);
@@ -1028,7 +1122,7 @@ function render(v){
   if (v === 'paywall') return renderPaywall();
   if (!S.profile) return;
   const st = streak(); const el = $('#streak');
-  el.classList.toggle('hidden', st < 2); el.textContent = `🔥 ${st} jours`;
+  el.classList.toggle('hidden', st < 2); el.innerHTML = `🔥 ${st}<span class="hide-sm"> jours</span>`; el.title = `${st} jours de suite`;
   ({today: renderToday, weight: () => { renderRamStats(); renderWeight(); renderStats(); renderChallenges(); }, fast: () => { renderRamFast(); renderFast(); }, recipes: renderRecipes, profile: renderProfile}[v] || (()=>{}))();
 }
 const activeView = () => ($('section.view.active')?.id || 'v-today').slice(2);
@@ -1189,10 +1283,10 @@ function recentFoods(){
   Object.keys(S.days).sort().reverse().slice(0, 30).forEach(k => S.days[k].foods.forEach(f => { if (!seen.has(f.n)) seen.set(f.n, f); }));
   return [...seen.values()].slice(0, 8).map(f => ({...localItem(f), recent: true}));
 }
-const recipeItems = () => RECIPES.map(r => ({n: r.n, label: '1 portion · recette', unit: 'portion', per: {k: r.k, pr: r.p, c: r.c, f: r.f}, def: 1, em: r.em}));
+const recipeItems = () => allRecipes().map(r => ({n: r.n, label: '1 portion · recette', unit: 'portion', per: {k: r.k, pr: r.p, c: r.c, f: r.f}, def: 1, em: r.em}));
 function showPanel(name){
-  ['Search','Scan','Qty','Ai'].forEach(p => $('#p' + p).classList.toggle('hidden', p !== name));
-  $('#foodDlgTitle').textContent = {Search: 'Ajouter un aliment', Scan: 'Scanner un produit', Qty: 'Quantité', Ai: 'Photo du repas'}[name];
+  ['Search','Scan','Qty','Ai','Text','Shared'].forEach(p => $('#p' + p).classList.toggle('hidden', p !== name));
+  $('#foodDlgTitle').textContent = {Search: 'Ajouter un aliment', Scan: 'Scanner un produit', Qty: 'Quantité', Ai: 'Analyse du repas', Text: 'Décrire mon repas', Shared: 'Plat partagé'}[name];
   if (name !== 'Scan') stopScan();
 }
 function listHTML(list){
@@ -1420,6 +1514,8 @@ $('#quickDlg').addEventListener('click', e => {
   if (q === 'food') openFoodDlg(false);
   else if (q === 'scan') openFoodDlg(true);
   else if (q === 'ai') { openFoodDlg(false); $('#aiPhoto').click(); }
+  else if (q === 'text') { openFoodDlg(false); openTextPanel(); }
+  else if (q === 'shared') { openFoodDlg(false); openSharedPanel(); }
   else if (q === 'recipe') show('recipes');
   else if (q === 'water') $('#waterPlus').click();
   else if (q === 'act') $('#addActBtn').click();
@@ -1453,32 +1549,9 @@ function toJpeg(file, max = 1280){
     return c.toDataURL('image/jpeg', 0.82);
   });
 }
-async function aiAnalyze(file){
-  showPanel('Ai');
-  $('#aiList').innerHTML = ''; ['aiTotalRow', 'aiComment', 'aiAdd'].forEach(id => $('#' + id).classList.add('hidden'));
-  $('#aiStatus').innerHTML = '<div class="spin"></div>Analyse de votre assiette… (5 à 20 secondes)';
-  let dataUrl;
-  try { dataUrl = await toJpeg(file); } catch(_) { $('#aiStatus').textContent = 'Impossible de lire cette photo. Essayez avec une autre.'; return; }
-  $('#aiPrev').src = dataUrl;
-  let res;
-  try {
-    if (!PAID || !sb) { aiDemo = true; await new Promise(r => setTimeout(r, 1500)); res = AI_DEMO; }
-    else {
-      aiDemo = false;
-      const {data, error} = await sb.functions.invoke('analyze-meal', {body: {image: dataUrl.split(',')[1], mediaType: 'image/jpeg'}});
-      if (error) { let m = ''; try { m = (await error.context.json()).error; } catch(_) {} throw new Error(m || 'Analyse impossible. Vérifiez votre connexion et réessayez.'); }
-      res = data;
-    }
-  } catch(e) { $('#aiStatus').textContent = e.message || 'Analyse impossible.'; return; }
-  if (!res?.is_food || !res.items?.length) { $('#aiStatus').textContent = 'Aucun aliment reconnu sur cette photo. Photographiez l\'assiette de plus près, vue de dessus et bien éclairée.'; return; }
-  aiItems = res.items.map(i => ({...i, g0: i.grams || 1, on: true}));
-  $('#aiStatus').innerHTML = aiDemo ? '<span class="demo-tag">Exemple de démonstration</span>' : `${aiItems.length} aliment${aiItems.length > 1 ? 's' : ''} reconnu${aiItems.length > 1 ? 's' : ''}`;
-  $('#aiComment').textContent = res.comment || ''; $('#aiComment').classList.toggle('hidden', !res.comment);
-  renderAi();
-}
 const aiScaled = i => { const k = (i.grams || 0) / i.g0; return {k: i.kcal * k, pr: i.protein * k, c: i.carbs * k, f: i.fat * k}; };
 function renderAi(){
-  $('#aiList').innerHTML = aiItems.map((i, n) => `<label class="aiitem"><input type="checkbox" data-ai-on="${n}" ${i.on ? 'checked' : ''}><div class="name">${esc(i.name)}<small>${esc(i.portion)} · confiance ${esc(i.confidence)}</small></div><input type="number" inputmode="numeric" min="0" step="5" data-ai-g="${n}" value="${Math.round(i.grams)}" aria-label="Grammes"><span class="muted small">g</span><span class="kcal" id="aiK${n}">${n0.format(aiScaled(i).k)}</span></label>`).join('');
+  $('#aiList').innerHTML = aiItems.map((i, n) => `<label class="aiitem"><input type="checkbox" data-ai-on="${n}" ${i.on ? 'checked' : ''}><div class="name">${esc(i.name)}<small>${esc(i.portion)} · confiance ${esc(i.confidence)}</small></div><input type="number" inputmode="decimal" min="0" step="${i.unit === 'portion' ? 0.5 : 5}" data-ai-g="${n}" value="${i.unit === 'portion' ? i.grams : Math.round(i.grams)}" aria-label="${i.unit === 'portion' ? 'Portions' : 'Grammes'}"><span class="muted small">${i.unit === 'portion' ? '×' : 'g'}</span><span class="kcal" id="aiK${n}">${n0.format(aiScaled(i).k)}</span></label>`).join('');
   updAiTotal();
 }
 function updAiTotal(){
@@ -1496,14 +1569,216 @@ $('#aiList').addEventListener('input', e => {
 });
 $('#aiAdd').onclick = () => {
   const sel = aiItems.filter(i => i.on && i.grams > 0);
-  sel.forEach(i => addFood({n: i.name, p: `${n0.format(i.grams)} g · photo IA${aiDemo ? ' (exemple)' : ''}`, ...aiScaled(i)}));
+  const how = {photo: 'photo IA', shared: `part du plat (1/${sharedGuests})`, text: 'décrit'}[aiSource] || 'IA';
+  sel.forEach(i => addFood({n: i.name, p: `${i.unit === 'portion' ? (i.grams === i.g0 ? i.portion : nf.format(i.grams) + ' portion(s)') : n0.format(i.grams) + ' g'} · ${how}${aiDemo ? ' (exemple)' : ''}`, ...aiScaled(i)}));
   $('#foodDlg').close();
   toast(`${sel.length} aliment${sel.length > 1 ? 's' : ''} ajouté${sel.length > 1 ? 's' : ''} au ${mealLabel(curMeal).toLowerCase()}`);
 };
 $('#aiBtn').onclick = () => $('#aiPhoto').click();
-$('#aiRetry').onclick = () => $('#aiPhoto').click();
+$('#aiRetry').onclick = () => aiSource === 'text' ? openTextPanel() : aiSource === 'shared' ? $('#sharedPhoto').click() : $('#aiPhoto').click();
 $('#aiBack').onclick = () => showPanel('Search');
 $('#aiPhoto').onchange = e => { const f = e.target.files[0]; e.target.value = ''; if (f) aiAnalyze(f); };
+
+/* ---------- Analyse de repas par l'IA : photo, plat partagé, description en texte ---------- */
+// Lecteur local de descriptions (mode démo et hors connexion) : quantités + aliments, y compris quelques mots de darija
+const NUM_WORDS = {un: 1, une: 1, deux: 2, trois: 3, quatre: 4, cinq: 5, six: 6, sept: 7, huit: 8, dix: 10, demi: 0.5, demie: 0.5, moitie: 0.5,
+  wahed: 1, wa7ed: 1, wahd: 1, jouj: 2, jooj: 2, zouj: 2, tlata: 3, tleta: 3, reb3a: 4, arba: 4, khamsa: 5};
+const DARIJA = {khobz: 'Pain maison (khobz)', kesra: 'Pain maison (khobz)', atay: 'Thé à la menthe sucré', ataye: 'Thé à la menthe sucré', the: 'Thé à la menthe sucré',
+  lben: 'Lben (lait fermenté)', l3sel: 'Miel', '3sel': 'Miel', asel: 'Miel', miel: 'Miel', beid: 'Œuf', bid: 'Œuf', baid: 'Œuf', zitoun: 'Olives', djaj: 'Blanc de poulet', jaj: 'Blanc de poulet',
+  lham: 'Steak haché 15 %', hout: 'Cabillaud', roz: 'Riz cuit', batata: 'Pommes de terre vapeur', tmer: 'Dattes', tmar: 'Dattes', kesksou: 'Couscous (plat)', seksou: 'Couscous (plat)',
+  msmen: 'Msemen', msemen: 'Msemen', rghaif: 'Msemen', baghrir: 'Baghrir', sfenj: 'Sfenj (beignet)', chebakia: 'Chebakia', zlabia: 'Zlabia', makrout: 'Makrout', harcha: 'Harcha',
+  bissara: 'Bissara', loubia: 'Loubia', zaalouk: 'Zaalouk', chorba: 'Chorba', briouate: 'Briouate frite', bourek: 'Briouate frite', mhajeb: 'Mhajeb (msemen farci)',
+  zit: 'Huile d\'olive', zitt: 'Huile d\'olive', huile: 'Huile d\'olive', zebda: 'Beurre', jben: 'Fromage (emmental)', fromage: 'Fromage (emmental)', coca: 'Soda', soda: 'Soda', kahwa: 'Café / thé sans sucre', qahwa: 'Café / thé sans sucre', cafe: 'Café / thé sans sucre', banane: 'Banane', banan: 'Banane', tofa7: 'Pomme', tfa7: 'Pomme'};
+function parseMealLocal(text){
+  const segs = norm(text).replace(/[.!?]/g, ' ').split(/,|;|\+|\bet\b|\bavec\b|\bw\b|\bou\b|\bb\b|\bmaa\b|\bm3a\b|\n/).map(x => x.trim()).filter(Boolean);
+  const items = [], unknown = [];
+  for (const seg of segs) {
+    const words = seg.split(/\s+/);
+    let qty = 1; const m = seg.match(/(?:^|\s)(\d+(?:[.,]\d+)?)(?=\s|$)/); // nombre isolé (pas le 3 de « l3sel »)
+    if (m) qty = parseFloat(m[1].replace(',', '.'));
+    else for (const w of words) if (NUM_WORDS[w]) { qty = NUM_WORDS[w]; break; }
+    let food = null;
+    for (const w of words) if (DARIJA[w]) { food = FOODS.find(f => f.n === DARIJA[w]); if (food) break; }
+    if (!food) { // meilleur recouvrement de mots avec la base locale
+      const ws = words.filter(w => w.length > 2 && !NUM_WORDS[w] && !/^(des?|du|la|le|les|un|une|kas|verre|tasse|bol|assiette|portion|morceau|tranche|petit|grand|chi|haja|bzaf|chwiya|kima|dial|mn|fih|fiha)$/.test(w));
+      let best = 0; // mots entiers seulement (« chi » ne doit pas trouver « pois chiches »)
+      const same = (x, w) => x === w || x === w.replace(/s$/, '') || x.replace(/s$/, '') === w || (w.length >= 5 && x.startsWith(w.slice(0, -1)));
+      for (const f of FOODS) { const fw = norm(f.n).split(/[\s'()\/-]+/); const sc = ws.filter(w => fw.some(x => same(x, w))).length; if (sc > best) { best = sc; food = f; } }
+    }
+    if (!food) { unknown.push(seg); continue; }
+    if (qty > 20) qty = 1; // « 200 g » : quantité en grammes non gérée en local
+    items.push({name: food.n, portion: qty === 1 ? food.p : `${nf.format(qty)} × ${food.p}`, grams: qty, unit: 'portion', kcal: food.k * qty, protein: food.pr * qty, carbs: food.c * qty, fat: food.f * qty, confidence: 'moyenne'});
+  }
+  return {is_food: items.length > 0, items, comment: unknown.length ? `Non reconnu : ${unknown.join(', ')}. Ajoutez-le avec la recherche ou la saisie manuelle.` : '', local: true};
+}
+const AI_SHARED_DEMO = {is_food: true, comment: 'Exemple de démonstration : plat entier estimé à environ 2,4 kg pour 4 personnes.', items: [
+  {name: 'Poulet du tajine', portion: '1/4 du plat', grams: 140, kcal: 270, protein: 30, carbs: 0, fat: 16, confidence: 'moyenne'},
+  {name: 'Légumes et pommes de terre', portion: '1/4 du plat', grams: 220, kcal: 150, protein: 4, carbs: 28, fat: 2, confidence: 'moyenne'},
+  {name: 'Sauce et huile absorbées', portion: '1/4 du plat', grams: 60, kcal: 140, protein: 1, carbs: 3, fat: 14, confidence: 'faible'},
+  {name: 'Pain (pour saucer)', portion: '1/4 de galette', grams: 70, kcal: 180, protein: 6, carbs: 36, fat: 1, confidence: 'haute'}
+]};
+let aiSource = 'photo', sharedGuests = 4, sharedBread = 1;
+async function aiInvoke(body){
+  const {data, error} = await sb.functions.invoke('analyze-meal', {body});
+  if (error) { let m = ''; try { m = (await error.context.json()).error; } catch(_) {} throw new Error(m || 'Analyse impossible. Vérifiez votre connexion et réessayez.'); }
+  return data;
+}
+async function aiRun({task, file, text}){
+  aiSource = task; showPanel('Ai');
+  $('#aiList').innerHTML = ''; ['aiTotalRow', 'aiComment', 'aiAdd'].forEach(id => $('#' + id).classList.add('hidden'));
+  $('#aiPrev').classList.toggle('hidden', task === 'text');
+  $('#aiStatus').innerHTML = `<div class="spin"></div>${task === 'text' ? 'Analyse de votre description…' : task === 'shared' ? `Analyse du plat pour ${sharedGuests} personnes…` : 'Analyse de votre assiette…'} (5 à 20 secondes)`;
+  let dataUrl = '';
+  if (file) { try { dataUrl = await toJpeg(file); } catch(_) { $('#aiStatus').textContent = 'Impossible de lire cette photo. Essayez avec une autre.'; return; } $('#aiPrev').src = dataUrl; }
+  let res; aiDemo = false;
+  try {
+    if (task === 'text' && (!PAID || !sb || !navigator.onLine)) res = parseMealLocal(text);
+    else if (!PAID || !sb) { aiDemo = true; await new Promise(r => setTimeout(r, 1500)); res = task === 'shared' ? AI_SHARED_DEMO : AI_DEMO; }
+    else res = await aiInvoke(task === 'text' ? {task, text} : {task, image: dataUrl.split(',')[1], mediaType: 'image/jpeg', guests: sharedGuests, bread: sharedBread});
+  } catch(e) {
+    if (task === 'text') res = parseMealLocal(text); // repli hors ligne
+    else { $('#aiStatus').textContent = e.message || 'Analyse impossible.'; return; }
+  }
+  if (!res?.is_food || !res.items?.length) {
+    $('#aiStatus').textContent = task === 'text' ? (res?.comment || 'Aucun aliment reconnu. Essayez par exemple : « 2 msemen avec du miel et un thé ».') : 'Aucun aliment reconnu sur cette photo. Photographiez le plat de plus près, vue de dessus et bien éclairé.';
+    return;
+  }
+  aiItems = res.items.map(i => ({...i, g0: i.grams || 1, on: true}));
+  const n = aiItems.length;
+  $('#aiStatus').innerHTML = aiDemo ? '<span class="demo-tag">Exemple de démonstration</span>'
+    : res.local ? `<span class="demo-tag">Lecture simplifiée</span> ${n} aliment${n > 1 ? 's' : ''} trouvé${n > 1 ? 's' : ''}`
+    : task === 'shared' ? `Votre part : 1/${sharedGuests} du plat` : `${n} aliment${n > 1 ? 's' : ''} reconnu${n > 1 ? 's' : ''}`;
+  $('#aiComment').textContent = res.comment || ''; $('#aiComment').classList.toggle('hidden', !res.comment);
+  renderAi();
+}
+const aiAnalyze = file => aiRun({task: 'photo', file});
+// Décrire son repas (texte ou dictée)
+const SpeechRec = window.SpeechRecognition || window.webkitSpeechRecognition;
+let speechLang = 'fr-FR', speechRec = null;
+function openTextPanel(){ showPanel('Text'); $('#mealText').value = ''; $('#micBtn').classList.toggle('hidden', !SpeechRec); renderLangChips(); setTimeout(() => $('#mealText').focus(), 50); }
+function renderLangChips(){ $('#speechLang').innerHTML = [['fr-FR', 'Français'], ['ar-MA', 'Darija']].map(([v, l]) => `<button type="button" class="chip ${v === speechLang ? 'on' : ''}" data-lang="${v}">${l}</button>`).join(''); }
+$('#speechLang').addEventListener('click', e => { const v = e.target.dataset.lang; if (v) { speechLang = v; renderLangChips(); } });
+$('#micBtn').onclick = () => {
+  if (speechRec) { speechRec.stop(); return; }
+  const rec = speechRec = new SpeechRec(); rec.lang = speechLang; rec.interimResults = true; rec.continuous = false;
+  const base = $('#mealText').value ? $('#mealText').value.trim() + ' ' : '';
+  rec.onresult = e => { $('#mealText').value = base + [...e.results].map(r => r[0].transcript).join(' '); };
+  rec.onerror = e => toast(e.error === 'not-allowed' ? 'Micro refusé : autorisez-le dans les réglages, ou tapez votre repas' : 'Je n\'ai pas bien entendu, réessayez');
+  rec.onend = () => { speechRec = null; $('#micBtn').classList.remove('rec'); $('#micBtn').textContent = '🎙️'; };
+  try { rec.start(); $('#micBtn').classList.add('rec'); $('#micBtn').textContent = '⏹️'; } catch(_) { speechRec = null; }
+};
+$('#textForm').onsubmit = e => { e.preventDefault(); speechRec?.stop(); const t = $('#mealText').value.trim(); if (t) aiRun({task: 'text', text: t}); };
+$('#mealExamples').addEventListener('click', e => { const t = e.target.closest('[data-ex]')?.dataset.ex; if (t) $('#mealText').value = t; });
+// Plat partagé
+function openSharedPanel(){ showPanel('Shared'); renderShared(); }
+function renderShared(){
+  $('#guestChips').innerHTML = [2, 3, 4, 5, 6, 8, 10].map(v => `<button type="button" class="chip ${v === sharedGuests ? 'on' : ''}" data-guests="${v}">${v}</button>`).join('');
+  $('#breadChips').innerHTML = [[0, 'Sans pain'], [1, '1/4 de galette'], [2, '1/2 galette']].map(([v, l]) => `<button type="button" class="chip ${v === sharedBread ? 'on' : ''}" data-bread="${v}">${l}</button>`).join('');
+}
+$('#pShared').addEventListener('click', e => {
+  const g = e.target.closest('[data-guests]'), b = e.target.closest('[data-bread]');
+  if (g) { sharedGuests = +g.dataset.guests; renderShared(); }
+  if (b) { sharedBread = +b.dataset.bread; renderShared(); }
+});
+$('#sharedPhotoBtn').onclick = () => $('#sharedPhoto').click();
+$('#sharedPhoto').onchange = e => { const f = e.target.files[0]; e.target.value = ''; if (f) aiRun({task: 'shared', file: f}); };
+$('#textBtn').onclick = openTextPanel;
+$('#sharedBtn').onclick = openSharedPanel;
+$('#textBack').onclick = () => showPanel('Search');
+$('#sharedBack').onclick = () => showPanel('Search');
+
+/* ---------- Recettes de famille allégées ---------- */
+const myRecipes = () => (S.myRecipes ||= []);
+const allRecipes = () => [...RECIPES, ...myRecipes()];
+const LIGHT_DEMO = {is_recipe: true, title: 'Tajine de poulet aux olives allégé', emoji: '🍲', servings: 4, minutes: 70, original_kcal: 620, kcal: 410, protein: 38, carbs: 22, fat: 18,
+  ingredients: ['4 cuisses de poulet sans la peau', '2 oignons émincés', '1 c. à soupe d\'huile d\'olive (au lieu de 4)', '150 g d\'olives vertes rincées', '1 citron confit', '400 g de carottes et courgettes', 'Gingembre, curcuma, safran, coriandre'],
+  steps: ['Retirez la peau du poulet et faites-le revenir avec l\'oignon dans 1 cuillère d\'huile.', 'Ajoutez les épices, un verre d\'eau, couvrez et laissez mijoter 40 minutes.', 'Ajoutez les légumes, les olives rincées et le citron confit, puis cuisez encore 20 minutes à couvert.'],
+  changes: ['Poulet sans peau : environ −90 kcal par portion.', '1 cuillère d\'huile au lieu de 4 : environ −100 kcal par portion, le goût vient des épices.', 'Olives rincées : moins de sel.', 'Légumes ajoutés : plus de volume et de fibres pour le même plaisir.']};
+let lightResult = null;
+function openLightDlg(){ lightResult = null; $('#lightText').value = ''; $('#lightResult').innerHTML = ''; $('#lightFormWrap').classList.remove('hidden'); $('#lightDlg').showModal(); }
+$('#lightOpen').onclick = openLightDlg;
+$('#lightForm').onsubmit = async e => {
+  e.preventDefault();
+  const recipe = $('#lightText').value.trim(); const servings = +$('#lightServings').value || 4;
+  if (recipe.length < 20) return toast('Collez la recette : ingrédients et étapes');
+  $('#lightResult').innerHTML = '<div class="spin"></div><p class="small muted" style="text-align:center">Allègement de la recette… (10 à 30 secondes)</p>';
+  let res, demo = false;
+  try {
+    if (!PAID || !sb) { demo = true; await new Promise(r => setTimeout(r, 1500)); res = LIGHT_DEMO; }
+    else {
+      const {data, error} = await sb.functions.invoke('ai-coach', {body: {task: 'lighten', recipe, servings}});
+      if (error) { let m = ''; try { m = (await error.context.json()).error; } catch(_) {} throw new Error(m || 'Service indisponible, réessayez.'); }
+      res = data;
+    }
+  } catch(err) { $('#lightResult').innerHTML = `<p class="warn">${esc(err.message)}</p>`; return; }
+  if (!res?.is_recipe) { $('#lightResult').innerHTML = '<p class="warn">Je n\'ai pas reconnu de recette. Collez la liste des ingrédients et les étapes.</p>'; return; }
+  lightResult = {...res, demo};
+  $('#lightFormWrap').classList.add('hidden');
+  const saved = Math.max(0, res.original_kcal - res.kcal);
+  $('#lightResult').innerHTML = `${demo ? '<p><span class="demo-tag">Exemple de démonstration</span></p>' : ''}
+    <h3 style="margin:0 0 6px;font-size:19px">${esc(res.emoji || '🍽️')} ${esc(res.title)}</h3>
+    <p class="small muted" style="margin:0 0 10px">${res.servings} portions · ${res.minutes} min</p>
+    <div class="mstats"><div><b>${n0.format(res.kcal)}</b><span>kcal / portion</span></div><div><b style="color:var(--brand)">−${n0.format(saved)}</b><span>kcal gagnées</span></div><div><b>${n0.format(res.protein)} g</b><span>Protéines</span></div><div><b>${n0.format(res.fat)} g</b><span>Lipides</span></div></div>
+    <div class="rdetail"><h4>Ce qui change</h4><ul>${res.changes.map(x => `<li>${esc(x)}</li>`).join('')}</ul>
+    <h4>Ingrédients</h4><ul>${res.ingredients.map(x => `<li>${esc(x)}</li>`).join('')}</ul>
+    <h4>Préparation</h4><ol>${res.steps.map(x => `<li>${esc(x)}</li>`).join('')}</ol></div>
+    <div class="grid2" style="margin-top:14px"><button type="button" class="ghost" id="lightAgain">Autre recette</button><button type="button" id="lightSave">Enregistrer</button></div>
+    <p class="small muted" style="margin:10px 0 0">Valeurs estimées par intelligence artificielle.</p>`;
+  $('#lightAgain').onclick = openLightDlg;
+  $('#lightSave').onclick = () => {
+    const r = lightResult;
+    myRecipes().push({id: 'my-' + uid(), n: r.title + (r.demo ? ' (exemple)' : ''), em: r.emoji || '🍽️', cat: 'main', tags: ['mine'], t: r.minutes, k: Math.round(r.kcal), p: r.protein, c: r.carbs, f: r.fat,
+      ing: r.ingredients, steps: r.steps, changes: r.changes, orig: r.original_kcal});
+    save(); $('#lightDlg').close(); recFilter = 'mine'; renderRecipes(); toast('Recette enregistrée dans « Mes recettes »');
+  };
+};
+
+/* ---------- Coach IA ---------- */
+const COACH_SUGGEST = ['Je suis invitée à un mariage ce soir, je fais comment ?', 'Que manger ce soir avec ce qu\'il me reste ?', 'Je stagne depuis 2 semaines, pourquoi ?', 'Une idée de ftour léger et rassasiant ?'];
+const COACH_DEMO = {
+  0: 'Bonne nouvelle : un mariage ne ruine pas une semaine ! Mangez un repas léger et riche en protéines avant de partir, pour ne pas arriver affamée. Sur place, servez-vous une assiette de taille normale, privilégiez le poulet et les légumes, et choisissez un seul dessert que vous aimez vraiment. Alternez chaque verre de soda avec un verre d\'eau, et dansez : une heure de danse, c\'est environ 300 kcal. Astuce : prévoyez-le dans « Jour de fête » pour avoir de la marge.',
+  1: 'Il vous reste environ 1 100 kcal aujourd\'hui. Pour ce soir, visez une assiette d\'environ 500 kcal : un filet de poulet ou un pavé de poisson, beaucoup de légumes, et une petite portion de féculents (riz, semoule ou une demi-tranche de pain). Gardez de la place pour une collation, par exemple un yaourt ou un fruit.',
+  2: 'Une stagnation de 2 semaines est très fréquente : l\'eau retenue masque souvent une perte de graisse. Vérifiez trois choses : notez-vous vraiment tout, y compris l\'huile, le thé sucré et les grignotages ? Dormez-vous au moins 7 heures ? Bougez-vous autant qu\'avant ? Regardez la tendance sur la courbe plutôt que la pesée du jour, et ajoutez 20 minutes de marche par jour cette semaine.',
+  3: 'Rompez le jeûne avec 3 dattes et un grand verre d\'eau, puis attendez 10 minutes. Ensuite, un bol de harira ou de chorba (environ 250 kcal), et une assiette de poulet ou de poisson avec des légumes. Évitez les fritures et limitez la chebakia à une pièce. Le menu Ramadan de l\'onglet Recettes vous propose des idées chaque jour.'
+};
+let coachMsgs = [];
+function coachContext(){
+  const c = calc(); const t = dayTotals(todayISO()); const p = S.profile;
+  const w7 = last7().map(dayTotals).filter(x => x.kcal);
+  return {sexe: p.sex === 'm' ? 'homme' : 'femme', age: p.age, taille_cm: p.height, poids_kg: currentWeight(), poids_vise_kg: p.goal, objectif_kcal: targetFor(todayISO()),
+    alimentation: DIETS[c.diet].label, aujourd_hui: {kcal: Math.round(t.kcal), proteines_g: Math.round(t.prot), glucides_g: Math.round(t.carb), lipides_g: Math.round(t.fat), activite_kcal: Math.round(t.burn), eau_verres: t.water, repas: peekDay(todayISO()).foods.map(f => f.n).slice(0, 20)},
+    moyenne_7_jours_kcal: w7.length ? Math.round(w7.reduce((a, x) => a + x.kcal, 0) / w7.length) : null, ramadan: isRamadan(), fete_prevue: fetes().filter(f => f.date >= todayISO()).map(f => `${f.name} le ${f.date}`)[0] || null};
+}
+function renderCoach(){
+  const box = $('#coachMsgs');
+  box.innerHTML = (coachMsgs.length ? '' : `<div class="bubble bot">Bonjour ! Je suis votre coach Léger. Posez-moi vos questions sur vos repas, une fête, le Ramadan ou votre progression : je m'appuie sur votre journal pour vous répondre.</div>`) +
+    coachMsgs.map(m => `<div class="bubble ${m.role === 'user' ? 'me' : 'bot'}">${m.demo ? '<span class="demo-tag">Exemple de réponse</span><br>' : ''}${esc(m.content).replace(/\n/g, '<br>')}</div>`).join('') +
+    (coachBusy ? '<div class="bubble bot"><span class="dots">…</span></div>' : '');
+  $('#coachSuggest').innerHTML = coachMsgs.length ? '' : COACH_SUGGEST.map((q, i) => `<button type="button" class="chip" data-sug="${i}">${esc(q)}</button>`).join('');
+  box.scrollTop = box.scrollHeight;
+}
+let coachBusy = false;
+async function coachSend(text, sugIdx){
+  if (!text.trim() || coachBusy) return;
+  coachMsgs.push({role: 'user', content: text.trim()}); coachBusy = true; renderCoach();
+  try {
+    if (!PAID || !sb) {
+      await new Promise(r => setTimeout(r, 900));
+      coachMsgs.push(sugIdx !== undefined ? {role: 'assistant', content: COACH_DEMO[sugIdx], demo: true}
+        : {role: 'assistant', content: 'En mode démo, je ne peux répondre qu\'aux questions proposées. Le coach répondra à toutes vos questions dès que votre compte sera activé.', demo: true});
+    } else {
+      const {data, error} = await sb.functions.invoke('ai-coach', {body: {task: 'chat', context: coachContext(), messages: coachMsgs.filter(m => !m.demo).map(({role, content}) => ({role, content}))}});
+      if (error) { let m = ''; try { m = (await error.context.json()).error; } catch(_) {} throw new Error(m || 'Le coach est indisponible, réessayez dans un instant.'); }
+      coachMsgs.push({role: 'assistant', content: data.reply});
+    }
+  } catch(e) { coachMsgs.push({role: 'assistant', content: e.message, demo: false}); }
+  coachBusy = false; renderCoach();
+}
+$('#coachBtn').onclick = () => { renderCoach(); $('#coachDlg').showModal(); };
+$('#coachForm').onsubmit = e => { e.preventDefault(); const t = $('#coachIn').value; $('#coachIn').value = ''; coachSend(t); };
+$('#coachSuggest').addEventListener('click', e => { const i = e.target.closest('[data-sug]')?.dataset.sug; if (i !== undefined) coachSend(COACH_SUGGEST[+i], +i); });
+$('#coachReset').onclick = () => { coachMsgs = []; renderCoach(); };
+
 
 /* ---------- Mode Ramadan ---------- */
 const RAM_CITIES = [
@@ -1991,8 +2266,8 @@ const REC_FILTERS = [['all','Toutes'],['ramadan','Ramadan 🌙'],['breakfast','P
 let recFilter = 'all', menuDay = null;
 function renderRecipes(){
   const q = norm($('#recSearch').value.trim());
-  const list = RECIPES.filter(r => (recFilter === 'all' || r.cat === recFilter || r.tags.includes(recFilter) || (recFilter === 'rapide' && r.t < 20)) && (!q || norm(r.n).includes(q)));
-  $('#recFilters').innerHTML = REC_FILTERS.map(([v,l]) => `<button class="chip ${v === recFilter ? 'on' : ''}" data-f="${v}">${l}</button>`).join('');
+  const list = allRecipes().filter(r => (recFilter === 'all' || r.cat === recFilter || r.tags.includes(recFilter) || (recFilter === 'rapide' && r.t < 20)) && (!q || norm(r.n).includes(q)));
+  $('#recFilters').innerHTML = (myRecipes().length ? [REC_FILTERS[0], ['mine', 'Mes recettes 👵'], ...REC_FILTERS.slice(1)] : REC_FILTERS).map(([v,l]) => `<button class="chip ${v === recFilter ? 'on' : ''}" data-f="${v}">${l}</button>`).join('');
   $('#recCount').textContent = `${list.length} recette${list.length > 1 ? 's' : ''}`;
   $('#recGrid').innerHTML = list.map(r => `<button class="rcard" data-rec="${r.id}"><span class="em">${r.em}</span><b>${esc(r.n)}</b><small>${r.k} kcal · ${r.t} min · ${n0.format(r.p)} g prot.</small></button>`).join('')
     || '<p class="muted small">Aucune recette ne correspond.</p>';
@@ -2002,19 +2277,22 @@ $('#recFilters').addEventListener('click', e => { const f = e.target.dataset.f; 
 $('#recSearch').addEventListener('input', renderRecipes);
 $('#v-recipes').addEventListener('click', e => { const b = e.target.closest('[data-rec]'); if (b) openRecipe(b.dataset.rec, +(b.dataset.q || 1), b.dataset.meal); });
 function openRecipe(id, q = 1, meal){
-  const r = RECIPES.find(x => x.id === id); if (!r) return;
+  const r = allRecipes().find(x => x.id === id); if (!r) return;
   $('#recTitle').textContent = r.em + ' ' + r.n;
   const mealDef = meal || (isRamadan() ? (r.cat === 'breakfast' ? 'breakfast' : r.cat === 'snack' && !r.tags.includes('ramadan') ? 'snack' : 'dinner')
     : r.cat === 'breakfast' ? 'breakfast' : r.cat === 'snack' ? 'snack' : (new Date().getHours() < 15 ? 'lunch' : 'dinner'));
   $('#recBody').innerHTML = `
     <p class="muted small" style="margin-top:0">⏱️ ${r.t} min · pour 1 personne${r.tags.includes('vege') ? ' · végétarien' : ''}</p>
     <div class="mstats"><div><b>${r.k}</b><span>kcal</span></div><div><b>${n0.format(r.c)} g</b><span>Glucides</span></div><div><b>${n0.format(r.p)} g</b><span>Protéines</span></div><div><b>${n0.format(r.f)} g</b><span>Lipides</span></div></div>
+    ${r.changes ? `<h4>Version allégée${r.orig ? ` (−${n0.format(Math.max(0, r.orig - r.k))} kcal / portion)` : ''}</h4><ul>${r.changes.map(i => `<li>${esc(i)}</li>`).join('')}</ul>` : ''}
     <h4>Ingrédients</h4><ul>${r.ing.map(i => `<li>${esc(i)}</li>`).join('')}</ul>
     <h4>Préparation</h4><ol>${r.steps.map(i => `<li>${esc(i)}</li>`).join('')}</ol>
     <h4>Ajouter au journal</h4>
     <div class="chips" id="recMeal">${mealsFor(curDay).map(([m,l]) => `<button type="button" class="chip ${m === mealDef ? 'on' : ''}" data-meal="${m}">${l}</button>`).join('')}</div>
     <div class="qty"><button type="button" class="ghost" id="recMinus">−</button><input id="recQty" type="number" step="0.25" min="0.25" value="${q}"><button type="button" class="ghost" id="recPlus">+</button><span class="muted">portion(s)</span></div>
-    <button style="width:100%" id="recAdd">Ajouter · <span id="recKcal"></span> kcal</button>`;
+    <button style="width:100%" id="recAdd">Ajouter · <span id="recKcal"></span> kcal</button>
+    ${r.tags.includes('mine') ? '<button type="button" class="danger" id="recDel" style="width:100%;margin-top:8px">Supprimer cette recette</button>' : ''}`;
+  if ($('#recDel')) $('#recDel').onclick = async () => { if (await ask('Supprimer cette recette de « Mes recettes » ?', 'Supprimer', true)) { S.myRecipes = myRecipes().filter(x => x.id !== r.id); save(); $('#recDlg').close(); renderRecipes(); } };
   let m = mealDef;
   const upd = () => $('#recKcal').textContent = n0.format(r.k * (+$('#recQty').value || 0));
   $('#recMeal').onclick = e => { const v = e.target.dataset.meal; if (v) { m = v; $$('#recMeal .chip').forEach(c => c.classList.toggle('on', c.dataset.meal === v)); } };

@@ -1,74 +1,72 @@
-// Analyse d'une photo de repas par Claude : aliments reconnus, portions, calories et macros estimées.
-// Réservé aux comptes en essai gratuit ou abonnés, avec une limite quotidienne pour maîtriser les coûts.
-import Anthropic from 'npm:@anthropic-ai/sdk@1.4.0';
-import { admin, cors, json, requireUser } from '../_shared/common.ts';
+// Analyse d'un repas par Claude : photo d'assiette, photo d'un plat partagé, ou description en texte (français ou darija).
+// Renvoie les aliments reconnus avec portion, poids, calories et macros estimés.
+import { cors, json, requireUser } from '../_shared/common.ts';
+import { anthropic, MODEL, checkAccessAndQuota, aiError, replyText } from '../_shared/ai.ts';
 
-const anthropic = new Anthropic(); // lit ANTHROPIC_API_KEY dans les secrets Supabase
-const MODEL = Deno.env.get('CLAUDE_MODEL') ?? 'claude-opus-5-5';
-const DAILY_LIMIT = Number(Deno.env.get('AI_DAILY_LIMIT') ?? '10');
 const MAX_IMAGE_BYTES = 4_500_000;
-
-const SYSTEM = `Tu es un diététicien qui estime le contenu nutritionnel d'un repas à partir d'une photo.
-Pour chaque aliment visible, donne un nom court en français, une portion lisible ("1 assiette", "2 tranches"),
+const BASE = `Tu es un diététicien qui estime le contenu nutritionnel des repas.
+Pour chaque aliment, donne un nom court en français, une portion lisible ("1 assiette", "2 tranches"),
 le poids estimé en grammes, et les valeurs pour ce poids : kcal, protéines, glucides, lipides (en grammes).
-Appuie-toi sur les valeurs nutritionnelles habituelles (tables Ciqual) et sur les indices de taille visibles
-(assiette, couverts, main). Pense aux matières grasses de cuisson et aux sauces probables, et inclus-les.
-Reconnais aussi les plats maghrébins et français (couscous, tajine, harira, msemen, etc.).
-Si la photo ne montre pas de nourriture, mets is_food à false et laisse items vide.
-Indique ta confiance pour chaque aliment, et dans comment, une phrase courte en français sur ce qui est incertain.`;
-
+Appuie-toi sur les valeurs nutritionnelles habituelles (tables Ciqual), pense aux matières grasses de cuisson et aux sauces probables, et inclus-les.
+Tu connais très bien les cuisines maghrébine et française (couscous, tajine, harira, msemen, baghrir, chebakia, etc.).
+Indique ta confiance pour chaque aliment et, dans comment, une phrase courte en français sur ce qui est incertain.`;
+const PROMPTS: Record<string, string> = {
+  photo: `${BASE}\nOn te donne la photo d'une assiette individuelle. Utilise les indices de taille visibles (assiette, couverts, main). Si la photo ne montre pas de nourriture, mets is_food à false et laisse items vide.`,
+  shared: `${BASE}\nOn te donne la photo d'un plat commun posé au centre de la table, que plusieurs personnes mangent ensemble, à la main ou avec du pain, comme c'est l'usage pour le tajine ou le couscous.
+Estime d'abord le contenu du plat entier, puis donne pour chaque aliment UNIQUEMENT LA PART D'UNE PERSONNE (plat entier divisé par le nombre de convives indiqué).
+Si du pain sert à saucer, ajoute une ligne "Pain (pour saucer)" avec la quantité indiquée par personne, et compte la sauce absorbée.
+Dans comment, rappelle le poids estimé du plat entier. Si la photo ne montre pas de nourriture, mets is_food à false.`,
+  text: `${BASE}\nOn te donne la description d'un repas, tapée ou dictée, en français, en darija (arabe marocain, algérien ou tunisien, en lettres latines ou arabes) ou un mélange des deux.
+Exemples de darija : "jouj msemen b l3sel" = deux msemen au miel, "kas d atay" = un verre de thé, "khobz" = pain, "djaj" = poulet, "lben" = lait fermenté.
+Respecte les quantités indiquées ; sinon, prends une portion habituelle. Si le texte ne décrit pas de nourriture, mets is_food à false.`,
+};
 const SCHEMA = {
-  type: 'object',
-  additionalProperties: false,
-  required: ['is_food', 'items', 'comment'],
+  type: 'object', additionalProperties: false, required: ['is_food', 'items', 'comment'],
   properties: {
-    is_food: { type: 'boolean' },
-    comment: { type: 'string' },
-    items: {
-      type: 'array',
-      items: {
-        type: 'object',
-        additionalProperties: false,
-        required: ['name', 'portion', 'grams', 'kcal', 'protein', 'carbs', 'fat', 'confidence'],
-        properties: {
-          name: { type: 'string' },
-          portion: { type: 'string' },
-          grams: { type: 'number' },
-          kcal: { type: 'number' },
-          protein: { type: 'number' },
-          carbs: { type: 'number' },
-          fat: { type: 'number' },
-          confidence: { type: 'string', enum: ['haute', 'moyenne', 'faible'] },
-        },
+    is_food: { type: 'boolean' }, comment: { type: 'string' },
+    items: { type: 'array', items: {
+      type: 'object', additionalProperties: false,
+      required: ['name', 'portion', 'grams', 'kcal', 'protein', 'carbs', 'fat', 'confidence'],
+      properties: {
+        name: { type: 'string' }, portion: { type: 'string' }, grams: { type: 'number' }, kcal: { type: 'number' },
+        protein: { type: 'number' }, carbs: { type: 'number' }, fat: { type: 'number' },
+        confidence: { type: 'string', enum: ['haute', 'moyenne', 'faible'] },
       },
-    },
+    } },
   },
 };
-
 type MediaType = 'image/jpeg' | 'image/png' | 'image/webp';
 const MEDIA: MediaType[] = ['image/jpeg', 'image/png', 'image/webp'];
 
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') return new Response('ok', { headers: cors });
   if (req.method !== 'POST') return json({ error: 'Méthode non autorisée' }, 405);
-
   const user = await requireUser(req);
   if (!user) return json({ error: 'Non connecté' }, 401);
 
-  // Accès : essai gratuit en cours ou abonnement actif
-  const { data: p } = await admin.from('profiles').select('trial_ends_at,sub_status,current_period_end').eq('id', user.id).single();
-  const now = Date.now();
-  const subscribed = p && ['active', 'trialing', 'past_due'].includes(p.sub_status ?? '') && p.current_period_end && Date.parse(p.current_period_end) > now;
-  const trial = p && Date.parse(p.trial_ends_at) > now;
-  if (!subscribed && !trial) return json({ error: 'Abonnement requis' }, 402);
+  const body = await req.json().catch(() => ({}));
+  const task = body.task ?? 'photo';
+  if (!PROMPTS[task]) return json({ error: 'Demande inconnue' }, 400);
 
-  const { image, mediaType } = await req.json().catch(() => ({}));
-  if (typeof image !== 'string' || !MEDIA.includes(mediaType)) return json({ error: 'Image manquante' }, 400);
-  if (image.length * 0.75 > MAX_IMAGE_BYTES) return json({ error: 'Image trop lourde' }, 413);
+  // deno-lint-ignore no-explicit-any
+  let content: any[];
+  if (task === 'text') {
+    const text = typeof body.text === 'string' ? body.text.trim() : '';
+    if (!text || text.length > 1000) return json({ error: 'Décrivez votre repas en moins de 1000 caractères' }, 400);
+    content = [{ type: 'text', text: `<repas>\n${text}\n</repas>` }];
+  } else {
+    if (typeof body.image !== 'string' || !MEDIA.includes(body.mediaType)) return json({ error: 'Image manquante' }, 400);
+    if (body.image.length * 0.75 > MAX_IMAGE_BYTES) return json({ error: 'Image trop lourde' }, 413);
+    const guests = Math.min(20, Math.max(2, Number(body.guests) || 4));
+    const bread = Math.min(4, Math.max(0, Number(body.bread) || 0));
+    const note = task === 'shared'
+      ? `Nombre de convives : ${guests}. Pain pour saucer par personne : ${bread ? `${bread} quart(s) de galette` : 'aucun'}.`
+      : 'Analyse ce repas.';
+    content = [{ type: 'image', source: { type: 'base64', media_type: body.mediaType as MediaType, data: body.image } }, { type: 'text', text: note }];
+  }
 
-  const { data: used, error: usageErr } = await admin.rpc('increment_ai_usage', { p_user: user.id });
-  if (usageErr) { console.error(usageErr); return json({ error: 'Service indisponible' }, 500); }
-  if (Number(used) > DAILY_LIMIT) return json({ error: `Limite de ${DAILY_LIMIT} analyses par jour atteinte` }, 429);
+  const denied = await checkAccessAndQuota(user.id);
+  if (denied) return denied;
 
   try {
     const response = await anthropic.beta.messages.create({
@@ -77,26 +75,12 @@ Deno.serve(async (req) => {
       betas: ['server-side-fallback-2026-07-01'],
       fallbacks: 'default',
       output_config: { effort: 'low', format: { type: 'json_schema', schema: SCHEMA } },
-      system: SYSTEM,
-      messages: [{
-        role: 'user',
-        content: [
-          { type: 'image', source: { type: 'base64', media_type: mediaType as MediaType, data: image } },
-          { type: 'text', text: 'Analyse ce repas.' },
-        ],
-      }],
+      system: PROMPTS[task],
+      messages: [{ role: 'user', content }],
     });
-
-    if (response.stop_reason === 'refusal') return json({ error: 'Photo non analysable' }, 422);
-    if (response.stop_reason === 'max_tokens') return json({ error: 'Analyse incomplète, réessayez' }, 502);
-    const text = response.content.find((b) => b.type === 'text');
-    if (!text || text.type !== 'text') return json({ error: 'Réponse vide' }, 502);
-    return json(JSON.parse(text.text));
+    const text = replyText(response);
+    return typeof text === 'string' ? json(JSON.parse(text)) : text;
   } catch (e) {
-    if (e instanceof Anthropic.RateLimitError) return json({ error: 'Service très demandé, réessayez dans une minute' }, 429);
-    if (e instanceof Anthropic.BadRequestError) { console.error('requête refusée', e.message); return json({ error: 'Photo non prise en charge' }, 400); }
-    if (e instanceof Anthropic.APIError) { console.error('API', e.status, e.message); return json({ error: 'Service indisponible' }, 502); }
-    console.error(e);
-    return json({ error: 'Analyse impossible' }, 500);
+    return aiError(e);
   }
 });
