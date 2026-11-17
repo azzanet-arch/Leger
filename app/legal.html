@@ -20,6 +20,7 @@ h3{font-size:16px;margin-bottom:4px}
 .todo{background:#fff3cd;color:#5c4400;border-radius:6px;padding:0 4px}
 @media (prefers-color-scheme:dark){.todo{background:#4a3b0b;color:#ffe08a}}
 small{color:var(--muted)}
+.notice{background:var(--card);border:1px solid var(--line);border-left:4px solid var(--brand);border-radius:12px;padding:12px 16px}
 </style>
 </head>
 <body>
@@ -27,14 +28,15 @@ small{color:var(--muted)}
   <a href="./">← Retour à l'application</a>
   <h1 style="margin-top:16px">Informations légales</h1>
   <nav><a href="#cgv">Conditions générales de vente</a><a href="#confidentialite">Confidentialité</a><a href="#mentions">Mentions légales</a></nav>
-  <p><small>Les passages surlignés sont à compléter. Faites relire ce modèle par un professionnel du droit avant publication.</small></p>
+  <!-- À compléter avant d'encaisser : identité de l'éditeur, adresse, SIREN/SIRET, TVA, e-mail de contact, directeur de la publication, médiateur de la consommation (voir ABONNEMENT.md). -->
+  <p class="notice">Léger est actuellement proposé gratuitement, en version de démonstration. Les informations sur l'éditeur (société, SIRET, contact et médiateur de la consommation) seront publiées ici avant l'ouverture des abonnements payants.</p>
 
   <section id="cgv">
     <h2>Conditions générales de vente</h2>
-    <p><small>Dernière mise à jour : <span class="todo">[date]</span></small></p>
+    <p><small>Dernière mise à jour : 17 novembre 2026</small></p>
 
     <h3>1. Objet</h3>
-    <p>Les présentes conditions régissent l'abonnement à l'application « Léger », proposée par <span class="todo">[raison sociale ou nom, forme juridique]</span> (ci-après « l'Éditeur »), qui permet de suivre son alimentation, son poids, son hydratation et son activité physique.</p>
+    <p>Les présentes conditions régissent l'abonnement à l'application « Léger », proposée par l'éditeur de l'application (ci-après « l'Éditeur »), qui permet de suivre son alimentation, son poids, son hydratation et son activité physique.</p>
 
     <h3>2. Essai gratuit</h3>
     <p>La création d'un compte donne accès gratuitement à toutes les fonctionnalités pendant 7 jours, sans moyen de paiement. À la fin de l'essai, l'accès est suspendu jusqu'à la souscription d'un abonnement. Un seul essai est accordé par adresse e-mail.</p>
@@ -49,13 +51,13 @@ small{color:var(--muted)}
     <p>L'abonnement est sans engagement. Il se renouvelle automatiquement à la fin de chaque période, sauf résiliation. L'abonné peut résilier à tout moment, en quelques clics, depuis l'application (Profil › Mon abonnement › Gérer / résilier). La résiliation prend effet à la fin de la période déjà payée. Aucun remboursement au prorata n'est effectué, sauf disposition légale contraire. Pour la formule annuelle, l'abonné est informé par e-mail de l'échéance et de sa faculté de ne pas renouveler, conformément à l'article L215-1 du Code de la consommation.</p>
 
     <h3>6. Droit de rétractation</h3>
-    <p>Le consommateur dispose d'un délai de 14 jours à compter de la souscription pour se rétracter (article L221-18 du Code de la consommation), en écrivant à <span class="todo">[adresse e-mail de contact]</span>. En demandant l'accès immédiat au service lors de la souscription, l'abonné accepte que le service commence avant la fin de ce délai. En cas de rétractation, il reste redevable du montant correspondant au service fourni jusqu'à sa demande (article L221-25).</p>
+    <p>Le consommateur dispose d'un délai de 14 jours à compter de la souscription pour se rétracter (article L221-18 du Code de la consommation), en écrivant à l'adresse de contact indiquée dans les mentions légales. En demandant l'accès immédiat au service lors de la souscription, l'abonné accepte que le service commence avant la fin de ce délai. En cas de rétractation, il reste redevable du montant correspondant au service fourni jusqu'à sa demande (article L221-25).</p>
 
     <h3>7. Nature du service — avertissement santé</h3>
     <p>Léger fournit des estimations (besoins caloriques, calories des aliments et des activités) à titre informatif. L'application n'est pas un dispositif médical et ne remplace pas l'avis d'un médecin ou d'un diététicien. Elle est déconseillée aux personnes de moins de 16 ans, aux femmes enceintes ou allaitantes et aux personnes souffrant de troubles du comportement alimentaire sans suivi médical.</p>
 
     <h3>8. Réclamations et médiation</h3>
-    <p>Toute réclamation peut être adressée à <span class="todo">[adresse e-mail de contact]</span>. En l'absence de solution amiable, le consommateur peut recourir gratuitement au médiateur de la consommation : <span class="todo">[nom et site du médiateur]</span>. Droit applicable : droit français.</p>
+    <p>Toute réclamation peut être adressée à l'adresse de contact indiquée dans les mentions légales. En l'absence de solution amiable, le consommateur peut recourir gratuitement au médiateur de la consommation : le médiateur indiqué dans les mentions légales. Droit applicable : droit français.</p>
   </section>
 
   <section id="confidentialite">
@@ -65,22 +67,23 @@ small{color:var(--muted)}
     <h3>Photos de repas (analyse par intelligence artificielle)</h3>
     <p>Lorsque vous utilisez « Photographier mon assiette », la photo est envoyée, réduite, à notre serveur puis à notre prestataire d'intelligence artificielle Anthropic (États-Unis), uniquement pour identifier les aliments et estimer leurs valeurs nutritionnelles. L'Éditeur ne conserve pas vos photos. Le prestataire peut les conserver temporairement selon ses propres conditions, et ne les utilise pas pour entraîner ses modèles. Ce transfert hors de l'Union européenne repose sur les clauses contractuelles types de la Commission européenne. N'utilisez pas cette fonction pour photographier des personnes ou des documents. Base légale : votre demande d'analyse.</p>
     <h3>Données de compte et de paiement</h3>
-    <p>Pour gérer votre abonnement, l'Éditeur traite votre adresse e-mail, les dates de votre essai et l'état de votre abonnement. Ces données sont hébergées par Supabase (<span class="todo">[région d'hébergement, ex. UE – Francfort]</span>). Les paiements sont traités par Stripe, qui agit en responsable de traitement pour les données de carte. Base légale : exécution du contrat. Durée de conservation : durée du compte, puis les durées légales applicables aux factures (10 ans).</p>
+    <p>Pour gérer votre abonnement, l'Éditeur traite votre adresse e-mail, les dates de votre essai et l'état de votre abonnement. Ces données sont hébergées par Supabase (Union européenne (Francfort, Allemagne)). Les paiements sont traités par Stripe, qui agit en responsable de traitement pour les données de carte. Base légale : exécution du contrat. Durée de conservation : durée du compte, puis les durées légales applicables aux factures (10 ans).</p>
     <h3>Vos droits</h3>
-    <p>Vous disposez d'un droit d'accès, de rectification, d'effacement, de portabilité et d'opposition. Pour l'exercer ou supprimer votre compte : <span class="todo">[adresse e-mail de contact]</span>. Vous pouvez aussi saisir la CNIL (cnil.fr).</p>
+    <p>Vous disposez d'un droit d'accès, de rectification, d'effacement, de portabilité et d'opposition. Pour l'exercer ou supprimer votre compte : l'adresse de contact indiquée dans les mentions légales. Vous pouvez aussi saisir la CNIL (cnil.fr).</p>
     <h3>Cookies</h3>
     <p>L'application n'utilise aucun cookie publicitaire ni outil de mesure d'audience. Seul le stockage local nécessaire au fonctionnement (session de connexion, données de suivi) est utilisé.</p>
   </section>
 
   <section id="mentions">
     <h2>Mentions légales</h2>
-    <p>Éditeur : <span class="todo">[raison sociale / nom]</span>, <span class="todo">[forme juridique, capital]</span><br>
-    Adresse : <span class="todo">[adresse]</span><br>
-    SIREN / SIRET : <span class="todo">[numéro]</span> — TVA intracommunautaire : <span class="todo">[numéro ou « TVA non applicable, art. 293 B du CGI »]</span><br>
-    Contact : <span class="todo">[adresse e-mail]</span><br>
-    Directeur de la publication : <span class="todo">[nom]</span><br>
-    Hébergement de l'application : <span class="todo">[ex. GitHub Inc., 88 Colin P. Kelly Jr St, San Francisco, CA 94107, États-Unis]</span><br>
-    Hébergement des données de compte : Supabase Inc. — <span class="todo">[région]</span></p>
+    <p>Éditeur : entreprise en cours d'immatriculation<br>
+    Adresse : communiqué avant l'ouverture des abonnements payants<br>
+    SIREN / SIRET : communiqué avant l'ouverture des abonnements payants — TVA intracommunautaire : communiqué avant l'ouverture des abonnements payants<br>
+    Contact : communiqué avant l'ouverture des abonnements payants<br>
+    Directeur de la publication : communiqué avant l'ouverture des abonnements payants<br>
+    Médiateur de la consommation : communiqué avant l'ouverture des abonnements payants<br>
+    Hébergement de l'application : GitHub Inc., 88 Colin P. Kelly Jr St, San Francisco, CA 94107, États-Unis<br>
+    Hébergement des données de compte : Supabase Inc. — Union européenne (Francfort)</p>
   </section>
 </main>
 </body>
