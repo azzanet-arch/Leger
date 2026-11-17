@@ -50,6 +50,23 @@ Copiez le secret de signature puis lancez `supabase secrets set STRIPE_WEBHOOK_S
 
 > Faites d'abord tout en **mode test** Stripe (`sk_test_…`, carte `4242 4242 4242 4242`), puis refaites l'étape 2 et les secrets en mode live.
 
+## 3 bis. Photo intelligente (analyse des repas par l'IA Claude)
+1. Créez un compte sur **console.anthropic.com** › **Billing** : ajoutez une carte et un petit crédit (par exemple 10 $).
+2. **API Keys** › **Create Key** : copiez la clé (`sk-ant-...`). Ne la partagez jamais, ne la mettez jamais dans le code.
+3. Dans **Supabase › SQL Editor**, exécutez `supabase/migrations/20261117000000_usage_ia.sql` (compteur quotidien).
+4. Puis :
+```bash
+supabase secrets set ANTHROPIC_API_KEY=sk-ant-...
+supabase functions deploy analyze-meal
+```
+Réglages facultatifs (secrets) :
+- `AI_DAILY_LIMIT` : nombre d'analyses par utilisateur et par jour (10 par défaut).
+- `CLAUDE_MODEL` : modèle utilisé (`claude-opus-5-5` par défaut, le plus précis). `claude-haiku-5-5` coûte environ 40 fois moins cher, pour une précision moindre.
+
+**Coût indicatif** : environ 0,02 $ par photo avec le modèle par défaut (image d'environ 2 000 jetons + réponse). Un utilisateur qui photographie 3 repas par jour coûte environ 1,80 $ par mois, pour un abonnement à 4,99 €. Suivez la consommation dans **console.anthropic.com › Usage** et fixez une limite de dépense mensuelle dans **Billing › Limits**.
+
+L'analyse n'est disponible que pendant l'essai gratuit ou avec un abonnement actif. En mode démo, l'app affiche un exemple clairement signalé.
+
 ## 4. Légal (obligatoire avant d'encaisser)
 Complétez les passages surlignés de `app/legal.html` (identité, SIRET, contact, médiateur de la consommation) et faites-les relire. Indiquez cette page dans Stripe (Paramètres › Informations publiques).
 

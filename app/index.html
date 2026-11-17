@@ -217,6 +217,23 @@ nav.tabs .fab{width:58px;height:58px;min-height:0;padding:0;border-radius:50%;ba
 .qgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
 .qbtn{background:var(--bg);color:var(--ink);border-radius:18px;min-height:96px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;font-weight:700;font-size:14px;padding:8px}
 .qbtn span{font-size:28px}
+/* Photo intelligente */
+.aibtn{width:100%;min-height:58px;margin-bottom:12px;border-radius:16px;background:linear-gradient(135deg,var(--hero-2),var(--hero));display:flex;align-items:center;gap:12px;padding:0 16px;text-align:left}
+.aibtn span{font-size:26px}
+.aibtn b{display:block;font-size:16px}
+.aibtn small{display:block;font-weight:500;opacity:.85;font-size:13px}
+.aiprev{width:100%;max-height:200px;object-fit:cover;border-radius:16px;display:block;margin-bottom:10px;background:var(--bg)}
+.aiitem{display:flex;align-items:center;gap:10px;padding:10px 0;border-top:1px solid var(--line);margin:0;color:var(--ink);font-size:15px}
+.aiitem:first-child{border-top:0}
+.aiitem input[type=checkbox]{width:22px;height:22px;min-height:0;flex:none;accent-color:var(--brand)}
+.aiitem .name{flex:1;min-width:0}
+.aiitem .name small{display:block;color:var(--muted);font-size:12px}
+.aiitem input[type=number]{width:72px;min-height:38px;padding:6px 8px;text-align:right;flex:none}
+.aiitem .kcal{min-width:58px;text-align:right;font-weight:700;font-variant-numeric:tabular-nums}
+.demo-tag{display:inline-block;background:var(--brand-soft);color:var(--brand);font-size:12px;font-weight:700;padding:2px 8px;border-radius:99px}
+.spin{width:28px;height:28px;border:3px solid var(--line);border-top-color:var(--brand);border-radius:50%;animation:spin 1s linear infinite;margin:6px auto}
+@keyframes spin{to{transform:rotate(360deg)}}
+@media (prefers-reduced-motion:reduce){.spin{animation-duration:3s}}
 /* Macros */
 :root{--m-carb:#3f8fd1;--m-prot:#e9a23b;--m-fat:#9a6fd1}
 .macros{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:14px}
@@ -353,6 +370,7 @@ li.done .dot{background:var(--brand);opacity:.5} li.cur .dot{background:var(--br
         <p class="muted" id="pwSub">Abonnez-vous pour continuer à suivre votre perte de poids.</p>
       </div>
       <ul class="perks">
+        <li>Photo de l'assiette analysée par l'IA</li>
         <li>Scan des codes-barres et 3 millions d'aliments</li>
         <li>Calories, glucides, protéines et lipides</li>
         <li>Jeûne intermittent avec minuteur et phases</li>
@@ -613,6 +631,8 @@ li.done .dot{background:var(--brand);opacity:.5} li.cur .dot{background:var(--br
     <div class="chips" id="mealChips" style="margin-bottom:12px"></div>
 
     <div id="pSearch">
+      <button type="button" class="aibtn" id="aiBtn"><span>✨</span><div><b>Photographier mon assiette</b><small>L'IA reconnaît les aliments et calcule les calories</small></div></button>
+      <input type="file" id="aiPhoto" accept="image/*" capture="environment" class="hidden">
       <div class="searchrow">
         <input id="foodSearch" type="search" placeholder="Pomme, riz, poulet, marque…" autocomplete="off">
         <button type="button" id="scanBtn" aria-label="Scanner un code-barres" title="Scanner un code-barres" style="padding:0 14px">
@@ -648,6 +668,20 @@ li.done .dot{background:var(--brand);opacity:.5} li.cur .dot{background:var(--br
       <button type="button" class="ghost" id="scanBack" style="width:100%;margin-top:8px">Retour à la recherche</button>
     </div>
 
+    <div id="pAi" class="hidden">
+      <img class="aiprev" id="aiPrev" alt="Photo de votre repas">
+      <div id="aiStatus" class="small muted" style="text-align:center"></div>
+      <div id="aiList"></div>
+      <div class="row small hidden" id="aiTotalRow" style="justify-content:space-between;margin:8px 0 4px"><b>Total sélectionné</b><b id="aiTotal"></b></div>
+      <p class="muted small hidden" id="aiComment" style="margin:4px 0 12px"></p>
+      <button type="button" style="width:100%" id="aiAdd" class="hidden">Ajouter au repas</button>
+      <div class="grid2" style="margin-top:8px">
+        <button type="button" class="ghost" id="aiRetry">📸 Autre photo</button>
+        <button type="button" class="ghost" id="aiBack">Retour</button>
+      </div>
+      <p class="muted small" style="margin:10px 0 0">Estimation par intelligence artificielle : vérifiez et ajustez les grammes avant d'ajouter.</p>
+    </div>
+
     <div id="pQty" class="hidden">
       <button type="button" class="linkbtn" id="qtyBack">‹ Retour</button>
       <h3 id="qtyName" style="margin:10px 0 2px;font-size:18px"></h3>
@@ -669,6 +703,7 @@ li.done .dot{background:var(--brand);opacity:.5} li.cur .dot{background:var(--br
   <div class="head"><h3>Ajouter</h3><button class="icon" data-close aria-label="Fermer">✕</button></div>
   <div class="body">
     <div class="qgrid">
+      <button class="qbtn" data-q="ai" style="grid-column:1/-1;min-height:72px;flex-direction:row;background:linear-gradient(135deg,var(--hero-2),var(--hero));color:#fff"><span>✨</span>Photographier mon assiette</button>
       <button class="qbtn" data-q="food"><span>🍽️</span>Aliment</button>
       <button class="qbtn" data-q="scan"><span>📷</span>Scanner</button>
       <button class="qbtn" data-q="recipe"><span>🥗</span>Recette</button>
@@ -1058,8 +1093,8 @@ function recentFoods(){
 }
 const recipeItems = () => RECIPES.map(r => ({n: r.n, label: '1 portion · recette', unit: 'portion', per: {k: r.k, pr: r.p, c: r.c, f: r.f}, def: 1, em: r.em}));
 function showPanel(name){
-  ['Search','Scan','Qty'].forEach(p => $('#p' + p).classList.toggle('hidden', p !== name));
-  $('#foodDlgTitle').textContent = {Search: 'Ajouter un aliment', Scan: 'Scanner un produit', Qty: 'Quantité'}[name];
+  ['Search','Scan','Qty','Ai'].forEach(p => $('#p' + p).classList.toggle('hidden', p !== name));
+  $('#foodDlgTitle').textContent = {Search: 'Ajouter un aliment', Scan: 'Scanner un produit', Qty: 'Quantité', Ai: 'Photo du repas'}[name];
   if (name !== 'Scan') stopScan();
 }
 function listHTML(list){
@@ -1282,6 +1317,7 @@ $('#quickDlg').addEventListener('click', e => {
   if (q !== 'recipe' && q !== 'weight' && activeView() !== 'today') show('today');
   if (q === 'food') openFoodDlg(false);
   else if (q === 'scan') openFoodDlg(true);
+  else if (q === 'ai') { openFoodDlg(false); $('#aiPhoto').click(); }
   else if (q === 'recipe') show('recipes');
   else if (q === 'water') $('#waterPlus').click();
   else if (q === 'act') $('#addActBtn').click();
@@ -1294,6 +1330,76 @@ $('#customFood').onsubmit = e => {
   addFood({n, p: 'saisie manuelle', k: +$('#cfKcal').value, pr: +$('#cfProt').value || 0, c: +$('#cfCarb').value || 0, f: +$('#cfFat').value || 0});
   e.target.reset(); $('#foodDlg').close(); toast(`${n} ajouté`);
 };
+
+/* ---------- Photo intelligente (analyse du repas par IA) ---------- */
+// Exemple affiché en mode démo seulement (sans compte, l'analyse réelle n'est pas disponible)
+const AI_DEMO = {is_food: true, comment: 'Exemple de démonstration : l\'analyse réelle de vos photos s\'activera avec votre compte.', items: [
+  {name: 'Semoule de couscous', portion: '1 portion', grams: 180, kcal: 200, protein: 7, carbs: 41, fat: 1, confidence: 'haute'},
+  {name: 'Poulet', portion: '1 cuisse', grams: 120, kcal: 230, protein: 26, carbs: 0, fat: 14, confidence: 'moyenne'},
+  {name: 'Légumes du couscous', portion: '1 louche', grams: 150, kcal: 55, protein: 2, carbs: 10, fat: 1, confidence: 'haute'},
+  {name: 'Pois chiches', portion: '2 c. à soupe', grams: 50, kcal: 80, protein: 4, carbs: 13, fat: 1.3, confidence: 'moyenne'},
+  {name: 'Bouillon et huile de cuisson', portion: '1 louche', grams: 100, kcal: 90, protein: 1, carbs: 2, fat: 9, confidence: 'faible'}
+]};
+let aiItems = [], aiDemo = false;
+function toJpeg(file, max = 1280){
+  return createImageBitmap(file).then(bmp => {
+    const k = Math.min(1, max / Math.max(bmp.width, bmp.height));
+    const c = document.createElement('canvas'); c.width = Math.round(bmp.width * k); c.height = Math.round(bmp.height * k);
+    c.getContext('2d').drawImage(bmp, 0, 0, c.width, c.height);
+    return c.toDataURL('image/jpeg', 0.82);
+  });
+}
+async function aiAnalyze(file){
+  showPanel('Ai');
+  $('#aiList').innerHTML = ''; ['aiTotalRow', 'aiComment', 'aiAdd'].forEach(id => $('#' + id).classList.add('hidden'));
+  $('#aiStatus').innerHTML = '<div class="spin"></div>Analyse de votre assiette… (5 à 20 secondes)';
+  let dataUrl;
+  try { dataUrl = await toJpeg(file); } catch(_) { $('#aiStatus').textContent = 'Impossible de lire cette photo. Essayez avec une autre.'; return; }
+  $('#aiPrev').src = dataUrl;
+  let res;
+  try {
+    if (!PAID || !sb) { aiDemo = true; await new Promise(r => setTimeout(r, 1500)); res = AI_DEMO; }
+    else {
+      aiDemo = false;
+      const {data, error} = await sb.functions.invoke('analyze-meal', {body: {image: dataUrl.split(',')[1], mediaType: 'image/jpeg'}});
+      if (error) { let m = ''; try { m = (await error.context.json()).error; } catch(_) {} throw new Error(m || 'Analyse impossible. Vérifiez votre connexion et réessayez.'); }
+      res = data;
+    }
+  } catch(e) { $('#aiStatus').textContent = e.message || 'Analyse impossible.'; return; }
+  if (!res?.is_food || !res.items?.length) { $('#aiStatus').textContent = 'Aucun aliment reconnu sur cette photo. Photographiez l\'assiette de plus près, vue de dessus et bien éclairée.'; return; }
+  aiItems = res.items.map(i => ({...i, g0: i.grams || 1, on: true}));
+  $('#aiStatus').innerHTML = aiDemo ? '<span class="demo-tag">Exemple de démonstration</span>' : `${aiItems.length} aliment${aiItems.length > 1 ? 's' : ''} reconnu${aiItems.length > 1 ? 's' : ''}`;
+  $('#aiComment').textContent = res.comment || ''; $('#aiComment').classList.toggle('hidden', !res.comment);
+  renderAi();
+}
+const aiScaled = i => { const k = (i.grams || 0) / i.g0; return {k: i.kcal * k, pr: i.protein * k, c: i.carbs * k, f: i.fat * k}; };
+function renderAi(){
+  $('#aiList').innerHTML = aiItems.map((i, n) => `<label class="aiitem"><input type="checkbox" data-ai-on="${n}" ${i.on ? 'checked' : ''}><div class="name">${esc(i.name)}<small>${esc(i.portion)} · confiance ${esc(i.confidence)}</small></div><input type="number" inputmode="numeric" min="0" step="5" data-ai-g="${n}" value="${Math.round(i.grams)}" aria-label="Grammes"><span class="muted small">g</span><span class="kcal" id="aiK${n}">${n0.format(aiScaled(i).k)}</span></label>`).join('');
+  updAiTotal();
+}
+function updAiTotal(){
+  const sel = aiItems.filter(i => i.on); const tot = sel.reduce((a, i) => a + aiScaled(i).k, 0);
+  $('#aiTotal').textContent = `${n0.format(tot)} kcal`;
+  $('#aiTotalRow').classList.remove('hidden'); $('#aiAdd').classList.remove('hidden');
+  $('#aiAdd').disabled = !sel.length;
+  $('#aiAdd').textContent = `Ajouter ${sel.length} aliment${sel.length > 1 ? 's' : ''} · ${n0.format(tot)} kcal`;
+}
+$('#aiList').addEventListener('input', e => {
+  const g = e.target.dataset.aiG, on = e.target.dataset.aiOn;
+  if (g !== undefined) { aiItems[+g].grams = Math.max(0, +e.target.value || 0); $('#aiK' + g).textContent = n0.format(aiScaled(aiItems[+g]).k); }
+  if (on !== undefined) aiItems[+on].on = e.target.checked;
+  updAiTotal();
+});
+$('#aiAdd').onclick = () => {
+  const sel = aiItems.filter(i => i.on && i.grams > 0);
+  sel.forEach(i => addFood({n: i.name, p: `${n0.format(i.grams)} g · photo IA${aiDemo ? ' (exemple)' : ''}`, ...aiScaled(i)}));
+  $('#foodDlg').close();
+  toast(`${sel.length} aliment${sel.length > 1 ? 's' : ''} ajouté${sel.length > 1 ? 's' : ''} au ${MEALS.find(m => m[0] === curMeal)[1].toLowerCase()}`);
+};
+$('#aiBtn').onclick = () => $('#aiPhoto').click();
+$('#aiRetry').onclick = () => $('#aiPhoto').click();
+$('#aiBack').onclick = () => showPanel('Search');
+$('#aiPhoto').onchange = e => { const f = e.target.files[0]; e.target.value = ''; if (f) aiAnalyze(f); };
 
 /* ---------- Jeûne intermittent ---------- */
 const FAST_PLANS = [
