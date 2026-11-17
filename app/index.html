@@ -217,6 +217,13 @@ nav.tabs .fab{width:58px;height:58px;min-height:0;padding:0;border-radius:50%;ba
 .qgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
 .qbtn{background:var(--bg);color:var(--ink);border-radius:18px;min-height:96px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;font-weight:700;font-size:14px;padding:8px}
 .qbtn span{font-size:28px}
+/* Ramadan */
+.ramcard{background:linear-gradient(150deg,#2b3a6b,#1b2547);color:#fff;border-radius:22px;padding:14px 16px;margin-bottom:14px;box-shadow:0 8px 24px rgba(27,37,71,.25)}
+.ramtop{display:flex;align-items:center;gap:12px}
+.ramtop b{display:block;font-size:16px}
+.ramtop small{display:block;opacity:.85;font-size:13px;line-height:1.4}
+.ramico{font-size:28px;flex:none}
+.ramcard .soft{background:rgba(255,255,255,.16);color:#fff}
 /* Photo intelligente */
 .aibtn{width:100%;min-height:58px;margin-bottom:12px;border-radius:16px;background:linear-gradient(135deg,var(--hero-2),var(--hero));display:flex;align-items:center;gap:12px;padding:0 16px;text-align:left}
 .aibtn span{font-size:26px}
@@ -401,6 +408,7 @@ li.done .dot{background:var(--brand);opacity:.5} li.cur .dot{background:var(--br
       </div>
     </div>
     <div class="week" id="week"></div>
+    <div class="ramcard hidden" id="ramCard"></div>
 
     <div class="dash">
       <div class="dash-top">
@@ -449,6 +457,7 @@ li.done .dot{background:var(--brand);opacity:.5} li.cur .dot{background:var(--br
 
   <!-- ========== POIDS ========== -->
   <section class="view" id="v-weight">
+    <div class="card hidden" id="ramStats"></div>
     <div class="card">
       <h2>⚖️ Ma progression</h2>
       <div class="grid3">
@@ -507,6 +516,7 @@ li.done .dot{background:var(--brand);opacity:.5} li.cur .dot{background:var(--br
 
   <!-- ========== JEÛNE ========== -->
   <section class="view" id="v-fast">
+    <div class="card hidden" id="ramFastCard"></div>
     <div class="card">
       <h2>⏱️ Jeûne intermittent <span class="sub" id="fastPlanLbl"></span></h2>
       <div class="fastwrap">
@@ -592,6 +602,20 @@ li.done .dot{background:var(--brand);opacity:.5} li.cur .dot{background:var(--br
         <p class="muted small" id="dietDesc" style="margin:6px 0 0"></p>
         <button type="submit" style="width:100%;margin-top:14px">Enregistrer</button>
       </form>
+    </div>
+
+    <div class="card" id="ramSettings">
+      <h2>🌙 Ramadan <span class="sub" id="ramStatus"></span></h2>
+      <label for="ram-mode">Mode Ramadan</label>
+      <select id="ram-mode"><option value="auto">Automatique (selon le calendrier)</option><option value="on">Toujours activé</option><option value="off">Désactivé</option></select>
+      <label for="ram-city" style="margin-top:10px">Ville (heures du ftour et du shour)</label>
+      <div class="searchrow"><select id="ram-city"></select><button type="button" class="ghost" id="ramGeo" aria-label="Utiliser ma position" title="Utiliser ma position" style="padding:0 14px">📍</button></div>
+      <label for="ram-method" style="margin-top:10px">Méthode de calcul du Fajr</label>
+      <select id="ram-method"></select>
+      <p class="small" id="ramPreview" style="margin:10px 0 6px"></p>
+      <label for="ram-offset">Début du Ramadan (observation de la lune)</label>
+      <select id="ram-offset"><option value="-1">Un jour plus tôt</option><option value="0">Calendrier Umm al-Qura</option><option value="1">Un jour plus tard</option></select>
+      <p class="muted small" style="margin:8px 0 0">Horaires calculés selon votre ville : ils peuvent différer de quelques minutes de ceux de votre mosquée.</p>
     </div>
 
     <div class="card hidden" id="subCard">
@@ -803,13 +827,18 @@ const ACTIVITIES = [ // MET (Compendium of Physical Activities, valeurs moyennes
   ['Yoga / Pilates',3],['Danse',5],['Football',7],['Basket / hand',6.5],['Corde à sauter',11],['Ménage / jardinage',3.5],['Montée d\'escaliers',8]
 ].map(([n,m]) => ({n,m}));
 
-const MEALS = [['breakfast','Petit-déj'],['lunch','Déjeuner'],['dinner','Dîner'],['snack','Collation']];
+const MEALS_STD = [['breakfast','Petit-déj'],['lunch','Déjeuner'],['dinner','Dîner'],['snack','Collation']];
+const MEALS_RAM = [['breakfast','Shour'],['dinner','Ftour'],['snack','Soirée']];
+let MEALS = MEALS_STD; // remplacé par MEALS_RAM les jours de Ramadan (voir mealsFor)
+function mealsFor(d = curDay){ return (MEALS = isRamadan(d) ? MEALS_RAM : MEALS_STD); }
+const mealLabel = (m, d = curDay) => (isRamadan(d) ? [...MEALS_RAM, ['lunch', 'Déjeuner']] : MEALS_STD).find(x => x[0] === m)?.[1] || '';
 
 const HABITS = [
   ['veg','Au moins 2 portions de légumes'],['prot','Protéines à chaque repas'],['sugar','Pas de boisson sucrée'],
   ['steps','30 min de marche ou plus'],['slow','Manger lentement, sans écran'],['sleep','7 h de sommeil ou plus']
 ];
 
+const habitsFor = d => isRamadan(d) ? [['ramadan', 'J\'ai jeûné aujourd\'hui 🌙'], ['water8', '8 verres d\'eau entre le ftour et le shour'], ['nofry', 'Pas de friture au ftour'], ...HABITS.filter(([k]) => ['veg', 'steps', 'sleep'].includes(k))] : HABITS;
 const TIPS = [
   'Commencez vos repas par des légumes : ils rassasient pour peu de calories.',
   'Buvez un grand verre d\'eau avant chaque repas — la soif est souvent confondue avec la faim.',
@@ -869,10 +898,13 @@ function peekDay(d){ return S.days[d] || {foods:[], water:0, acts:[], habits:{}}
 
 let curDay = todayISO();
 let lastToday = curDay;
-let curMeal = defaultMeal();
+let curMeal = 'breakfast'; // fixé à l'ouverture de l'ajout d'aliment (defaultMeal dépend du mode Ramadan, chargé plus bas)
 let chartRange = 90;
 
-function defaultMeal(){ const h = new Date().getHours(); return h < 11 ? 'breakfast' : h < 15 ? 'lunch' : h < 18 ? 'snack' : 'dinner'; }
+function defaultMeal(){
+  if (isRamadan()) { const st = ramNow(); if (st) return st.phase === 'shour' ? 'breakfast' : st.phase === 'soir' && Date.now() - st.t.maghrib > 2.5 * 3600e3 ? 'snack' : 'dinner'; return 'dinner'; }
+  const h = new Date().getHours(); return h < 11 ? 'breakfast' : h < 15 ? 'lunch' : h < 18 ? 'snack' : 'dinner';
+}
 
 /* ---------- Calculs ---------- */
 function currentWeight(){
@@ -942,7 +974,7 @@ function render(v){
   if (!S.profile) return;
   const st = streak(); const el = $('#streak');
   el.classList.toggle('hidden', st < 2); el.textContent = `🔥 ${st} jours`;
-  ({today: renderToday, weight: () => { renderWeight(); renderStats(); }, fast: renderFast, recipes: renderRecipes, profile: renderProfile}[v] || (()=>{}))();
+  ({today: renderToday, weight: () => { renderRamStats(); renderWeight(); renderStats(); }, fast: () => { renderRamFast(); renderFast(); }, recipes: renderRecipes, profile: renderProfile}[v] || (()=>{}))();
 }
 const activeView = () => ($('section.view.active')?.id || 'v-today').slice(2);
 
@@ -994,7 +1026,8 @@ $('#setupForm').onsubmit = e => {
 };
 
 /* ---------- Aujourd'hui ---------- */
-const MEAL_INFO = {breakfast: ['☕', 0.25], lunch: ['🍽️', 0.35], dinner: ['🌙', 0.30], snack: ['🍎', 0.10]};
+const MEAL_INFO_STD = {breakfast: ['☕', 0.25], lunch: ['🍽️', 0.35], dinner: ['🌙', 0.30], snack: ['🍎', 0.10]};
+const MEAL_INFO_RAM = {breakfast: ['🌌', 0.30], dinner: ['🌅', 0.45], snack: ['🍵', 0.25], lunch: ['🍽️', 0]};
 function renderWeek(c){
   const base = parseISO(curDay); const dow = (base.getDay() + 6) % 7; const today = todayISO();
   const days = Array.from({length: 7}, (_, i) => addDays(curDay, i - dow));
@@ -1024,17 +1057,21 @@ function renderToday(){
   renderFastMini();
   renderTrialBar();
 
-  const idx = Math.floor(parseISO(curDay).getTime() / 864e5) % TIPS.length;
-  $('#tipBox').innerHTML = `<b>Conseil du jour —</b> ${esc(TIPS[idx])}`;
+  const TL = isRamadan(curDay) ? RAM_TIPS : TIPS;
+  const idx = Math.floor(parseISO(curDay).getTime() / 864e5) % TL.length;
+  $('#tipBox').innerHTML = `<b>${isRamadan(curDay) ? 'Conseil Ramadan' : 'Conseil du jour'} —</b> ${esc(TL[idx])}`;
+  renderRamCard();
 
   // Une carte par repas, toujours visible, avec sa part recommandée de l'objectif
   const d = peekDay(curDay);
   $('#foodCount').textContent = `${n0.format(t.kcal)} / ${n0.format(c.target)} kcal`;
-  $('#mealsList').innerHTML = MEALS.map(([m, label]) => {
+  const ram = isRamadan(curDay); const MI = ram ? MEAL_INFO_RAM : MEAL_INFO_STD;
+  const meals = [...mealsFor(curDay)]; if (ram && d.foods.some(f => f.meal === 'lunch')) meals.push(['lunch', 'Déjeuner']);
+  $('#mealsList').innerHTML = meals.map(([m, label]) => {
     const items = d.foods.filter(f => f.meal === m);
-    const sum = items.reduce((a, f) => a + f.k, 0); const rec = Math.round(c.target * MEAL_INFO[m][1] / 10) * 10;
+    const sum = items.reduce((a, f) => a + f.k, 0); const rec = Math.max(1, Math.round(c.target * MI[m][1] / 10) * 10);
     const over = sum > rec * 1.15;
-    return `<div class="meal"><div class="meal-head"><span class="mico">${MEAL_INFO[m][0]}</span><div class="name"><b>${label === 'Petit-déj' ? 'Petit-déjeuner' : label}</b><small>${n0.format(sum)} / ${n0.format(rec)} kcal</small></div><button class="addbtn" data-add-meal="${m}" aria-label="Ajouter au ${label}">+</button></div>` +
+    return `<div class="meal"><div class="meal-head"><span class="mico">${MI[m][0]}</span><div class="name"><b>${label === 'Petit-déj' ? 'Petit-déjeuner' : label}</b><small>${n0.format(sum)} / ${n0.format(rec)} kcal</small></div><button class="addbtn" data-add-meal="${m}" aria-label="Ajouter au ${label}">+</button></div>` +
       (items.length ? `<div class="mbar"><i style="width:${clamp(sum / rec * 100, 0, 100)}%;${over ? 'background:var(--warn)' : ''}"></i></div><ul class="list">` +
       items.map(f => `<li><div class="name">${esc(f.n)}<small>${esc(f.p || '')}${f.pr || f.c || f.f ? ` · G ${n0.format(f.c||0)} · P ${n0.format(f.pr||0)} · L ${n0.format(f.f||0)}` : ''}</small></div><span class="kcal">${n0.format(f.k)}</span><button class="icon" data-del-food="${f.id}" aria-label="Supprimer">✕</button></li>`).join('') + '</ul>' : '') + '</div>';
   }).join('');
@@ -1042,7 +1079,7 @@ function renderToday(){
   // Eau
   $('#waterTxt').textContent = `${d.water} / ${c.water} verres`;
   $('#waterL').textContent = `${nf.format(d.water * 0.25)} L`;
-  $('#waterGoal').textContent = `sur ${nf.format(c.water * 0.25)} L`;
+  $('#waterGoal').textContent = `sur ${nf.format(c.water * 0.25)} L${isRamadan(curDay) ? ' · du ftour au shour' : ''}`;
   $('#waterBar').style.width = clamp(d.water / c.water * 100, 0, 100) + '%';
 
   // Activité
@@ -1051,9 +1088,10 @@ function renderToday(){
     || '<li class="muted small" style="border:0;padding:0">Aucune activité notée.</li>';
 
   // Habitudes
-  const done = HABITS.filter(([k]) => d.habits[k]).length;
-  $('#habitTxt').textContent = `${done} / ${HABITS.length}`;
-  $('#habits').innerHTML = HABITS.map(([k,l]) => `<label class="habit"><input type="checkbox" data-habit="${k}" ${d.habits[k]?'checked':''}>${l}</label>`).join('');
+  const HB = habitsFor(curDay);
+  const done = HB.filter(([k]) => d.habits[k]).length;
+  $('#habitTxt').textContent = `${done} / ${HB.length}`;
+  $('#habits').innerHTML = HB.map(([k,l]) => `<label class="habit"><input type="checkbox" data-habit="${k}" ${d.habits[k]?'checked':''}>${l}</label>`).join('');
 }
 
 $('#prevDay').onclick = () => { curDay = addDays(curDay, -7); renderToday(); };
@@ -1074,7 +1112,7 @@ $('#v-today').addEventListener('click', e => {
 $('#v-today').addEventListener('change', e => {
   const k = e.target.dataset.habit; if (!k) return;
   day(curDay).habits[k] = e.target.checked; save(); renderToday();
-  if (HABITS.every(([h]) => day(curDay).habits[h])) toast('Toutes les habitudes cochées, bravo ! 🎉');
+  if (habitsFor(curDay).every(([h]) => day(curDay).habits[h])) toast('Toutes les habitudes cochées, bravo ! 🎉');
 });
 $('#waterPlus').onclick = () => { const d = day(curDay); d.water++; save(); renderToday(); toast(d.water === calc().water ? 'Objectif d\'hydratation atteint 💧' : `+1 verre · ${nf.format(d.water * 0.25)} L`); };
 $('#waterMinus').onclick = () => { const d = day(curDay); d.water = Math.max(0, d.water-1); save(); renderToday(); };
@@ -1304,7 +1342,7 @@ $('#scanBack').onclick = () => showPanel('Search');
 $('#eanForm').onsubmit = e => { e.preventDefault(); stopScan(); lookupCode($('#eanIn').value.trim()); };
 $('#foodDlg').addEventListener('close', stopScan);
 function renderMealChips(){
-  $('#mealChips').innerHTML = MEALS.map(([m,l]) => `<button type="button" class="chip ${m===curMeal?'on':''}" data-meal="${m}">${l}</button>`).join('');
+  $('#mealChips').innerHTML = mealsFor(curDay).map(([m,l]) => `<button type="button" class="chip ${m===curMeal?'on':''}" data-meal="${m}">${l}</button>`).join('');
 }
 $('#mealChips').addEventListener('click', e => { const m = e.target.dataset.meal; if (m) { curMeal = m; renderMealChips(); } });
 function openFoodDlg(scan, meal){
@@ -1399,12 +1437,166 @@ $('#aiAdd').onclick = () => {
   const sel = aiItems.filter(i => i.on && i.grams > 0);
   sel.forEach(i => addFood({n: i.name, p: `${n0.format(i.grams)} g · photo IA${aiDemo ? ' (exemple)' : ''}`, ...aiScaled(i)}));
   $('#foodDlg').close();
-  toast(`${sel.length} aliment${sel.length > 1 ? 's' : ''} ajouté${sel.length > 1 ? 's' : ''} au ${MEALS.find(m => m[0] === curMeal)[1].toLowerCase()}`);
+  toast(`${sel.length} aliment${sel.length > 1 ? 's' : ''} ajouté${sel.length > 1 ? 's' : ''} au ${mealLabel(curMeal).toLowerCase()}`);
 };
 $('#aiBtn').onclick = () => $('#aiPhoto').click();
 $('#aiRetry').onclick = () => $('#aiPhoto').click();
 $('#aiBack').onclick = () => showPanel('Search');
 $('#aiPhoto').onchange = e => { const f = e.target.files[0]; e.target.value = ''; if (f) aiAnalyze(f); };
+
+/* ---------- Mode Ramadan ---------- */
+const RAM_CITIES = [
+  ['Paris',48.8566,2.3522,'FR'],['Lyon',45.764,4.8357,'FR'],['Marseille',43.2965,5.3698,'FR'],['Toulouse',43.6047,1.4442,'FR'],['Lille',50.6292,3.0573,'FR'],
+  ['Nice',43.7102,7.262,'FR'],['Strasbourg',48.5734,7.7521,'FR'],['Bordeaux',44.8378,-0.5792,'FR'],['Nantes',47.2184,-1.5536,'FR'],['Montpellier',43.6108,3.8767,'FR'],
+  ['Rennes',48.1173,-1.6778,'FR'],['Grenoble',45.1885,5.7245,'FR'],['Saint-Étienne',45.4397,4.3872,'FR'],['Mulhouse',47.7508,7.3359,'FR'],['Rouen',49.4432,1.0999,'FR'],
+  ['Bruxelles',50.8503,4.3517,'BE'],['Genève',46.2044,6.1432,'CH'],['Montréal',45.5017,-73.5673,'CA'],
+  ['Casablanca',33.5731,-7.5898,'MA'],['Rabat',34.0209,-6.8416,'MA'],['Marrakech',31.6295,-7.9811,'MA'],['Fès',34.0181,-5.0078,'MA'],['Tanger',35.7595,-5.834,'MA'],['Agadir',30.4278,-9.5981,'MA'],['Oujda',34.6814,-1.9086,'MA'],
+  ['Alger',36.7538,3.0588,'DZ'],['Oran',35.6971,-0.6308,'DZ'],['Constantine',36.365,6.6147,'DZ'],['Annaba',36.9,7.7667,'DZ'],
+  ['Tunis',36.8065,10.1815,'TN'],['Sfax',34.7406,10.7603,'TN'],['Sousse',35.8256,10.6084,'TN']
+];
+const RAM_METHODS = {uoif: ['France (UOIF, 12°)', 12], isna: ['Amérique du Nord (ISNA, 15°)', 15], mwl: ['Ligue islamique mondiale (18°)', 18], maroc: ['Maroc (Habous, 19°)', 19], algerie: ['Algérie (18°)', 18], tunisie: ['Tunisie (18°)', 18]};
+const RAM_DEFAULT_METHOD = {FR: 'uoif', BE: 'uoif', CH: 'uoif', CA: 'isna', MA: 'maroc', DZ: 'algerie', TN: 'tunisie'};
+const TZ_CITY = {'Europe/Paris': 'Paris', 'Europe/Brussels': 'Bruxelles', 'Europe/Zurich': 'Genève', 'America/Montreal': 'Montréal', 'America/Toronto': 'Montréal', 'Africa/Casablanca': 'Casablanca', 'Africa/Algiers': 'Alger', 'Africa/Tunis': 'Tunis'};
+const RAM_TIPS = [
+  'Au ftour, rompez le jeûne avec des dattes et de l\'eau, puis attendez 10 minutes avant le plat principal.',
+  'Le shour est le repas le plus important : misez sur les protéines (œufs, fromage blanc) et les céréales complètes.',
+  'Buvez un verre d\'eau toutes les heures entre le ftour et le coucher : visez 8 à 10 verres sur la soirée.',
+  'Limitez les fritures et les pâtisseries au miel (chebakia, zlabia) : une seule pièce peut dépasser 150 kcal.',
+  'Commencez le ftour par une soupe (harira, chorba) : elle hydrate et rassasie pour peu de calories.',
+  'Une marche de 20 à 30 minutes après le ftour aide la digestion et la glycémie.',
+  'Évitez le café et le thé très sucrés au shour : ils font perdre de l\'eau pendant la journée.',
+  'Ne sautez pas le shour : il évite de trop manger au ftour et aide à tenir la journée.',
+  'Gardez une assiette raisonnable au ftour : légumes, protéines, et un féculent sans excès.',
+  'Dormez dès que possible après le shour ou faites une sieste courte : le manque de sommeil pousse à grignoter.'
+];
+function ramSettings(){
+  if (!S.ramadan) {
+    let tz = ''; try { tz = Intl.DateTimeFormat().resolvedOptions().timeZone; } catch(_) {}
+    S.ramadan = {mode: 'auto', city: TZ_CITY[tz] || '', method: '', offset: 0};
+  }
+  const r = S.ramadan;
+  const c = RAM_CITIES.find(x => x[0] === r.city);
+  if (c) { r.lat ??= c[1]; r.lon ??= c[2]; if (!r.method) r.method = RAM_DEFAULT_METHOD[c[3]] || 'mwl'; }
+  if (!r.method) r.method = 'mwl';
+  return r;
+}
+const hijriFmt = (() => { try { return new Intl.DateTimeFormat('en-u-ca-islamic-umalqura', {month: 'numeric', day: 'numeric'}); } catch(_) { return null; } })();
+function hijri(iso){ // {month, day} selon le calendrier Umm al-Qura, décalé du réglage ±1 jour
+  if (!hijriFmt) return null;
+  const parts = hijriFmt.formatToParts(parseISO(addDays(iso, -(S.ramadan?.offset || 0))));
+  const get = t => +parts.find(p => p.type === t)?.value;
+  return {month: get('month'), day: get('day')};
+}
+function ramadanDay(iso = todayISO()){ // numéro du jour de Ramadan, 0 hors Ramadan ; -1 si forcé sans calendrier
+  const r = ramSettings();
+  if (r.mode === 'off') return 0;
+  const h = hijri(iso);
+  if (h && h.month === 9) return h.day;
+  return r.mode === 'on' ? -1 : 0;
+}
+const isRamadan = (iso = todayISO()) => ramadanDay(iso) !== 0;
+function daysUntilRamadan(){ for (let i = 1; i <= 30; i++) { const h = hijri(addDays(todayISO(), i)); if (h && h.month === 9 && h.day === 1) return i; } return 0; }
+const rad = Math.PI / 180;
+function sunTimes(iso, lat, lon, fajrAngle){ // heures solaires (algorithme astronomique simplifié, précision ±2 min)
+  const [y, m, d] = iso.split('-').map(Number);
+  const n = Date.UTC(y, m - 1, d, 12) / 864e5 + 2440587.5 - 2451545;
+  const L = ((280.46 + 0.9856474 * n) % 360 + 360) % 360;
+  const g = (((357.528 + 0.9856003 * n) % 360) + 360) % 360 * rad;
+  const lam = (L + 1.915 * Math.sin(g) + 0.020 * Math.sin(2 * g)) * rad;
+  const eps = (23.439 - 0.0000004 * n) * rad;
+  const ra = (((Math.atan2(Math.cos(eps) * Math.sin(lam), Math.cos(lam)) / rad / 15) % 24) + 24) % 24;
+  const decl = Math.asin(Math.sin(eps) * Math.sin(lam));
+  let eqt = L / 15 - ra; eqt = (((eqt + 12) % 24) + 24) % 24 - 12;
+  const noon = 12 - lon / 15 - eqt;
+  const ha = a => Math.acos((Math.sin(-a * rad) - Math.sin(lat * rad) * Math.sin(decl)) / (Math.cos(lat * rad) * Math.cos(decl))) / rad / 15;
+  const hs = ha(0.833); let hf = ha(fajrAngle);
+  if (isNaN(hf)) hf = hs + (24 - 2 * hs) / 7; // nuits très courtes : règle du septième de la nuit
+  const base = Date.UTC(y, m - 1, d), at = h => new Date(base + h * 3600e3);
+  return {fajr: at(noon - hf), sunrise: at(noon - hs), maghrib: at(noon + hs)};
+}
+function ramTimes(iso = todayISO()){
+  const r = ramSettings(); if (r.lat == null) return null;
+  return sunTimes(iso, r.lat, r.lon, RAM_METHODS[r.method]?.[1] ?? 18);
+}
+const hmIn = (ms) => { const m = Math.max(0, Math.round(ms / 60e3)); return m >= 60 ? `${Math.floor(m / 60)} h ${pad(m % 60)}` : `${m} min`; };
+// État du jeûne à un instant : avant l'aube (shour), pendant le jeûne, après le ftour
+function ramNow(){
+  const t = ramTimes(); if (!t) return null;
+  const now = Date.now();
+  if (now < t.fajr) return {phase: 'shour', until: t.fajr, t};
+  if (now < t.maghrib) return {phase: 'jeune', until: t.maghrib, start: t.fajr, t};
+  return {phase: 'soir', until: ramTimes(addDays(todayISO(), 1)).fajr, t};
+}
+function renderRamCard(){
+  const box = $('#ramCard');
+  const dayN = ramadanDay(curDay);
+  const soon = !dayN && ramSettings().mode === 'auto' && curDay === todayISO() ? daysUntilRamadan() : 0;
+  box.classList.toggle('hidden', !dayN && !(soon && soon <= 21));
+  if (!dayN) {
+    if (soon) box.innerHTML = `<div class="ramtop"><span class="ramico">🌙</span><div><b>Le Ramadan commence dans ${soon} jour${soon > 1 ? 's' : ''}</b><small>Léger passera automatiquement en mode Ramadan : horaires du ftour et du shour, repas et conseils adaptés.</small></div></div>${ramSettings().lat == null ? '<button class="soft" data-ram-setup style="width:100%;margin-top:10px">Choisir ma ville pour les horaires</button>' : ''}`;
+    return;
+  }
+  const dayTxt = dayN > 0 ? `Ramadan · jour ${dayN}` : 'Mode Ramadan';
+  if (curDay !== todayISO()) { box.innerHTML = `<div class="ramtop"><span class="ramico">🌙</span><div><b>${dayTxt}</b><small>Repas organisés en shour, ftour et soirée.</small></div></div>`; return; }
+  const st = ramNow();
+  if (!st) { box.innerHTML = `<div class="ramtop"><span class="ramico">🌙</span><div><b>${dayTxt}</b><small>Choisissez votre ville pour voir l'heure du ftour et du shour.</small></div></div><button class="soft" data-ram-setup style="width:100%;margin-top:10px">Choisir ma ville</button>`; return; }
+  const left = st.until - Date.now();
+  const main = st.phase === 'jeune' ? `Ftour à ${hm(st.until)} · dans ${hmIn(left)}` : st.phase === 'soir' ? `Bon ftour ! Shour avant ${hm(st.until)}` : `Shour : encore ${hmIn(left)} (jusqu'à ${hm(st.until)})`;
+  const pct = st.phase === 'jeune' ? clamp((Date.now() - st.start) / (st.until - st.start) * 100, 0, 100) : 100;
+  box.innerHTML = `<div class="ramtop"><span class="ramico">🌙</span><div style="flex:1"><b>${dayTxt}</b><small>${main}</small></div></div>
+    <div class="bar" style="margin-top:10px;background:rgba(255,255,255,.18)"><i style="width:${pct}%;background:#ffd27a"></i></div>
+    <div class="row small" style="justify-content:space-between;margin-top:6px;opacity:.85"><span>Imsak / Fajr ${hm(st.t.fajr)}</span><span>Maghrib ${hm(st.t.maghrib)}</span></div>`;
+}
+document.addEventListener('click', e => { if (e.target.closest('[data-ram-setup]')) { show('profile'); setTimeout(() => $('#ramSettings').scrollIntoView({behavior: 'smooth', block: 'center'}), 60); } });
+function renderRamSettings(){
+  const r = ramSettings();
+  $('#ram-mode').value = r.mode;
+  $('#ram-city').innerHTML = '<option value="">Choisir une ville…</option>' + (r.city === 'Ma position' ? '<option>Ma position</option>' : '') + RAM_CITIES.map(c => `<option>${c[0]}</option>`).join('');
+  $('#ram-city').value = r.city || '';
+  $('#ram-method').innerHTML = Object.entries(RAM_METHODS).map(([k, [l]]) => `<option value="${k}">${l}</option>`).join('');
+  $('#ram-method').value = r.method;
+  $('#ram-offset').value = String(r.offset || 0);
+  const t = ramTimes(); const dn = ramadanDay();
+  $('#ramStatus').textContent = dn > 0 ? `jour ${dn}` : dn === -1 ? 'activé' : r.mode === 'off' ? 'désactivé' : 'automatique';
+  $('#ramPreview').textContent = t ? `Aujourd'hui : Fajr ${hm(t.fajr)} · Maghrib (ftour) ${hm(t.maghrib)}` : 'Choisissez une ville pour calculer les horaires.';
+}
+function saveRam(patch){ Object.assign(ramSettings(), patch); save(); renderRamSettings(); }
+$('#ram-mode').onchange = e => { saveRam({mode: e.target.value}); toast(e.target.value === 'on' ? 'Mode Ramadan activé 🌙' : e.target.value === 'off' ? 'Mode Ramadan désactivé' : 'Mode Ramadan automatique'); };
+$('#ram-city').onchange = e => { const c = RAM_CITIES.find(x => x[0] === e.target.value); if (c) saveRam({city: c[0], lat: c[1], lon: c[2], method: RAM_DEFAULT_METHOD[c[3]] || 'mwl'}); };
+$('#ram-method').onchange = e => saveRam({method: e.target.value});
+$('#ram-offset').onchange = e => saveRam({offset: +e.target.value});
+$('#ramGeo').onclick = () => {
+  if (!navigator.geolocation) return toast('Localisation indisponible sur cet appareil');
+  navigator.geolocation.getCurrentPosition(p => { saveRam({city: 'Ma position', lat: Math.round(p.coords.latitude * 100) / 100, lon: Math.round(p.coords.longitude * 100) / 100}); toast('Position enregistrée'); },
+    () => toast('Localisation refusée : choisissez votre ville dans la liste'), {timeout: 10000, maximumAge: 864e5});
+};
+function renderRamFast(){
+  const card = $('#ramFastCard'); const st = isRamadan() ? ramNow() : null;
+  card.classList.toggle('hidden', !isRamadan());
+  if (!isRamadan()) return;
+  if (!st) { card.innerHTML = '<h2>🌙 Jeûne du Ramadan</h2><p class="small muted" style="margin:0 0 10px">Choisissez votre ville pour suivre le jeûne de l\'aube au coucher du soleil.</p><button class="soft" data-ram-setup style="width:100%">Choisir ma ville</button>'; return; }
+  const left = st.until - Date.now();
+  const pct = st.phase === 'jeune' ? clamp((Date.now() - st.start) / (st.until - st.start), 0, 1) : 1;
+  card.innerHTML = `<h2>🌙 Jeûne du Ramadan <span class="sub">${ramadanDay() > 0 ? 'jour ' + ramadanDay() : ''}</span></h2>
+    <div class="fastwrap"><div class="fastring"><svg width="220" height="220" viewBox="0 0 220 220"><circle cx="110" cy="110" r="96" fill="none" stroke="var(--bg)" stroke-width="16"/><circle cx="110" cy="110" r="96" fill="none" stroke="${st.phase === 'jeune' ? 'var(--brand)' : 'var(--accent)'}" stroke-width="16" stroke-linecap="round" stroke-dasharray="603.2" stroke-dashoffset="${603.2 * (1 - pct)}"/></svg>
+    <div class="center"><span>${st.phase === 'jeune' ? 'Ftour dans' : st.phase === 'soir' ? 'Shour jusqu\'à' : 'Fin du shour dans'}</span><b>${st.phase === 'soir' ? hm(st.until) : hms(left)}</b><span>${st.phase === 'jeune' ? 'à ' + hm(st.until) : st.phase === 'soir' ? 'Bon ftour ! 🌙' : 'à ' + hm(st.until)}</span></div></div></div>
+    <div class="row small muted" style="justify-content:space-between"><span>Fajr ${hm(st.t.fajr)}</span><span>Maghrib ${hm(st.t.maghrib)}</span></div>
+    <p class="small muted" style="margin:10px 0 0">Horaires calculés pour ${esc(ramSettings().city)} : ils peuvent différer de quelques minutes de ceux de votre mosquée.</p>`;
+}
+function renderRamStats(){
+  const box = $('#ramStats');
+  // Ramadan en cours ou terminé depuis moins de 30 jours : jours jeûnés et évolution du poids
+  let start = null;
+  for (let i = 0; i < 60; i++) { const d = addDays(todayISO(), -i); const h = hijri(d); if (h && h.month === 9 && h.day === 1) { start = d; break; } }
+  if (!start || ramSettings().mode === 'off') { box.classList.add('hidden'); return; }
+  const days = []; for (let i = 0; i < 30; i++) { const d = addDays(start, i); if (d > todayISO()) break; const h = hijri(d); if (h && h.month === 9) days.push(d); }
+  const fasted = days.filter(d => peekDay(d).habits.ramadan).length;
+  const ws = sortedWeights(); const before = [...ws].reverse().find(w => w.date <= start) || ws[0]; const now = ws.at(-1);
+  const diff = before && now ? now.kg - before.kg : 0;
+  box.classList.remove('hidden');
+  box.innerHTML = `<h2>🌙 Mon Ramadan</h2><div class="grid3"><div class="stat"><b>${fasted}/${days.length}</b><span>jours jeûnés</span></div><div class="stat"><b>${diff > 0 ? '+' : diff < 0 ? '−' : ''}${nf.format(Math.abs(diff))}</b><span>kg depuis le début</span></div><div class="stat"><b>${n0.format(days.reduce((a, d) => a + dayTotals(d).water, 0) / Math.max(1, days.length))}</b><span>verres d'eau / soir</span></div></div>
+    <p class="small muted" style="margin:10px 0 0">Cochez « J'ai jeûné aujourd'hui » dans vos habitudes pour compléter ce bilan.</p>`;
+}
 
 /* ---------- Jeûne intermittent ---------- */
 const FAST_PLANS = [
@@ -1501,7 +1693,9 @@ $('#fastForm').onsubmit = e => {
   fastState().start = ts; save(); $('#fastDlg').close(); renderFast(); renderFastMini();
 };
 setInterval(() => {
-  if (document.visibilityState !== 'visible' || !S.profile || !S.fast?.start) return;
+  if (document.visibilityState !== 'visible' || !S.profile) return;
+  if (isRamadan()) { if (activeView() === 'fast') renderRamFast(); else if (activeView() === 'today' && Date.now() % 30000 < 1000) renderRamCard(); }
+  if (!S.fast?.start) return;
   if (activeView() === 'fast') renderFast(); else if (activeView() === 'today') renderFastMini();
 }, 1000);
 
@@ -1529,7 +1723,7 @@ const RECIPES = [
   {id:'tajine', n:'Tajine de poulet aux légumes', em:'🍲', cat:'main', tags:[], t:50, k:380, p:35, c:28, f:13,
    ing:['130 g de poulet','2 carottes, 1 courgette, 1 oignon','40 g de pois chiches cuits','4 olives vertes','1 c. à café d\'huile, ras-el-hanout, curcuma, coriandre'],
    steps:['Faites revenir l\'oignon et le poulet avec l\'huile et les épices.','Ajoutez les légumes en morceaux et un verre d\'eau.','Couvrez et laissez mijoter 35 minutes, ajoutez pois chiches et olives 5 minutes avant la fin.']},
-  {id:'harira', n:'Harira légère', em:'🥘', cat:'main', tags:['vege'], t:45, k:260, p:14, c:40, f:4,
+  {id:'harira', n:'Harira légère', em:'🥘', cat:'main', tags:['vege','ramadan'], t:45, k:260, p:14, c:40, f:4,
    ing:['40 g de lentilles','40 g de pois chiches cuits','200 g de tomates concassées','1 branche de céleri, 1/2 oignon','15 g de vermicelles','Coriandre, persil, gingembre, cannelle'],
    steps:['Faites cuire lentilles, céleri, oignon, tomates et épices dans 600 ml d\'eau pendant 30 minutes.','Ajoutez les pois chiches et les vermicelles, cuisez 8 minutes.','Parsemez d\'herbes fraîches et servez avec un quartier de citron.']},
   {id:'saumon', n:'Saumon, riz complet et brocoli', em:'🐟', cat:'main', tags:[], t:25, k:440, p:31, c:37, f:18,
@@ -1563,9 +1757,20 @@ const RECIPES = [
   {id:'houmous', n:'Houmous et bâtonnets de légumes', em:'🥕', cat:'snack', tags:['vege','rapide'], t:5, k:160, p:5, c:14, f:10,
    ing:['40 g de houmous','1 carotte','1/4 de concombre'], steps:['Coupez les légumes en bâtonnets et trempez-les dans le houmous.']},
   {id:'dattes', n:'Dattes fourrées aux amandes', em:'🌴', cat:'snack', tags:['vege','rapide'], t:3, k:115, p:2.5, c:19, f:3.8,
-   ing:['3 dattes','6 amandes'], steps:['Dénoyautez les dattes et glissez deux amandes dans chacune.']}
+   ing:['3 dattes','6 amandes'], steps:['Dénoyautez les dattes et glissez deux amandes dans chacune.']},
+  {id:'rupture', n:'Rupture du jeûne : dattes, lait et eau', em:'🥛', cat:'snack', tags:['vege','rapide','ramadan'], t:2, k:160, p:7, c:28, f:3.2,
+   ing:['3 dattes','200 ml de lait demi-écrémé','1 grand verre d\'eau'], steps:['Rompez le jeûne avec l\'eau et les dattes.','Buvez le lait doucement, puis attendez une dizaine de minutes avant le plat principal.']},
+  {id:'chorba', n:'Chorba frik légère', em:'🍲', cat:'main', tags:['ramadan'], t:50, k:240, p:16, c:28, f:6,
+   ing:['60 g de poulet ou d\'agneau maigre en dés','25 g de frik (blé vert concassé)','200 g de tomates concassées','1/2 oignon, 1 branche de céleri','1 c. à café d\'huile, coriandre, menthe, paprika, cannelle'],
+   steps:['Faites revenir la viande et l\'oignon avec l\'huile et les épices.','Ajoutez les tomates, le céleri et 700 ml d\'eau, laissez cuire 30 minutes.','Ajoutez le frik et cuisez 15 minutes. Parsemez d\'herbes fraîches.']},
+  {id:'briouates', n:'Briouates au four poulet-fromage', em:'🥟', cat:'main', tags:['ramadan'], t:35, k:210, p:14, c:18, f:9,
+   ing:['3 feuilles de brick','70 g de poulet cuit émietté','20 g de fromage frais allégé','1/2 oignon, persil, cumin','1 c. à café d\'huile pour badigeonner'],
+   steps:['Mélangez le poulet, le fromage, l\'oignon revenu et les épices.','Pliez la farce en triangles dans les feuilles de brick.','Badigeonnez d\'huile et faites dorer 15 minutes au four à 200 °C, au lieu de les frire.']},
+  {id:'shour', n:'Shour rassasiant œufs et fromage blanc', em:'🌌', cat:'breakfast', tags:['vege','ramadan'], t:10, k:300, p:23, c:22, f:11,
+   ing:['2 œufs','1 tranche de pain complet','100 g de fromage blanc 0 %','1 tomate','1 grand verre d\'eau'],
+   steps:['Faites cuire les œufs (durs, brouillés ou en omelette) sans trop de matière grasse.','Servez avec le pain complet, la tomate et le fromage blanc.','Buvez un grand verre d\'eau avant l\'aube.']}
 ];
-const REC_FILTERS = [['all','Toutes'],['breakfast','Petit-déj'],['main','Plats'],['snack','Collations'],['vege','Végétarien'],['rapide','Moins de 20 min']];
+const REC_FILTERS = [['all','Toutes'],['ramadan','Ramadan 🌙'],['breakfast','Petit-déj'],['main','Plats'],['snack','Collations'],['vege','Végétarien'],['rapide','Moins de 20 min']];
 let recFilter = 'all', menuDay = null;
 function renderRecipes(){
   const q = norm($('#recSearch').value.trim());
@@ -1582,14 +1787,15 @@ $('#v-recipes').addEventListener('click', e => { const b = e.target.closest('[da
 function openRecipe(id, q = 1, meal){
   const r = RECIPES.find(x => x.id === id); if (!r) return;
   $('#recTitle').textContent = r.em + ' ' + r.n;
-  const mealDef = meal || (r.cat === 'breakfast' ? 'breakfast' : r.cat === 'snack' ? 'snack' : (new Date().getHours() < 15 ? 'lunch' : 'dinner'));
+  const mealDef = meal || (isRamadan() ? (r.cat === 'breakfast' ? 'breakfast' : r.cat === 'snack' && !r.tags.includes('ramadan') ? 'snack' : 'dinner')
+    : r.cat === 'breakfast' ? 'breakfast' : r.cat === 'snack' ? 'snack' : (new Date().getHours() < 15 ? 'lunch' : 'dinner'));
   $('#recBody').innerHTML = `
     <p class="muted small" style="margin-top:0">⏱️ ${r.t} min · pour 1 personne${r.tags.includes('vege') ? ' · végétarien' : ''}</p>
     <div class="mstats"><div><b>${r.k}</b><span>kcal</span></div><div><b>${n0.format(r.c)} g</b><span>Glucides</span></div><div><b>${n0.format(r.p)} g</b><span>Protéines</span></div><div><b>${n0.format(r.f)} g</b><span>Lipides</span></div></div>
     <h4>Ingrédients</h4><ul>${r.ing.map(i => `<li>${esc(i)}</li>`).join('')}</ul>
     <h4>Préparation</h4><ol>${r.steps.map(i => `<li>${esc(i)}</li>`).join('')}</ol>
     <h4>Ajouter au journal</h4>
-    <div class="chips" id="recMeal">${MEALS.map(([m,l]) => `<button type="button" class="chip ${m === mealDef ? 'on' : ''}" data-meal="${m}">${l}</button>`).join('')}</div>
+    <div class="chips" id="recMeal">${mealsFor(curDay).map(([m,l]) => `<button type="button" class="chip ${m === mealDef ? 'on' : ''}" data-meal="${m}">${l}</button>`).join('')}</div>
     <div class="qty"><button type="button" class="ghost" id="recMinus">−</button><input id="recQty" type="number" step="0.25" min="0.25" value="${q}"><button type="button" class="ghost" id="recPlus">+</button><span class="muted">portion(s)</span></div>
     <button style="width:100%" id="recAdd">Ajouter · <span id="recKcal"></span> kcal</button>`;
   let m = mealDef;
@@ -1601,7 +1807,7 @@ function openRecipe(id, q = 1, meal){
   $('#recAdd').onclick = () => {
     const qq = +$('#recQty').value || 1;
     addRecipe(r, qq, m, curDay); $('#recDlg').close();
-    toast(`${r.n} ajouté au ${MEALS.find(x => x[0] === m)[1].toLowerCase()}`);
+    toast(`${r.n} ajouté au ${mealLabel(m).toLowerCase()}`);
   };
   upd(); $('#recDlg').showModal();
 }
@@ -1611,6 +1817,17 @@ function addRecipe(r, q, meal, d){
 // Menu : sélection déterministe par semaine, portions ajustées à l'objectif calorique
 function weekDays(){ const t = parseISO(todayISO()); const dow = (t.getDay() + 6) % 7; return Array.from({length: 7}, (_, i) => addDays(todayISO(), i - dow)); }
 function menuFor(d){
+  if (isRamadan(d)) {
+    const n = Math.floor(parseISO(d).getTime() / 864e5);
+    const B = RECIPES.filter(r => r.cat === 'breakfast'), soups = RECIPES.filter(r => ['harira', 'chorba', 'soupecourgette'].includes(r.id));
+    const mains = RECIPES.filter(r => r.cat === 'main' && !soups.includes(r)), N = RECIPES.filter(r => r.cat === 'snack' && r.id !== 'rupture');
+    const shour = n % 2 ? RECIPES.find(r => r.id === 'shour') : B[n % B.length], soup = soups[n % soups.length], main = mains[(n * 3) % mains.length], s = N[n % N.length];
+    const rupture = RECIPES.find(r => r.id === 'rupture'); const target = calc().target;
+    const scale = clamp(Math.round((target - shour.k - rupture.k - soup.k - s.k) / main.k * 4) / 4, 0.75, 2);
+    const rest = target - shour.k - rupture.k - soup.k - s.k - main.k * scale; // complète avec un shour plus copieux
+    const qs = clamp(Math.round((shour.k + Math.max(0, rest)) / shour.k * 4) / 4, 1, 1.5);
+    return [['breakfast', shour, qs], ['dinner', rupture, 1], ['dinner', soup, 1], ['dinner', main, scale], ['snack', s, 1]];
+  }
   const B = RECIPES.filter(r => r.cat === 'breakfast'), M = RECIPES.filter(r => r.cat === 'main'), N = RECIPES.filter(r => r.cat === 'snack');
   const n = Math.floor(parseISO(d).getTime() / 864e5) + 3;
   const lunch = M[(n * 3) % M.length]; let dinner = M[(n * 3 + 5) % M.length]; if (dinner === lunch) dinner = M[(n * 3 + 6) % M.length];
@@ -1624,7 +1841,7 @@ function renderMenu(){
   $('#menuTarget').textContent = `objectif ${n0.format(calc().target)} kcal`;
   $('#menuDays').innerHTML = days.map(d => `<button class="chip ${d === menuDay ? 'on' : ''}" data-day="${d}">${parseISO(d).toLocaleDateString('fr-FR', {weekday: 'short'}).replace('.', '')}</button>`).join('');
   const menu = menuFor(menuDay);
-  $('#menuList').innerHTML = menu.map(([m, r, q]) => `<div class="menu-row" data-rec="${r.id}" data-q="${q}" data-meal="${m}"><span class="em">${r.em}</span><div class="name">${esc(r.n)}<small>${MEALS.find(x => x[0] === m)[1]}${q !== 1 ? ` · ${nf.format(q)} portions` : ''}</small></div><span class="kcal">${n0.format(r.k * q)}</span></div>`).join('');
+  $('#menuList').innerHTML = menu.map(([m, r, q]) => `<div class="menu-row" data-rec="${r.id}" data-q="${q}" data-meal="${m}"><span class="em">${r.em}</span><div class="name">${esc(r.n)}<small>${mealLabel(m, menuDay)}${q !== 1 ? ` · ${nf.format(q)} portions` : ''}</small></div><span class="kcal">${n0.format(r.k * q)}</span></div>`).join('');
   $('#menuTotal').textContent = `${n0.format(menu.reduce((a, [, r, q]) => a + r.k * q, 0))} kcal`;
 }
 $('#menuDays').addEventListener('click', e => { const d = e.target.dataset.day; if (d) { menuDay = d; renderMenu(); } });
@@ -1770,6 +1987,7 @@ function renderProfile(){
   $('#p-diet').value = c.diet; $('#dietDesc').textContent = DIETS[c.diet].desc;
   $('#pMacros').innerHTML = [['Glucides', c.carbs], ['Protéines', c.protein], ['Lipides', c.fat], ['Eau', c.water * 0.25]]
     .map(([l, v], i) => `<div><b>${nf.format(v)} ${i === 3 ? 'L' : 'g'}</b><span>${l} / jour</span></div>`).join('');
+  renderRamSettings();
   renderSubCard();
 }
 $('#p-diet').onchange = e => $('#dietDesc').textContent = DIETS[e.target.value].desc;
@@ -1970,8 +2188,10 @@ $('#demoBtn').onclick = () => {
   }
   days[t] = { foods: [['Flocons d\'avoine','breakfast'],['Kiwi','breakfast'],['Blanc de poulet','lunch'],['Lentilles cuites','lunch'],['Salade verte','lunch']].map(([n, meal], k) => ({id: uid() + k, ...F(n), meal})),
     water: 4, acts: [{id: uid(), n: 'Marche rapide', min: 30, k: 170}], habits: {veg: true, prot: true} };
+  // Pendant le Ramadan, l'exemple ne contient pas de repas en journée
+  Object.entries(days).forEach(([d, x]) => { if (isRamadan(d)) x.foods.forEach(f => { if (f.meal === 'lunch') f.meal = 'dinner'; }); });
   S = { profile: {sex:'f', age:34, height:168, startWeight:82, goal:70, activity:1.375, pace:0.5, start: addDays(t, -42), demo: true, diet: 'equilibre'}, weights, days,
-    fast: {plan: 16, start: Date.now() - (13 * 60 + 25) * 60e3,
+    fast: {plan: 16, start: isRamadan() ? null : Date.now() - (13 * 60 + 25) * 60e3,
       hist: [1,2,3,4,5].map(i => { const s0 = new Date(); s0.setDate(s0.getDate() - i); s0.setHours(20, 15, 0, 0); return {s: s0.getTime(), e: s0.getTime() + (i === 3 ? 14.5 : 16 + i * 0.2) * 3600e3, g: 16}; }) } };
   save(); route(); toast('Exemple chargé : profil fictif de 34 ans, 168 cm');
 };

@@ -17,6 +17,7 @@ Application web mobile (PWA), sans serveur ni compte : toutes les données reste
 - **Journal alimentaire** : environ 80 aliments courants, plus de 3 millions de produits via Open Food Facts (recherche en ligne), **scan de codes-barres** à l'appareil photo, choix de la quantité (portions ou grammes), aliments récents, saisie manuelle.
 - **Macronutriments** : glucides, protéines et lipides par aliment, par repas et par jour, avec des objectifs selon le type d'alimentation (équilibré, riche en protéines, pauvre en glucides).
 - **Jeûne intermittent** : programmes 12:12 à 20:4, minuteur, phases du jeûne, heure de début modifiable, historique et taux de réussite.
+- **Mode Ramadan** : activation automatique selon le calendrier hégirien (Umm al-Qura, réglable ±1 jour), heures du Fajr et du Maghrib calculées pour la ville (32 villes de France, Belgique, Suisse, Canada, Maroc, Algérie, Tunisie, ou position GPS ; méthodes UOIF, ISNA, Ligue islamique mondiale, Maroc, Algérie, Tunisie), repas Shour / Ftour / Soirée, minuteur du jeûne, conseils, habitudes et menus dédiés, bilan du mois.
 - **Recettes** : 20 recettes minceur (dont tajine, harira, couscous léger) avec ingrédients, étapes et valeurs nutritionnelles, ajout au journal en un clic, **menu de la semaine** ajusté à l'objectif calorique.
 - **Eau** : objectif en verres (35 ml/kg).
 - **Activité** : calories dépensées estimées par MET × poids × durée, ajoutées au budget du jour.
