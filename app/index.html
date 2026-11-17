@@ -224,6 +224,22 @@ nav.tabs .fab{width:58px;height:58px;min-height:0;padding:0;border-radius:50%;ba
 .ramtop small{display:block;opacity:.85;font-size:13px;line-height:1.4}
 .ramico{font-size:28px;flex:none}
 .ramcard .soft{background:rgba(255,255,255,.16);color:#fff}
+/* Jours de fête et défis */
+.fetecard{background:linear-gradient(150deg,#b4467a,#7a2e6b);color:#fff;border-radius:22px;padding:14px 16px;margin-bottom:14px;box-shadow:0 8px 24px rgba(122,46,107,.22)}
+.fetecard .soft{background:rgba(255,255,255,.18);color:#fff}
+.chal{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:12px 12px 12px 14px;margin-bottom:10px}
+.card .chal{background:var(--bg);border:0}
+.chal-head{display:flex;align-items:center;gap:12px}
+.chal-head .name{flex:1;min-width:0}
+.chal-head .name b{display:block}
+.chal-head .name small{color:var(--muted);font-size:13px}
+.cdots{display:grid;grid-template-columns:repeat(7,1fr);gap:6px;margin-top:10px}
+.cdots.many{grid-template-columns:repeat(10,1fr);gap:4px}
+.cd{display:block;aspect-ratio:1;border-radius:50%;background:var(--line)}
+.cd.done{background:var(--brand)}
+.cd.miss{background:var(--warn);opacity:.45}
+.cd.today{background:transparent;box-shadow:inset 0 0 0 2px var(--brand)}
+.qrow2{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px}
 /* Photo intelligente */
 .aibtn{width:100%;min-height:58px;margin-bottom:12px;border-radius:16px;background:linear-gradient(135deg,var(--hero-2),var(--hero));display:flex;align-items:center;gap:12px;padding:0 16px;text-align:left}
 .aibtn span{font-size:26px}
@@ -409,6 +425,7 @@ li.done .dot{background:var(--brand);opacity:.5} li.cur .dot{background:var(--br
     </div>
     <div class="week" id="week"></div>
     <div class="ramcard hidden" id="ramCard"></div>
+    <div class="fetecard hidden" id="feteCard"></div>
 
     <div class="dash">
       <div class="dash-top">
@@ -446,6 +463,8 @@ li.done .dot{background:var(--brand);opacity:.5} li.cur .dot{background:var(--br
       <ul class="list" id="actList"></ul>
       <button class="soft" style="width:100%;margin-top:10px" id="addActBtn">+ Ajouter une activité</button>
     </div>
+
+    <div id="chalMiniWrap" class="hidden"><div class="sect">Mes défis <span>partagez vos progrès</span></div><div id="chalMini"></div></div>
 
     <div class="tip" id="tipBox"></div>
 
@@ -487,6 +506,15 @@ li.done .dot{background:var(--brand);opacity:.5} li.cur .dot{background:var(--br
         <button type="submit">OK</button>
       </form>
       <p class="muted small" style="margin:8px 0 0">Conseil : pesez-vous le matin, à jeun, après être passé aux toilettes. Le poids varie de ±1 kg d'un jour à l'autre — fiez-vous à la tendance.</p>
+    </div>
+
+    <div class="card" id="chalCard">
+      <h2>🤝 Défis</h2>
+      <div id="chalActive"></div>
+      <h3 style="font-size:15px;margin:14px 0 0">Lancer un défi</h3>
+      <div class="rgrid" id="chalNew"></div>
+      <h3 id="chalDoneH" class="hidden" style="font-size:15px;margin:16px 0 10px">Défis terminés</h3>
+      <div id="chalDone"></div>
     </div>
 
     <div class="card">
@@ -736,6 +764,33 @@ li.done .dot{background:var(--brand);opacity:.5} li.cur .dot{background:var(--br
       <button class="qbtn" data-q="act"><span>🏃</span>Activité</button>
       <button class="qbtn" data-q="weight"><span>⚖️</span>Pesée</button>
     </div>
+    <div class="qrow2">
+      <button class="qbtn" data-q="fete" style="min-height:72px;flex-direction:row"><span>🎉</span>Jour de fête</button>
+      <button class="qbtn" data-q="defi" style="min-height:72px;flex-direction:row"><span>🤝</span>Défi</button>
+    </div>
+  </div>
+</dialog>
+
+<!-- Fête dialog -->
+<dialog id="feteDlg">
+  <div class="head"><h3>Prévoir un jour de fête</h3><button class="icon" data-close aria-label="Fermer">✕</button></div>
+  <div class="body">
+    <form id="feteForm">
+      <p class="small muted" style="margin:0 0 12px">Mettez quelques calories de côté les jours précédents pour profiter du jour J, sans culpabiliser et sans casser votre progression.</p>
+      <label>Occasion</label>
+      <div class="chips" id="feteKinds" style="margin-bottom:8px"></div>
+      <input id="feteName" maxlength="40" aria-label="Nom de l'occasion">
+      <label for="feteDate" style="margin-top:10px">Date</label>
+      <input type="date" id="feteDate" required>
+      <label style="margin-top:10px">Marge souhaitée le jour J</label>
+      <div class="chips" id="feteExtra"></div>
+      <label for="feteDays" style="margin-top:10px">Répartie sur</label>
+      <select id="feteDays"><option value="2">les 2 jours avant</option><option value="3">les 3 jours avant</option><option value="5">les 5 jours avant</option><option value="7">les 7 jours avant</option></select>
+      <p class="small" id="fetePreview" style="margin:12px 0"></p>
+      <button type="submit" style="width:100%">Enregistrer</button>
+    </form>
+    <h3 id="feteListH" class="hidden" style="font-size:15px;margin:18px 0 4px">Fêtes prévues</h3>
+    <ul class="list" id="feteList"></ul>
   </div>
 </dialog>
 
@@ -974,7 +1029,7 @@ function render(v){
   if (!S.profile) return;
   const st = streak(); const el = $('#streak');
   el.classList.toggle('hidden', st < 2); el.textContent = `🔥 ${st} jours`;
-  ({today: renderToday, weight: () => { renderRamStats(); renderWeight(); renderStats(); }, fast: () => { renderRamFast(); renderFast(); }, recipes: renderRecipes, profile: renderProfile}[v] || (()=>{}))();
+  ({today: renderToday, weight: () => { renderRamStats(); renderWeight(); renderStats(); renderChallenges(); }, fast: () => { renderRamFast(); renderFast(); }, recipes: renderRecipes, profile: renderProfile}[v] || (()=>{}))();
 }
 const activeView = () => ($('section.view.active')?.id || 'v-today').slice(2);
 
@@ -1023,6 +1078,7 @@ $('#setupForm').onsubmit = e => {
   save();
   route();
   toast(`Objectif : ${n0.format(calc().target)} kcal par jour`);
+  setTimeout(handleInvite, 2500);
 };
 
 /* ---------- Aujourd'hui ---------- */
@@ -1032,8 +1088,8 @@ function renderWeek(c){
   const base = parseISO(curDay); const dow = (base.getDay() + 6) % 7; const today = todayISO();
   const days = Array.from({length: 7}, (_, i) => addDays(curDay, i - dow));
   $('#week').innerHTML = days.map(d => {
-    const t = dayTotals(d); const pct = clamp(t.kcal / (c.target + t.burn) * 100, 0, 100);
-    const cls = ['wd', d === curDay && 'sel', d === today && 'today', t.kcal > c.target + t.burn && 'over'].filter(Boolean).join(' ');
+    const t = dayTotals(d); const tg = targetFor(d); const pct = clamp(t.kcal / (tg + t.burn) * 100, 0, 100);
+    const cls = ['wd', d === curDay && 'sel', d === today && 'today', t.kcal > tg + t.burn && 'over'].filter(Boolean).join(' ');
     return `<button class="${cls}" data-wd="${d}" ${d > today ? 'disabled' : ''}><span>${parseISO(d).toLocaleDateString('fr-FR', {weekday: 'short'}).replace('.', '').slice(0, 3)}</span><i style="--p:${pct}"><b>${parseISO(d).getDate()}</b></i></button>`;
   }).join('');
   $('#nextDay').disabled = days[6] >= today;
@@ -1043,7 +1099,8 @@ function renderToday(){
   $('#dayLabel').textContent = isToday ? 'Aujourd\'hui' : curDay === addDays(todayISO(), -1) ? 'Hier' : fmtDay(curDay).replace(/^./, x => x.toUpperCase());
   renderWeek(c);
 
-  const budget = c.target + t.burn;
+  const tgt = targetFor(curDay), adj = tgt - c.target;
+  const budget = tgt + t.burn;
   const remain = budget - t.kcal;
   $('#remain').textContent = n0.format(Math.abs(remain));
   $('#remainLbl').textContent = remain >= 0 ? 'kcal restantes' : 'kcal en trop';
@@ -1051,7 +1108,7 @@ function renderToday(){
   arc.style.stroke = remain >= 0 ? '#fff' : '#ffb4a1';
   $('#eqFood').textContent = n0.format(t.kcal);
   $('#eqAct').textContent = n0.format(t.burn);
-  $('#goalLine').textContent = `Objectif ${n0.format(c.target)} kcal${t.burn ? ` + ${n0.format(t.burn)} d'activité` : ''}`;
+  $('#goalLine').textContent = `Objectif ${n0.format(tgt)} kcal${adj ? ` (${adj > 0 ? '+' : '−'}${n0.format(Math.abs(adj))} ${adj > 0 ? 'jour de fête' : 'mis de côté'})` : ''}${t.burn ? ` + ${n0.format(t.burn)} d'activité` : ''}`;
   $('#macros').innerHTML = [['Glucides', t.carb, c.carbs, '#7cc4ff'], ['Protéines', t.prot, c.protein, '#ffd27a'], ['Lipides', t.fat, c.fat, '#d7b8ff']]
     .map(([l, v, g, col]) => `<div><span class="small">${l}</span><div class="bar"><i style="width:${clamp(v / g * 100, 0, 100)}%;background:${v > g * 1.1 ? '#ffb4a1' : col}"></i></div><span class="small muted">${n0.format(v)} / ${g} g</span></div>`).join('');
   renderFastMini();
@@ -1061,15 +1118,17 @@ function renderToday(){
   const idx = Math.floor(parseISO(curDay).getTime() / 864e5) % TL.length;
   $('#tipBox').innerHTML = `<b>${isRamadan(curDay) ? 'Conseil Ramadan' : 'Conseil du jour'} —</b> ${esc(TL[idx])}`;
   renderRamCard();
+  renderFeteCard();
+  renderChalMini();
 
   // Une carte par repas, toujours visible, avec sa part recommandée de l'objectif
   const d = peekDay(curDay);
-  $('#foodCount').textContent = `${n0.format(t.kcal)} / ${n0.format(c.target)} kcal`;
+  $('#foodCount').textContent = `${n0.format(t.kcal)} / ${n0.format(tgt)} kcal`;
   const ram = isRamadan(curDay); const MI = ram ? MEAL_INFO_RAM : MEAL_INFO_STD;
   const meals = [...mealsFor(curDay)]; if (ram && d.foods.some(f => f.meal === 'lunch')) meals.push(['lunch', 'Déjeuner']);
   $('#mealsList').innerHTML = meals.map(([m, label]) => {
     const items = d.foods.filter(f => f.meal === m);
-    const sum = items.reduce((a, f) => a + f.k, 0); const rec = Math.max(1, Math.round(c.target * MI[m][1] / 10) * 10);
+    const sum = items.reduce((a, f) => a + f.k, 0); const rec = Math.max(1, Math.round(tgt * MI[m][1] / 10) * 10);
     const over = sum > rec * 1.15;
     return `<div class="meal"><div class="meal-head"><span class="mico">${MI[m][0]}</span><div class="name"><b>${label === 'Petit-déj' ? 'Petit-déjeuner' : label}</b><small>${n0.format(sum)} / ${n0.format(rec)} kcal</small></div><button class="addbtn" data-add-meal="${m}" aria-label="Ajouter au ${label}">+</button></div>` +
       (items.length ? `<div class="mbar"><i style="width:${clamp(sum / rec * 100, 0, 100)}%;${over ? 'background:var(--warn)' : ''}"></i></div><ul class="list">` +
@@ -1357,7 +1416,7 @@ $('#quickDlg').addEventListener('click', e => {
   const b = e.target.closest('[data-q]'); if (!b) return;
   $('#quickDlg').close();
   const q = b.dataset.q;
-  if (q !== 'recipe' && q !== 'weight' && activeView() !== 'today') show('today');
+  if (!['recipe', 'weight', 'fete', 'defi'].includes(q) && activeView() !== 'today') show('today');
   if (q === 'food') openFoodDlg(false);
   else if (q === 'scan') openFoodDlg(true);
   else if (q === 'ai') { openFoodDlg(false); $('#aiPhoto').click(); }
@@ -1365,6 +1424,8 @@ $('#quickDlg').addEventListener('click', e => {
   else if (q === 'water') $('#waterPlus').click();
   else if (q === 'act') $('#addActBtn').click();
   else if (q === 'weight') { show('weight'); setTimeout(() => $('#wVal').focus(), 50); }
+  else if (q === 'fete') openFeteDlg();
+  else if (q === 'defi') { show('weight'); setTimeout(() => $('#chalCard').scrollIntoView({behavior: 'smooth', block: 'start'}), 60); }
 });
 $('#avatarBtn').onclick = () => show('profile');
 $('#customFood').onsubmit = e => {
@@ -1598,6 +1659,162 @@ function renderRamStats(){
     <p class="small muted" style="margin:10px 0 0">Cochez « J'ai jeûné aujourd'hui » dans vos habitudes pour compléter ce bilan.</p>`;
 }
 
+/* ---------- Jours de fête : mettre des calories de côté avant un événement ---------- */
+const FETE_KINDS = [['💍', 'Mariage'], ['🌙', 'Aïd el-Fitr'], ['🐑', 'Aïd el-Kébir'], ['🎂', 'Anniversaire'], ['👨‍👩‍👧', 'Repas de famille'], ['🎉', 'Autre fête']];
+const FETE_TIPS = ['Mangez un repas riche en protéines avant de partir : vous arriverez sans grande faim.', 'Alternez chaque verre de boisson sucrée avec un verre d\'eau.', 'Servez-vous une fois, dans une assiette normale, puis attendez 15 minutes avant de vous resservir.', 'Dansez : une heure de danse dépense environ 300 kcal.', 'Choisissez 1 ou 2 desserts que vous aimez vraiment, plutôt que de goûter à tout.'];
+const fetes = () => (S.fetes ||= []);
+const daysBetween = (a, b) => Math.round((parseISO(b) - parseISO(a)) / 864e5);
+// Réduction quotidienne possible sans descendre sous le minimum de sécurité
+function fetePlan(f){
+  const c = calc(); const floor = S.profile.sex === 'm' ? 1500 : 1200;
+  const n = Math.max(0, daysBetween(f.from, f.date));
+  const per = n ? Math.min(Math.round(f.extra / n / 10) * 10, Math.max(0, c.target - floor)) : 0;
+  return {n, per, bonus: per * n};
+}
+function feteAdj(d){
+  let adj = 0;
+  for (const f of fetes()) {
+    const {per, bonus} = fetePlan(f);
+    if (d === f.date) adj += bonus;
+    else if (d >= f.from && d < f.date) adj -= per;
+  }
+  return adj;
+}
+const targetFor = d => calc().target + (S.profile ? feteAdj(d) : 0);
+function renderFeteCard(){
+  const box = $('#feteCard'); const d = curDay;
+  const today = fetes().find(f => f.date === d);
+  const next = fetes().filter(f => f.date > d && daysBetween(d, f.date) <= 14).sort((a, b) => a.date.localeCompare(b.date))[0];
+  let html = '';
+  if (today) {
+    const {bonus} = fetePlan(today);
+    html = `<div class="ramtop"><span class="ramico">${today.em}</span><div><b>${esc(today.name)} : profitez !</b><small>${bonus ? `+${n0.format(bonus)} kcal mis de côté ces derniers jours.` : 'Profitez avec modération.'} ${esc(FETE_TIPS[parseISO(d).getDate() % FETE_TIPS.length])}</small></div></div>`;
+  } else if (next) {
+    const {per, bonus} = fetePlan(next); const left = daysBetween(d, next.date);
+    const when = d < next.from ? `à partir du ${fmtShort(next.from)}` : 'jusque-là';
+    html = `<div class="ramtop"><span class="ramico">${next.em}</span><div style="flex:1"><b>${esc(next.name)} dans ${left} jour${left > 1 ? 's' : ''}</b><small>${per ? `−${n0.format(per)} kcal par jour ${when}, pour +${n0.format(bonus)} kcal le jour J.` : 'Votre objectif est déjà au minimum : bougez un peu plus pour vous faire une marge.'}</small></div></div>`;
+  } else if (d === todayISO()) {
+    const aid = upcomingAid();
+    if (aid && !fetes().some(f => f.date === aid.date)) html = `<div class="ramtop"><span class="ramico">${aid.em}</span><div style="flex:1"><b>${aid.name} dans ${aid.left} jours</b><small>Mettez quelques calories de côté pour en profiter sans culpabiliser.</small></div></div><button class="soft" data-fete-aid="${aid.date}" data-fete-name="${aid.name}" style="width:100%;margin-top:10px">Préparer l'${aid.name}</button>`;
+  }
+  box.innerHTML = html; box.classList.toggle('hidden', !html);
+}
+function upcomingAid(){ // Aïd el-Fitr (1er chawwal) et Aïd el-Kébir (10 dhou al-hijja) dans les 21 jours
+  for (let i = 1; i <= 21; i++) {
+    const d = addDays(todayISO(), i); const h = hijri(d); if (!h) return null;
+    if (h.month === 10 && h.day === 1) return {date: d, left: i, name: 'Aïd el-Fitr', em: '🌙'};
+    if (h.month === 12 && h.day === 10) return {date: d, left: i, name: 'Aïd el-Kébir', em: '🐑'};
+  }
+  return null;
+}
+let feteDraft = null;
+function openFeteDlg(preset = {}){
+  feteDraft = {em: '💍', name: 'Mariage', date: addDays(todayISO(), 7), extra: 600, days: 5, ...preset};
+  const k = FETE_KINDS.find(x => x[1] === feteDraft.name); if (k) feteDraft.em = k[0];
+  $('#feteDate').min = addDays(todayISO(), 1); $('#feteDate').value = feteDraft.date;
+  $('#feteName').value = feteDraft.name;
+  renderFeteDlg(); $('#feteDlg').showModal();
+}
+function renderFeteDlg(){
+  const f = feteDraft;
+  $('#feteKinds').innerHTML = FETE_KINDS.map(([e, n]) => `<button type="button" class="chip ${n === f.name ? 'on' : ''}" data-kind="${n}">${e} ${n}</button>`).join('');
+  $('#feteExtra').innerHTML = [300, 500, 800, 1000].map(v => `<button type="button" class="chip ${v === f.extra ? 'on' : ''}" data-extra="${v}">+${v} kcal</button>`).join('');
+  $('#feteDays').value = String(f.days);
+  const from = [addDays(f.date, -f.days), addDays(todayISO(), 1)].sort().pop(); // jamais dans le passé
+  const p = fetePlan({...f, from});
+  $('#fetePreview').innerHTML = !p.n ? 'Choisissez une date à partir de demain.' : p.per
+    ? `<b>−${n0.format(p.per)} kcal par jour</b> pendant ${p.n} jour${p.n > 1 ? 's' : ''} (à partir du ${fmtShort(from)}), puis <b>+${n0.format(p.bonus)} kcal</b> le ${fmtDay(f.date)}.${p.bonus < f.extra ? ' La marge est réduite pour ne jamais descendre sous le minimum de sécurité.' : ''}`
+    : 'Votre objectif est déjà au minimum de sécurité : la marge viendra plutôt d\'un peu plus d\'activité.';
+  $('#feteList').innerHTML = fetes().filter(x => x.date >= todayISO()).sort((a, b) => a.date.localeCompare(b.date))
+    .map(x => `<li><div class="name">${x.em} ${esc(x.name)}<small>${fmtDay(x.date)} · +${n0.format(fetePlan(x).bonus)} kcal</small></div><button class="icon" type="button" data-del-fete="${x.id}" aria-label="Supprimer">✕</button></li>`).join('');
+  $('#feteListH').classList.toggle('hidden', !$('#feteList').children.length);
+}
+$('#feteKinds').addEventListener('click', e => { const n = e.target.closest('[data-kind]')?.dataset.kind; if (n) { feteDraft.name = n; feteDraft.em = FETE_KINDS.find(x => x[1] === n)[0]; $('#feteName').value = n; renderFeteDlg(); } });
+$('#feteExtra').addEventListener('click', e => { const v = +e.target.dataset.extra; if (v) { feteDraft.extra = v; renderFeteDlg(); } });
+$('#feteDays').onchange = e => { feteDraft.days = +e.target.value; renderFeteDlg(); };
+$('#feteDate').oninput = e => { if (e.target.value) { feteDraft.date = e.target.value; renderFeteDlg(); } };
+$('#feteName').oninput = e => { feteDraft.name = e.target.value.slice(0, 40) || 'Fête'; };
+$('#feteList').addEventListener('click', e => { const id = e.target.dataset.delFete; if (id) { S.fetes = fetes().filter(f => f.id !== id); save(); renderFeteDlg(); render(activeView()); } });
+$('#feteForm').onsubmit = e => {
+  e.preventDefault();
+  const f = feteDraft; if (!f.date || f.date <= todayISO()) return toast('Choisissez une date à partir de demain');
+  const from = [addDays(f.date, -f.days), addDays(todayISO(), 1)].sort().pop();
+  S.fetes = fetes().filter(x => x.date !== f.date);
+  S.fetes.push({id: uid(), em: f.em, name: $('#feteName').value.trim() || f.name, date: f.date, extra: f.extra, days: f.days, from});
+  save(); $('#feteDlg').close(); render(activeView());
+  toast(`${f.em} ${f.name} prévu le ${fmtShort(f.date)}`);
+};
+document.addEventListener('click', e => { const b = e.target.closest('[data-fete-aid]'); if (b) openFeteDlg({name: b.dataset.feteName, date: b.dataset.feteAid, days: 5}); });
+
+/* ---------- Défis à partager ---------- */
+const CHALLENGES = {
+  'sans-soda': {em: '🥤', name: '7 jours sans soda', days: 7, desc: 'Aucune boisson sucrée pendant 7 jours.', ok: d => !!d.habits.sugar, how: 'Cochez « Pas de boisson sucrée » chaque jour.'},
+  'eau': {em: '💧', name: '14 jours bien hydraté', days: 14, desc: 'Au moins 8 verres d\'eau par jour.', ok: d => d.water >= 8, how: 'Ajoutez vos verres d\'eau dans le Journal.'},
+  'marche': {em: '🚶', name: '30 jours de marche', days: 30, desc: '30 minutes de marche ou d\'activité par jour.', ok: d => !!d.habits.steps || d.acts.reduce((a, x) => a + x.min, 0) >= 30, how: 'Ajoutez une activité ou cochez « 30 min de marche ».'},
+  'legumes': {em: '🥦', name: '21 jours de légumes', days: 21, desc: 'Au moins 2 portions de légumes par jour.', ok: d => !!d.habits.veg, how: 'Cochez « Au moins 2 portions de légumes ».'},
+  'objectif': {em: '🎯', name: '7 jours dans l\'objectif', days: 7, desc: 'Rester dans son objectif calorique 7 jours de suite.', ok: (d, iso) => d.foods.length > 0 && dayTotals(iso).kcal <= targetFor(iso) + dayTotals(iso).burn, how: 'Notez tous vos repas et restez dans votre objectif.'},
+  'sans-friture': {em: '🍳', name: 'Ramadan sans friture', days: 10, desc: '10 ftours sans friture.', ok: d => !!d.habits.nofry, how: 'Cochez « Pas de friture au ftour » pendant le Ramadan.'}
+};
+const SITE_URL = 'https://azzanet-arch.github.io/Leger/';
+const challenges = () => (S.challenges ||= []);
+function challengeState(c){
+  const tpl = CHALLENGES[c.tpl]; const today = todayISO();
+  const dates = Array.from({length: tpl.days}, (_, i) => addDays(c.start, i));
+  const marks = dates.map(d => d > today ? 'future' : tpl.ok(peekDay(d), d) ? 'done' : d === today ? 'today' : 'miss');
+  const done = marks.filter(m => m === 'done').length;
+  const finished = dates.at(-1) < today || done === tpl.days;
+  return {tpl, dates, marks, done, finished, dayN: Math.min(tpl.days, daysBetween(c.start, today) + 1)};
+}
+function startChallenge(key, from){
+  if (!CHALLENGES[key]) return;
+  if (challenges().some(c => c.tpl === key && !challengeState(c).finished)) { toast('Ce défi est déjà en cours'); return; }
+  challenges().push({id: uid(), tpl: key, start: todayISO(), from: from || ''});
+  save(); render(activeView()); toast(`Défi « ${CHALLENGES[key].name} » lancé ! 💪`);
+}
+async function shareChallenge(c){
+  const st = challengeState(c);
+  const text = st.finished
+    ? `J'ai relevé le défi « ${st.tpl.name} » sur Léger : ${st.done}/${st.tpl.days} jours réussis ${st.tpl.em} À ton tour ?`
+    : `Je relève le défi « ${st.tpl.name} » sur Léger ${st.tpl.em} Jour ${st.dayN}/${st.tpl.days}, ${st.done} réussi${st.done > 1 ? 's' : ''}. Tu me rejoins ?`;
+  const url = `${SITE_URL}app/?defi=${c.tpl}`;
+  try { if (navigator.share) { await navigator.share({text, url}); return; } } catch(e) { if (e.name === 'AbortError') return; }
+  location.href = `https://wa.me/?text=${encodeURIComponent(text + ' ' + url)}`;
+}
+function challengeHTML(c, compact){
+  const st = challengeState(c);
+  const dots = st.marks.map(m => `<i class="cd ${m}"></i>`).join('');
+  return `<div class="chal" data-chal="${c.id}"><div class="chal-head"><span class="ramico">${st.tpl.em}</span><div class="name"><b>${esc(st.tpl.name)}</b><small>${st.finished ? `Terminé : ${st.done}/${st.tpl.days} jours réussis ${st.done === st.tpl.days ? '🏆' : ''}` : `Jour ${st.dayN}/${st.tpl.days} · ${st.done} réussi${st.done > 1 ? 's' : ''}${st.marks[st.dayN - 1] === 'today' ? ' · à valider aujourd\'hui' : ''}`}</small></div>
+    <button class="icon" data-share-chal="${c.id}" aria-label="Partager sur WhatsApp" title="Partager">📤</button></div>
+    <div class="cdots ${st.tpl.days > 14 ? 'many' : ''}">${dots}</div>${compact ? '' : `<p class="small muted" style="margin:6px 0 0">${esc(st.tpl.how)}</p>`}</div>`;
+}
+function renderChallenges(){
+  const active = challenges().filter(c => !challengeState(c).finished);
+  const doneList = challenges().filter(c => challengeState(c).finished).slice(-6).reverse();
+  $('#chalActive').innerHTML = active.map(c => challengeHTML(c)).join('') || '<p class="small muted" style="margin:0 0 4px">Aucun défi en cours. Lancez-en un et invitez vos proches sur WhatsApp !</p>';
+  const ramSoon = isRamadan() || daysUntilRamadan() > 0;
+  $('#chalNew').innerHTML = Object.entries(CHALLENGES).filter(([k]) => !active.some(c => c.tpl === k) && (k !== 'sans-friture' || ramSoon)).map(([k, t]) => `<button class="rcard" data-start-chal="${k}"><span class="em">${t.em}</span><b>${esc(t.name)}</b><small>${esc(t.desc)}</small></button>`).join('');
+  $('#chalDone').innerHTML = doneList.map(c => challengeHTML(c, true)).join('');
+  $('#chalDoneH').classList.toggle('hidden', !doneList.length);
+}
+function renderChalMini(){
+  const active = curDay === todayISO() ? challenges().filter(c => !challengeState(c).finished) : [];
+  $('#chalMini').innerHTML = active.slice(0, 2).map(c => challengeHTML(c, true)).join('');
+  $('#chalMiniWrap').classList.toggle('hidden', !active.length);
+}
+document.addEventListener('click', e => {
+  const s = e.target.closest('[data-start-chal]'); if (s) return startChallenge(s.dataset.startChal);
+  const sh = e.target.closest('[data-share-chal]'); if (sh) { const c = challenges().find(x => x.id === sh.dataset.shareChal); if (c) shareChallenge(c); }
+});
+// Lien d'invitation : …/app/?defi=sans-soda
+let pendingInvite = null;
+(() => { const k = new URLSearchParams(location.search).get('defi'); if (k && CHALLENGES[k]) pendingInvite = k; })();
+async function handleInvite(){
+  if (!pendingInvite || !S.profile || !hasAccess()) return;
+  const k = pendingInvite; pendingInvite = null;
+  const p = new URLSearchParams(location.search); p.delete('defi'); history.replaceState(null, '', location.pathname + (p.toString() ? '?' + p : ''));
+  if (await ask(`${CHALLENGES[k].em} Un proche vous invite au défi « ${CHALLENGES[k].name} » : ${CHALLENGES[k].desc} Vous le relevez ?`, 'Je relève le défi')) startChallenge(k, 'invitation');
+}
+
 /* ---------- Jeûne intermittent ---------- */
 const FAST_PLANS = [
   [12, '12:12', 'Débutant : 12 h de jeûne, par exemple de 20 h à 8 h. Idéal pour commencer.'],
@@ -1822,7 +2039,7 @@ function menuFor(d){
     const B = RECIPES.filter(r => r.cat === 'breakfast'), soups = RECIPES.filter(r => ['harira', 'chorba', 'soupecourgette'].includes(r.id));
     const mains = RECIPES.filter(r => r.cat === 'main' && !soups.includes(r)), N = RECIPES.filter(r => r.cat === 'snack' && r.id !== 'rupture');
     const shour = n % 2 ? RECIPES.find(r => r.id === 'shour') : B[n % B.length], soup = soups[n % soups.length], main = mains[(n * 3) % mains.length], s = N[n % N.length];
-    const rupture = RECIPES.find(r => r.id === 'rupture'); const target = calc().target;
+    const rupture = RECIPES.find(r => r.id === 'rupture'); const target = targetFor(d);
     const scale = clamp(Math.round((target - shour.k - rupture.k - soup.k - s.k) / main.k * 4) / 4, 0.75, 2);
     const rest = target - shour.k - rupture.k - soup.k - s.k - main.k * scale; // complète avec un shour plus copieux
     const qs = clamp(Math.round((shour.k + Math.max(0, rest)) / shour.k * 4) / 4, 1, 1.5);
@@ -1832,13 +2049,13 @@ function menuFor(d){
   const n = Math.floor(parseISO(d).getTime() / 864e5) + 3;
   const lunch = M[(n * 3) % M.length]; let dinner = M[(n * 3 + 5) % M.length]; if (dinner === lunch) dinner = M[(n * 3 + 6) % M.length];
   const b = B[n % B.length], s = N[n % N.length];
-  const target = calc().target;
+  const target = targetFor(d);
   const scale = clamp(Math.round((target - b.k - s.k) / (lunch.k + dinner.k) * 4) / 4, 0.75, 2);
   return [['breakfast', b, 1], ['lunch', lunch, scale], ['dinner', dinner, scale], ['snack', s, 1]];
 }
 function renderMenu(){
   const days = weekDays(); if (!menuDay || !days.includes(menuDay)) menuDay = todayISO();
-  $('#menuTarget').textContent = `objectif ${n0.format(calc().target)} kcal`;
+  $('#menuTarget').textContent = `objectif ${n0.format(targetFor(menuDay))} kcal`;
   $('#menuDays').innerHTML = days.map(d => `<button class="chip ${d === menuDay ? 'on' : ''}" data-day="${d}">${parseISO(d).toLocaleDateString('fr-FR', {weekday: 'short'}).replace('.', '')}</button>`).join('');
   const menu = menuFor(menuDay);
   $('#menuList').innerHTML = menu.map(([m, r, q]) => `<div class="menu-row" data-rec="${r.id}" data-q="${q}" data-meal="${m}"><span class="em">${r.em}</span><div class="name">${esc(r.n)}<small>${mealLabel(m, menuDay)}${q !== 1 ? ` · ${nf.format(q)} portions` : ''}</small></div><span class="kcal">${n0.format(r.k * q)}</span></div>`).join('');
@@ -1951,7 +2168,7 @@ function renderStats(){
   const tots = days.map(dayTotals);
   const kc = logged.map(dayTotals);
   $('#avgKcal').textContent = kc.length ? n0.format(kc.reduce((a,t) => a + t.kcal, 0) / kc.length) : '–';
-  $('#daysOk').textContent = `${logged.filter(d => { const t = dayTotals(d); return t.kcal <= c.target + t.burn; }).length} / 7`;
+  $('#daysOk').textContent = `${logged.filter(d => { const t = dayTotals(d); return t.kcal <= targetFor(d) + t.burn; }).length} / 7`;
   $('#avgWater').textContent = nf.format(tots.reduce((a,t) => a + t.water, 0) / 7);
   $('#actMin').textContent = n0.format(tots.reduce((a,t) => a + t.min, 0));
   drawKcalChart();
@@ -1966,7 +2183,7 @@ function drawKcalChart(){
   let g = '';
   tots.forEach((t,i) => {
     const bx = L + i*bw + bw*0.18, w = bw*0.64;
-    const over = t.kcal > c.target + t.burn;
+    const over = t.kcal > targetFor(days[i]) + t.burn;
     if (t.kcal) g += `<rect x="${bx}" y="${y(t.kcal)}" width="${w}" height="${H - B - y(t.kcal)}" rx="5" fill="${over ? 'var(--warn)' : 'var(--brand)'}"><title>${n0.format(t.kcal)} kcal</title></rect>`;
     g += `<text x="${bx + w/2}" y="${H-6}" text-anchor="middle" fill="var(--muted)" font-size="11">${parseISO(days[i]).toLocaleDateString('fr-FR',{weekday:'short'}).replace('.','')}</text>`;
   });
@@ -2194,10 +2411,11 @@ $('#demoBtn').onclick = () => {
     fast: {plan: 16, start: isRamadan() ? null : Date.now() - (13 * 60 + 25) * 60e3,
       hist: [1,2,3,4,5].map(i => { const s0 = new Date(); s0.setDate(s0.getDate() - i); s0.setHours(20, 15, 0, 0); return {s: s0.getTime(), e: s0.getTime() + (i === 3 ? 14.5 : 16 + i * 0.2) * 3600e3, g: 16}; }) } };
   save(); route(); toast('Exemple chargé : profil fictif de 34 ans, 168 cm');
+  setTimeout(handleInvite, 2500);
 };
 
 /* ---------- Démarrage ---------- */
-gate().then(handlePaymentReturn);
+gate().then(handlePaymentReturn).then(handleInvite);
 // Recharge l'écran si l'appli reste ouverte après minuit
 document.addEventListener('visibilitychange', () => {
   if (document.visibilityState !== 'visible') return;
