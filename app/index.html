@@ -861,7 +861,8 @@ li.done .dot{background:var(--brand);opacity:.5} li.cur .dot{background:var(--br
           <div class="chips" id="speechLang"></div>
           <button type="button" class="ghost" id="micBtn" aria-label="Dicter" title="Dicter" style="margin-left:auto;width:52px;padding:0">🎙️</button>
         </div>
-        <p class="small muted" id="micHint" style="margin:6px 0 0"></p>
+        <p class="small" id="micHint" style="margin:6px 0 0"></p>
+        <details style="margin-top:6px"><summary class="small" style="cursor:pointer;color:var(--brand);font-weight:600">Le micro ne marche pas ?</summary><p class="small muted" id="kbTip" style="margin:6px 0 0"></p></details>
         <div class="chips" id="mealExamples" style="margin-top:10px">
           <button type="button" class="chip" data-ex="2 msemen avec du miel et un thé à la menthe">2 msemen + miel + thé</button>
           <button type="button" class="chip" data-ex="jouj bid w khobz w kas d atay">jouj bid w khobz…</button>
@@ -1854,36 +1855,65 @@ let speechLang = 'fr-FR', speechRec = null;
 function openTextPanel(){ showPanel('Text'); $('#mealText').value = ''; $('#micBtn').classList.toggle('hidden', !SpeechRec); renderLangChips(); micHint(); if (matchMedia('(pointer:fine)').matches) setTimeout(() => $('#mealText').focus(), 50); }
 function renderLangChips(){ $('#speechLang').innerHTML = [['fr-FR', 'Français'], ['ar-MA', 'Darija']].map(([v, l]) => `<button type="button" class="chip ${v === speechLang ? 'on' : ''}" data-lang="${v}">${l}</button>`).join(''); }
 $('#speechLang').addEventListener('click', e => { const v = e.target.dataset.lang; if (v) { speechLang = v; renderLangChips(); micHint(); $('#mealText').placeholder = v === 'ar-MA' ? 'مثلا : جوج مسمن بالعسل و كاس ديال أتاي' : 'Ex. : 2 msemen avec du miel et un thé à la menthe'; } });
-// Dictée : en darija, plusieurs variantes d'arabe sont essayées selon ce que le téléphone propose
-const SPEECH_LANGS = {'fr-FR': ['fr-FR'], 'ar-MA': ['ar-MA', 'ar-DZ', 'ar-TN', 'ar-SA', 'ar']};
+// Dictée vocale. Sur iPhone, Safari n'accepte de démarrer le micro que sur un appui de l'utilisateur :
+// si une variante d'arabe ne donne rien, la suivante est proposée au prochain appui (pas de relance automatique).
+const IS_IOS = /iP(hone|ad|od)/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+const SPEECH_LANGS = {'fr-FR': ['fr-FR'], 'ar-MA': IS_IOS ? ['ar-SA', 'ar-AE', 'ar-MA'] : ['ar-MA', 'ar-DZ', 'ar-TN', 'ar-SA']};
+const LANG_LABEL = {'fr-FR': 'français', 'ar-SA': 'arabe (Arabie saoudite)', 'ar-AE': 'arabe (Émirats)', 'ar-MA': 'arabe (Maroc)', 'ar-DZ': 'arabe (Algérie)', 'ar-TN': 'arabe (Tunisie)'};
+const speechIdx = {};
+try { Object.assign(speechIdx, JSON.parse(localStorage.getItem('leger.speech') || '{}')); } catch(_) {}
+const KEYBOARD_TIP = IS_IOS
+  ? 'Le plus fiable sur iPhone : touchez la zone de texte, passez au clavier arabe avec 🌐 (à ajouter dans Réglages › Général › Clavier › Claviers), touchez le micro 🎙️ du clavier, parlez, puis « Analyser ».'
+  : 'Vous pouvez aussi utiliser le micro 🎙️ de votre clavier, puis toucher « Analyser ».';
 function micHint(msg){
   $('#micHint').textContent = msg ?? (!SpeechRec ? 'Pour dicter, utilisez le micro 🎙️ de votre clavier.'
-    : speechLang === 'ar-MA' ? 'Touchez 🎙️ et parlez : le texte s\'écrit en lettres arabes, c\'est normal, Léger le comprend. L\'analyse se lance dès que vous avez fini.'
-    : 'Touchez 🎙️ et dites ce que vous avez mangé : l\'analyse se lance dès que vous avez fini.');
+    : speechLang === 'ar-MA' ? 'Touchez 🎙️, parlez, puis attendez 2 secondes : le texte s\'écrit en lettres arabes, c\'est normal.'
+    : 'Touchez 🎙️, dites ce que vous avez mangé, puis attendez 2 secondes.');
+  $('#kbTip').textContent = KEYBOARD_TIP;
 }
-function startDictation(langIdx = 0){
+function startDictation(){
   const langs = SPEECH_LANGS[speechLang] || [speechLang];
-  const rec = speechRec = new SpeechRec(); rec.lang = langs[langIdx]; rec.interimResults = true; rec.continuous = false; rec.maxAlternatives = 1;
+  const idx = Math.min(speechIdx[speechLang] || 0, langs.length - 1);
+  const rec = speechRec = new SpeechRec();
+  rec.lang = langs[idx]; rec.interimResults = true; rec.continuous = true; rec.maxAlternatives = 1;
   const base = $('#mealText').value ? $('#mealText').value.trim() + ' ' : '';
-  let heard = '', final = false, retry = false;
-  rec.onresult = e => { heard = [...e.results].map(r => r[0].transcript).join(' ').trim(); final = [...e.results].every(r => r.isFinal); $('#mealText').value = base + heard; };
-  rec.onerror = e => {
-    if (e.error === 'language-not-supported' && langIdx + 1 < langs.length) { retry = true; return; }
-    micHint({
-      'not-allowed': 'Micro refusé. iPhone : Réglages › Safari › Micro › Autoriser. Ou tapez votre repas.',
-      'service-not-allowed': 'La dictée n\'est pas autorisée sur ce téléphone. Utilisez le micro 🎙️ du clavier.',
-      'no-speech': 'Je n\'ai rien entendu. Touchez 🎙️ et parlez près du téléphone.',
-      'audio-capture': 'Aucun micro disponible. Tapez votre repas.',
-      'network': 'La dictée a besoin d\'internet. Tapez votre repas ou réessayez.',
-      'language-not-supported': 'La dictée en arabe n\'est pas disponible sur ce téléphone : choisissez Français, ou écrivez en darija.'
-    }[e.error] || 'Je n\'ai pas bien entendu, réessayez.');
+  let heard = '', code = '', silenceT = null;
+  const stop = () => { try { rec.stop(); } catch(_) {} };
+  const watchdog = setTimeout(() => { if (!heard) stop(); }, 8000); // rien reçu après 8 s : on arrête et on explique
+  rec.onaudiostart = () => micHint(`Je vous écoute en ${LANG_LABEL[rec.lang] || rec.lang}… parlez, puis attendez 2 secondes.`);
+  rec.onresult = e => {
+    heard = [...e.results].map(r => r[0].transcript).join(' ').trim();
+    $('#mealText').value = base + heard;
+    clearTimeout(silenceT); silenceT = setTimeout(stop, 2000); // fin de phrase : 2 s de silence
   };
+  rec.onerror = e => { code = e.error; };
   rec.onend = () => {
+    clearTimeout(silenceT); clearTimeout(watchdog);
     speechRec = null; $('#micBtn').classList.remove('rec'); $('#micBtn').textContent = '🎙️';
-    if (retry) return startDictation(langIdx + 1);
-    if (heard && final) { micHint('Analyse de ce que vous avez dit…'); setTimeout(() => { if (!$('#pText').classList.contains('hidden') && $('#mealText').value.trim()) $('#textForm').requestSubmit(); }, 500); }
+    if (heard) {
+      speechIdx[speechLang] = idx; try { localStorage.setItem('leger.speech', JSON.stringify(speechIdx)); } catch(_) {}
+      micHint('Analyse de ce que vous avez dit…');
+      setTimeout(() => { if (!$('#pText').classList.contains('hidden') && $('#mealText').value.trim()) $('#textForm').requestSubmit(); }, 400);
+      return;
+    }
+    const msgs = {
+      'not-allowed': 'Micro refusé. iPhone : Réglages › Safari › Micro › Autoriser, et vérifiez que la dictée est activée (Réglages › Général › Clavier › Dictée).',
+      'service-not-allowed': 'La dictée n\'est pas autorisée sur ce téléphone. Activez-la dans Réglages › Général › Clavier › Dictée.',
+      'audio-capture': 'Aucun micro disponible.',
+      'network': 'La dictée a besoin d\'internet. Vérifiez votre connexion.'
+    };
+    if (msgs[code]) return micHint(msgs[code]);
+    if ((code === 'language-not-supported' || !code || code === 'no-speech' || code === 'aborted') && idx + 1 < langs.length) {
+      speechIdx[speechLang] = idx + 1;
+      return micHint(`Rien reçu en ${LANG_LABEL[langs[idx]] || langs[idx]}. Touchez 🎙️ à nouveau pour essayer en ${LANG_LABEL[langs[idx + 1]] || langs[idx + 1]}.`);
+    }
+    speechIdx[speechLang] = 0;
+    micHint(speechLang === 'ar-MA'
+      ? 'La dictée en arabe ne fonctionne pas sur ce téléphone. Utilisez le micro du clavier (ci-dessous), écrivez en darija, ou choisissez Français.'
+      : 'Je n\'ai rien entendu. Parlez près du téléphone, ou utilisez le micro du clavier.');
   };
-  try { rec.start(); $('#micBtn').classList.add('rec'); $('#micBtn').textContent = '⏹️'; micHint('Je vous écoute…'); } catch(_) { speechRec = null; micHint('Impossible de démarrer la dictée. Utilisez le micro 🎙️ du clavier.'); }
+  try { rec.start(); $('#micBtn').classList.add('rec'); $('#micBtn').textContent = '⏹️'; micHint('Démarrage du micro…'); }
+  catch(_) { clearTimeout(watchdog); speechRec = null; micHint('Impossible de démarrer la dictée. Utilisez le micro du clavier.'); }
 }
 $('#micBtn').onclick = () => { if (speechRec) { speechRec.stop(); return; } startDictation(); };
 $('#textForm').onsubmit = e => { e.preventDefault(); speechRec?.stop(); const t = $('#mealText').value.trim(); if (t) aiRun({task: 'text', text: t}); };
