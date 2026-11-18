@@ -818,7 +818,7 @@ li.done .dot{background:var(--brand);opacity:.5} li.cur .dot{background:var(--br
     <div class="chips" id="mealChips" style="margin-bottom:12px"></div>
 
     <div id="pSearch">
-      <button type="button" class="aibtn" id="aiBtn"><span>✨</span><div><b>Photographier mon assiette</b><small>L'IA reconnaît les aliments et calcule les calories</small></div></button>
+      <button type="button" class="aibtn" id="aiBtn"><span>✨</span><div><b>Photographier mon assiette</b><small id="aiBtnSub">L'IA reconnaît les aliments et calcule les calories</small></div></button>
       <input type="file" id="aiPhoto" accept="image/*" capture="environment" class="hidden">
       <div class="ai3">
         <button type="button" class="soft" id="textBtn">🎙️ Décrire mon repas</button>
@@ -1849,7 +1849,7 @@ async function aiRun({task, file, text}){
   }
   aiItems = res.items.map(i => ({...i, g0: i.grams || 1, on: true}));
   const n = aiItems.length;
-  $('#aiStatus').innerHTML = aiDemo ? '<span class="demo-tag">Exemple de démonstration</span>'
+  $('#aiStatus').innerHTML = aiDemo ? '<p class="warn" style="text-align:left;margin:0 0 6px"><b>Exemple de démonstration : votre photo n\'a pas été analysée.</b> Voici le type de résultat que l\'IA affichera. L\'analyse réelle de vos photos s\'activera dès que les comptes Léger seront ouverts.</p>'
     : res.local ? `<span class="demo-tag">Lecture simplifiée</span> ${n} aliment${n > 1 ? 's' : ''} trouvé${n > 1 ? 's' : ''}`
     : task === 'shared' ? `Votre part : 1/${sharedGuests} du plat` : `${n} aliment${n > 1 ? 's' : ''} reconnu${n > 1 ? 's' : ''}`;
   $('#aiComment').textContent = res.comment || ''; $('#aiComment').classList.toggle('hidden', !res.comment);
@@ -3275,7 +3275,7 @@ function renderSubCard(){
 }
 
 // Exemple pré-rempli (mode démo uniquement) pour découvrir l'app sans saisir son profil
-if (!PAID) $('#demoBtn').classList.remove('hidden');
+if (!PAID) { $('#demoBtn').classList.remove('hidden'); $('#aiBtnSub').textContent = 'Démo : affiche un exemple de résultat'; }
 $('#demoBtn').onclick = () => {
   const t = todayISO(); const days = {}; const weights = [];
   for (let i = 42; i >= 0; i -= 3) weights.push({date: addDays(t, -i), kg: Math.round((82 - (42 - i) * 0.07 + Math.sin(i) * 0.35) * 10) / 10});

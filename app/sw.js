@@ -1,5 +1,5 @@
 // Réseau d'abord (mises à jour immédiates), cache en secours pour l'usage hors ligne.
-const CACHE = 'leger-v15';
+const CACHE = 'leger-v16';
 const ASSETS = ['./', './index.html', './i18n.js', './config.js', './manifest.webmanifest', './icon.svg', './legal.html'];
 const CDN = 'https://cdn.jsdelivr.net/npm/@supabase/';
 
