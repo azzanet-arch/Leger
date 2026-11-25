@@ -1,5 +1,6 @@
 // Ouvre le portail client Stripe : changer de carte, de formule, résilier, télécharger les factures.
-import { stripe, APP_URL, cors, json, requireUser, ensureCustomer } from '../_shared/common.ts';
+import { APP_URL, cors, json, requireUser } from '../_shared/common.ts';
+import { stripe, ensureCustomer } from '../_shared/stripe.ts';
 
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') return new Response('ok', { headers: cors });

@@ -1,7 +1,8 @@
 // Reçoit les événements Stripe et met à jour l'état d'abonnement du compte.
 // À déployer avec --no-verify-jwt : Stripe s'authentifie par signature, pas par jeton Supabase.
 import Stripe from 'npm:stripe@17.5.0';
-import { stripe, admin } from '../_shared/common.ts';
+import { admin } from '../_shared/common.ts';
+import { stripe } from '../_shared/stripe.ts';
 
 const SECRET = Deno.env.get('STRIPE_WEBHOOK_SECRET')!;
 const crypto = Stripe.createSubtleCryptoProvider();

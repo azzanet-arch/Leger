@@ -1,9 +1,5 @@
-import Stripe from 'npm:stripe@17.5.0';
+// Outils communs à toutes les fonctions (sans Stripe : les fonctions d'IA marchent avant la mise en place des paiements).
 import { createClient } from 'npm:@supabase/supabase-js@2.45.4';
-
-export const stripe = new Stripe(Deno.env.get('STRIPE_SECRET_KEY')!, {
-  httpClient: Stripe.createFetchHttpClient(),
-});
 
 // Client « service » : contourne la RLS, à n'utiliser que côté serveur.
 export const admin = createClient(
@@ -12,7 +8,8 @@ export const admin = createClient(
   { auth: { persistSession: false } },
 );
 
-export const APP_URL = Deno.env.get('APP_URL')!; // ex. https://azzanet-arch.github.io/Leger/app/
+// Adresse publique de l'application (pas un secret) ; modifiable avec le secret APP_URL, par exemple pour un nom de domaine.
+export const APP_URL = Deno.env.get('APP_URL') ?? 'https://azzanet-arch.github.io/Leger/app/';
 
 export const cors = {
   'Access-Control-Allow-Origin': new URL(APP_URL).origin,
@@ -29,14 +26,4 @@ export async function requireUser(req: Request) {
   if (!jwt) return null;
   const { data, error } = await admin.auth.getUser(jwt);
   return error ? null : data.user;
-}
-
-/** Récupère (ou crée) le client Stripe lié au compte. */
-export async function ensureCustomer(userId: string, email?: string) {
-  const { data: profile, error } = await admin.from('profiles').select('*').eq('id', userId).single();
-  if (error || !profile) throw new Error('Profil introuvable');
-  if (profile.stripe_customer_id) return { profile, customerId: profile.stripe_customer_id as string };
-  const customer = await stripe.customers.create({ email, metadata: { user_id: userId } });
-  await admin.from('profiles').update({ stripe_customer_id: customer.id, updated_at: new Date().toISOString() }).eq('id', userId);
-  return { profile, customerId: customer.id };
 }

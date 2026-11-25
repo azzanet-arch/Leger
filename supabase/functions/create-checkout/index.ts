@@ -1,5 +1,6 @@
 // Crée une session Stripe Checkout pour l'abonnement mensuel ou annuel.
-import { stripe, APP_URL, cors, json, requireUser, ensureCustomer } from '../_shared/common.ts';
+import { APP_URL, cors, json, requireUser } from '../_shared/common.ts';
+import { stripe, ensureCustomer } from '../_shared/stripe.ts';
 
 const PRICES: Record<string, string | undefined> = {
   monthly: Deno.env.get('STRIPE_PRICE_MONTHLY'),
